@@ -47,4 +47,4 @@ import { MatchingModule } from './modules/matching/matching.module';
     MatchingModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }
