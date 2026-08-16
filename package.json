@@ -1,0 +1,23 @@
+{
+  "name": "@hiresense/root",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.22.0",
+  "scripts": {
+    "dev:web": "pnpm --filter @hiresense/web dev",
+    "dev:api": "pnpm --filter @hiresense/api start:dev",
+    "prisma:generate": "pnpm --filter @hiresense/api prisma:generate",
+    "build": "pnpm -r --if-present build",
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "ts:version": "tsc --version"
+  },
+  "devDependencies": {
+    "eslint": "latest",
+    "prettier": "latest",
+    "typescript": "6"
+  }
+}

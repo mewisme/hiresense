@@ -1,0 +1,560 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "commonjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Role {
+  id          String     @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  code        String     @unique
+  name        String
+  description String?
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  userRoles   UserRole[]
+
+  @@map("roles")
+}
+
+model User {
+  id              String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  email           String    @unique @db.Citext
+  passwordHash    String    @map("password_hash")
+  status          String    @default("ACTIVE")
+  emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamptz(6)
+  lastLoginAt     DateTime? @map("last_login_at") @db.Timestamptz(6)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  userRoles             UserRole[]
+  sessions              AuthSession[]
+  authTokens            AuthToken[]
+  candidateProfile      CandidateProfile?
+  recruiterProfile      RecruiterProfile?
+  memberships           CompanyMembership[]
+  createdCompanies      Company[]                 @relation("CompanyCreatedBy")
+  uploadedFiles         FileObject[]              @relation("FileUploadedBy")
+  createdResumeVersions ResumeVersion[]           @relation("ResumeVersionCreatedBy")
+  createdJobs           Job[]                     @relation("JobCreatedBy")
+  createdJobVersions    JobVersion[]              @relation("JobVersionCreatedBy")
+  stageChanges          ApplicationStageHistory[] @relation("StageChangedBy")
+
+  @@map("users")
+}
+
+model UserRole {
+  id        String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  roleId    String   @map("role_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, roleId])
+  @@map("user_roles")
+}
+
+model AuthSession {
+  id               String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  refreshTokenHash String    @map("refresh_token_hash")
+  deviceName       String?   @map("device_name")
+  userAgent        String?   @map("user_agent")
+  ipAddress        String?   @map("ip_address") @db.Inet
+  expiresAt        DateTime  @map("expires_at") @db.Timestamptz(6)
+  revokedAt        DateTime? @map("revoked_at") @db.Timestamptz(6)
+  lastUsedAt       DateTime? @map("last_used_at") @db.Timestamptz(6)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@map("auth_sessions")
+}
+
+model AuthToken {
+  id         String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  tokenType  String    @map("token_type")
+  tokenHash  String    @map("token_hash")
+  expiresAt  DateTime  @map("expires_at") @db.Timestamptz(6)
+  consumedAt DateTime? @map("consumed_at") @db.Timestamptz(6)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, tokenType, expiresAt])
+  @@map("auth_tokens")
+}
+
+model CandidateProfile {
+  id                       String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId                   String   @unique @map("user_id") @db.Uuid
+  fullName                 String   @map("full_name")
+  phone                    String?
+  headline                 String?
+  summary                  String?
+  city                     String?
+  region                   String?
+  countryCode              String?  @map("country_code") @db.Char(2)
+  timezone                 String   @default("UTC")
+  experienceMonthsDeclared Int?     @map("experience_months_declared")
+  portfolioUrl             String?  @map("portfolio_url")
+  githubUrl                String?  @map("github_url")
+  linkedinUrl              String?  @map("linkedin_url")
+  createdAt                DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  resumes      Resume[]
+  applications Application[]
+
+  @@map("candidate_profiles")
+}
+
+model RecruiterProfile {
+  id        String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId    String   @unique @map("user_id") @db.Uuid
+  fullName  String   @map("full_name")
+  phone     String?
+  jobTitle  String?  @map("job_title")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@map("recruiter_profiles")
+}
+
+model Company {
+  id              String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  name            String
+  slug            String    @unique
+  description     String?
+  websiteUrl      String?   @map("website_url")
+  companySizeMin  Int?      @map("company_size_min")
+  companySizeMax  Int?      @map("company_size_max")
+  status          String    @default("ACTIVE")
+  createdByUserId String    @map("created_by_user_id") @db.Uuid
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  createdBy         User                @relation("CompanyCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  memberships       CompanyMembership[]
+  jobs              Job[]
+  recruitmentStages RecruitmentStage[]
+
+  @@index([status])
+  @@map("companies")
+}
+
+model CompanyMembership {
+  id        String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  companyId String    @map("company_id") @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  role      String
+  status    String    @default("ACTIVE")
+  joinedAt  DateTime? @map("joined_at") @db.Timestamptz(6)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@unique([companyId, userId])
+  @@index([userId, status])
+  @@map("company_memberships")
+}
+
+model SkillCategory {
+  id          String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  code        String   @unique
+  name        String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  skills Skill[]
+
+  @@map("skill_categories")
+}
+
+model Skill {
+  id             String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  categoryId     String?  @map("category_id") @db.Uuid
+  name           String
+  normalizedName String   @unique @map("normalized_name")
+  description    String?
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  category         SkillCategory?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  jobVersionSkills JobVersionSkill[]
+  resumeSkills     ResumeSkill[]
+
+  @@index([categoryId, isActive])
+  @@map("skills")
+}
+
+model FileObject {
+  id               String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  storageProvider  String    @map("storage_provider")
+  bucket           String
+  objectKey        String    @map("object_key")
+  originalFilename String    @map("original_filename")
+  mimeType         String    @map("mime_type")
+  sizeBytes        BigInt    @map("size_bytes")
+  sha256           String?
+  uploadedByUserId String    @map("uploaded_by_user_id") @db.Uuid
+  status           String    @default("ACTIVE")
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  deletedAt        DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  uploadedBy     User            @relation("FileUploadedBy", fields: [uploadedByUserId], references: [id], onDelete: Restrict)
+  resumeVersions ResumeVersion[]
+
+  @@unique([storageProvider, bucket, objectKey])
+  @@map("file_objects")
+}
+
+model Resume {
+  id                 String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  candidateProfileId String    @map("candidate_profile_id") @db.Uuid
+  name               String
+  isDefault          Boolean   @default(false) @map("is_default")
+  currentVersionId   String?   @map("current_version_id") @db.Uuid
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt          DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  candidateProfile CandidateProfile @relation(fields: [candidateProfileId], references: [id], onDelete: Restrict)
+  versions         ResumeVersion[]  @relation("ResumeVersions")
+
+  @@index([candidateProfileId, deletedAt])
+  @@map("resumes")
+}
+
+model ResumeVersion {
+  id              String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  resumeId        String   @map("resume_id") @db.Uuid
+  versionNo       Int      @map("version_no")
+  fileObjectId    String   @map("file_object_id") @db.Uuid
+  createdByUserId String   @map("created_by_user_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  resume       Resume           @relation("ResumeVersions", fields: [resumeId], references: [id], onDelete: Restrict)
+  fileObject   FileObject       @relation(fields: [fileObjectId], references: [id], onDelete: Restrict)
+  createdBy    User             @relation("ResumeVersionCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  applications Application[]
+  parseRuns    ResumeParseRun[]
+
+  @@unique([resumeId, versionNo])
+  @@index([resumeId, createdAt(sort: Desc)])
+  @@map("resume_versions")
+}
+
+model Job {
+  id                        String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  companyId                 String    @map("company_id") @db.Uuid
+  createdByUserId           String    @map("created_by_user_id") @db.Uuid
+  slug                      String
+  status                    String    @default("DRAFT")
+  currentPublishedVersionId String?   @map("current_published_version_id") @db.Uuid
+  firstPublishedAt          DateTime? @map("first_published_at") @db.Timestamptz(6)
+  closedAt                  DateTime? @map("closed_at") @db.Timestamptz(6)
+  createdAt                 DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                 DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt                 DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  company      Company       @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  createdBy    User          @relation("JobCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  versions     JobVersion[]  @relation("JobVersions")
+  applications Application[]
+
+  @@unique([companyId, slug])
+  @@index([companyId, status])
+  @@map("jobs")
+}
+
+model JobVersion {
+  id                  String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  jobId               String    @map("job_id") @db.Uuid
+  versionNo           Int       @map("version_no")
+  versionStatus       String    @default("DRAFT") @map("version_status")
+  title               String
+  summary             String?
+  description         String
+  responsibilities    String?
+  benefits            String?
+  employmentType      String?   @map("employment_type")
+  workplaceType       String?   @map("workplace_type")
+  experienceMinMonths Int?      @map("experience_min_months")
+  experienceMaxMonths Int?      @map("experience_max_months")
+  salaryMin           Decimal?  @map("salary_min") @db.Decimal(19, 4)
+  salaryMax           Decimal?  @map("salary_max") @db.Decimal(19, 4)
+  salaryCurrency      String?   @map("salary_currency") @db.Char(3)
+  createdByUserId     String    @map("created_by_user_id") @db.Uuid
+  publishedAt         DateTime? @map("published_at") @db.Timestamptz(6)
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  job          Job                   @relation("JobVersions", fields: [jobId], references: [id], onDelete: Restrict)
+  createdBy    User                  @relation("JobVersionCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  skills       JobVersionSkill[]
+  applications Application[]
+  matchRuns    ApplicationMatchRun[]
+
+  @@unique([jobId, versionNo])
+  @@index([jobId, publishedAt(sort: Desc)])
+  @@map("job_versions")
+}
+
+model JobVersionSkill {
+  id                  String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  jobVersionId        String   @map("job_version_id") @db.Uuid
+  skillId             String   @map("skill_id") @db.Uuid
+  importance          Int      @default(3) @db.SmallInt
+  isRequired          Boolean  @default(true) @map("is_required")
+  weight              Decimal  @default(1) @db.Decimal(7, 6)
+  minExperienceMonths Int?     @map("min_experience_months")
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  jobVersion   JobVersion         @relation(fields: [jobVersionId], references: [id], onDelete: Cascade)
+  skill        Skill              @relation(fields: [skillId], references: [id], onDelete: Restrict)
+  matchResults MatchSkillResult[]
+
+  @@unique([jobVersionId, skillId])
+  @@index([skillId, isRequired])
+  @@map("job_version_skills")
+}
+
+model RecruitmentStage {
+  id              String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  companyId       String?  @map("company_id") @db.Uuid
+  code            String
+  name            String
+  ordinal         Int
+  isTerminal      Boolean  @default(false) @map("is_terminal")
+  terminalOutcome String?  @map("terminal_outcome")
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  company      Company?                  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  applications Application[]
+  stageFrom    ApplicationStageHistory[] @relation("StageHistoryFrom")
+  stageTo      ApplicationStageHistory[] @relation("StageHistoryTo")
+
+  @@map("recruitment_stages")
+}
+
+model Application {
+  id                 String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  jobId              String    @map("job_id") @db.Uuid
+  jobVersionId       String    @map("job_version_id") @db.Uuid
+  candidateProfileId String    @map("candidate_profile_id") @db.Uuid
+  resumeVersionId    String    @map("resume_version_id") @db.Uuid
+  currentStageId     String    @map("current_stage_id") @db.Uuid
+  currentMatchRunId  String?   @map("current_match_run_id") @db.Uuid
+  source             String    @default("DIRECT")
+  coverLetter        String?   @map("cover_letter")
+  appliedAt          DateTime  @default(now()) @map("applied_at") @db.Timestamptz(6)
+  withdrawnAt        DateTime? @map("withdrawn_at") @db.Timestamptz(6)
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  job              Job                       @relation(fields: [jobId], references: [id], onDelete: Restrict)
+  jobVersion       JobVersion                @relation(fields: [jobVersionId], references: [id], onDelete: Restrict)
+  candidateProfile CandidateProfile          @relation(fields: [candidateProfileId], references: [id], onDelete: Restrict)
+  resumeVersion    ResumeVersion             @relation(fields: [resumeVersionId], references: [id], onDelete: Restrict)
+  currentStage     RecruitmentStage          @relation(fields: [currentStageId], references: [id], onDelete: Restrict)
+  history          ApplicationStageHistory[]
+  matchRuns        ApplicationMatchRun[]     @relation("ApplicationMatchRuns")
+
+  @@unique([jobId, candidateProfileId])
+  @@index([jobId, currentStageId, appliedAt(sort: Desc)])
+  @@index([candidateProfileId, appliedAt(sort: Desc)])
+  @@map("applications")
+}
+
+model ApplicationStageHistory {
+  id              String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  applicationId   String   @map("application_id") @db.Uuid
+  fromStageId     String?  @map("from_stage_id") @db.Uuid
+  toStageId       String   @map("to_stage_id") @db.Uuid
+  changedByUserId String?  @map("changed_by_user_id") @db.Uuid
+  note            String?
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  application Application       @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  fromStage   RecruitmentStage? @relation("StageHistoryFrom", fields: [fromStageId], references: [id], onDelete: Restrict)
+  toStage     RecruitmentStage  @relation("StageHistoryTo", fields: [toStageId], references: [id], onDelete: Restrict)
+  changedBy   User?             @relation("StageChangedBy", fields: [changedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([applicationId, createdAt(sort: Desc)])
+  @@map("application_stage_history")
+}
+
+model AiPipelineVersion {
+  id              String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  code            String   @unique
+  pipelineType    String   @map("pipeline_type")
+  semanticVersion String   @map("semantic_version")
+  codeRevision    String?  @map("code_revision")
+  config          Json     @default("{}")
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  parseRuns ResumeParseRun[]
+  matchRuns ApplicationMatchRun[]
+
+  @@map("ai_pipeline_versions")
+}
+
+model ResumeParseRun {
+  id                String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  resumeVersionId   String    @map("resume_version_id") @db.Uuid
+  pipelineVersionId String    @map("pipeline_version_id") @db.Uuid
+  status            String    @default("PENDING")
+  rawText           String?   @map("raw_text")
+  rawOutput         Json?     @map("raw_output")
+  detectedLanguage  String?   @map("detected_language")
+  warnings          Json?
+  startedAt         DateTime? @map("started_at") @db.Timestamptz(6)
+  completedAt       DateTime? @map("completed_at") @db.Timestamptz(6)
+  errorCode         String?   @map("error_code")
+  errorMessage      String?   @map("error_message")
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  resumeVersion   ResumeVersion         @relation(fields: [resumeVersionId], references: [id], onDelete: Restrict)
+  pipelineVersion AiPipelineVersion     @relation(fields: [pipelineVersionId], references: [id], onDelete: Restrict)
+  skills          ResumeSkill[]
+  experiences     ResumeExperience[]
+  educations      ResumeEducation[]
+  matchRuns       ApplicationMatchRun[]
+
+  @@index([resumeVersionId, createdAt(sort: Desc)])
+  @@map("resume_parse_runs")
+}
+
+model ResumeSkill {
+  id           String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  parseRunId   String   @map("parse_run_id") @db.Uuid
+  skillId      String   @map("skill_id") @db.Uuid
+  confidence   Decimal? @db.Decimal(7, 6)
+  evidenceText String?  @map("evidence_text")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  parseRun     ResumeParseRun     @relation(fields: [parseRunId], references: [id], onDelete: Cascade)
+  skill        Skill              @relation(fields: [skillId], references: [id], onDelete: Restrict)
+  matchResults MatchSkillResult[]
+
+  @@unique([parseRunId, skillId])
+  @@index([skillId])
+  @@map("resume_skills")
+}
+
+model ResumeExperience {
+  id               String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  parseRunId       String    @map("parse_run_id") @db.Uuid
+  companyName      String?   @map("company_name")
+  jobTitle         String?   @map("job_title")
+  startDate        DateTime? @map("start_date") @db.Date
+  endDate          DateTime? @map("end_date") @db.Date
+  isCurrent        Boolean   @default(false) @map("is_current")
+  description      String?
+  experienceMonths Int?      @map("experience_months")
+  ordinal          Int       @default(0)
+  confidence       Decimal?  @db.Decimal(7, 6)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  parseRun ResumeParseRun @relation(fields: [parseRunId], references: [id], onDelete: Cascade)
+
+  @@index([parseRunId, ordinal])
+  @@map("resume_experiences")
+}
+
+model ResumeEducation {
+  id              String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  parseRunId      String    @map("parse_run_id") @db.Uuid
+  institutionName String?   @map("institution_name")
+  degree          String?
+  fieldOfStudy    String?   @map("field_of_study")
+  startDate       DateTime? @map("start_date") @db.Date
+  endDate         DateTime? @map("end_date") @db.Date
+  description     String?
+  ordinal         Int       @default(0)
+  confidence      Decimal?  @db.Decimal(7, 6)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  parseRun ResumeParseRun @relation(fields: [parseRunId], references: [id], onDelete: Cascade)
+
+  @@index([parseRunId, ordinal])
+  @@map("resume_educations")
+}
+
+model ApplicationMatchRun {
+  id                String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  applicationId     String    @map("application_id") @db.Uuid
+  resumeParseRunId  String    @map("resume_parse_run_id") @db.Uuid
+  jobVersionId      String    @map("job_version_id") @db.Uuid
+  pipelineVersionId String    @map("pipeline_version_id") @db.Uuid
+  status            String    @default("PENDING")
+  overallScore      Decimal?  @map("overall_score") @db.Decimal(5, 2)
+  startedAt         DateTime? @map("started_at") @db.Timestamptz(6)
+  completedAt       DateTime? @map("completed_at") @db.Timestamptz(6)
+  errorCode         String?   @map("error_code")
+  errorMessage      String?   @map("error_message")
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  application     Application           @relation("ApplicationMatchRuns", fields: [applicationId], references: [id], onDelete: Cascade)
+  resumeParseRun  ResumeParseRun        @relation(fields: [resumeParseRunId], references: [id], onDelete: Restrict)
+  jobVersion      JobVersion            @relation(fields: [jobVersionId], references: [id], onDelete: Restrict)
+  pipelineVersion AiPipelineVersion     @relation(fields: [pipelineVersionId], references: [id], onDelete: Restrict)
+  components      MatchScoreComponent[]
+  skillResults    MatchSkillResult[]
+
+  @@index([applicationId, createdAt(sort: Desc)])
+  @@map("application_match_runs")
+}
+
+model MatchScoreComponent {
+  id            String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  matchRunId    String   @map("match_run_id") @db.Uuid
+  componentCode String   @map("component_code")
+  rawScore      Decimal  @map("raw_score") @db.Decimal(5, 2)
+  weight        Decimal  @db.Decimal(7, 6)
+  weightedScore Decimal  @map("weighted_score") @db.Decimal(9, 6)
+  details       Json?
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  matchRun ApplicationMatchRun @relation(fields: [matchRunId], references: [id], onDelete: Cascade)
+
+  @@unique([matchRunId, componentCode])
+  @@map("match_score_components")
+}
+
+model MatchSkillResult {
+  id                String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  matchRunId        String   @map("match_run_id") @db.Uuid
+  jobVersionSkillId String   @map("job_version_skill_id") @db.Uuid
+  resumeSkillId     String?  @map("resume_skill_id") @db.Uuid
+  status            String
+  similarityScore   Decimal? @map("similarity_score") @db.Decimal(7, 6)
+  evidenceText      String?  @map("evidence_text")
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  matchRun        ApplicationMatchRun @relation(fields: [matchRunId], references: [id], onDelete: Cascade)
+  jobVersionSkill JobVersionSkill     @relation(fields: [jobVersionSkillId], references: [id], onDelete: Restrict)
+  resumeSkill     ResumeSkill?        @relation(fields: [resumeSkillId], references: [id], onDelete: Restrict)
+
+  @@unique([matchRunId, jobVersionSkillId])
+  @@index([matchRunId, status])
+  @@map("match_skill_results")
+}

@@ -1,0 +1,22 @@
+name: hiresense
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg18-trixie
+    container_name: postgres
+    environment:
+      POSTGRES_DB: hiresense
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d hiresense"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:

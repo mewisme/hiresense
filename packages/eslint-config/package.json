@@ -1,0 +1,21 @@
+{
+  "name": "@hiresense/eslint-config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./base": "./base.mjs",
+    "./next": "./next.mjs",
+    "./nest": "./nest.mjs"
+  },
+  "dependencies": {
+    "@eslint/js": "latest",
+    "eslint-config-next": "latest",
+    "eslint-config-prettier": "latest",
+    "typescript-eslint": "latest",
+    "typescript": "6"
+  },
+  "peerDependencies": {
+    "eslint": ">=9"
+  }
+}

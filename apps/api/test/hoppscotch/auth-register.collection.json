@@ -1,0 +1,276 @@
+{
+  "info": {
+    "_postman_id": "0c0e1e6e-9d7d-4b43-9b6e-hiresense-auth-register",
+    "name": "Auth - Register",
+    "description": "HireSense registration API test cases",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/api"
+    },
+    {
+      "key": "candidateEmail",
+      "value": "candidate@example.com"
+    },
+    {
+      "key": "recruiterEmail",
+      "value": "recruiter@example.com"
+    },
+    {
+      "key": "password",
+      "value": "StrongPassword123!"
+    }
+  ],
+  "item": [
+    {
+      "name": "Success",
+      "item": [
+        {
+          "name": "Candidate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{candidateEmail}}\",\n  \"password\": \"{{password}}\",\n  \"role\": \"CANDIDATE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Expected HTTP 201. Creates User, CANDIDATE role, AuthSession and returns access/refresh tokens."
+          },
+          "response": []
+        },
+        {
+          "name": "Recruiter",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{recruiterEmail}}\",\n  \"password\": \"{{password}}\",\n  \"role\": \"RECRUITER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Expected HTTP 201. Creates User, RECRUITER role, AuthSession and returns access/refresh tokens."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Failure",
+      "item": [
+        {
+          "name": "Duplicate Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{candidateEmail}}\",\n  \"password\": \"{{password}}\",\n  \"role\": \"CANDIDATE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Run after Candidate registration. Expected HTTP 409."
+          },
+          "response": []
+        },
+        {
+          "name": "Duplicate Email - Different Case",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"CANDIDATE@EXAMPLE.COM\",\n  \"password\": \"AnotherPassword123!\",\n  \"role\": \"CANDIDATE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Expected HTTP 409. Email uniqueness is case-insensitive."
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid Role - ADMIN",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin-register@example.com\",\n  \"password\": \"{{password}}\",\n  \"role\": \"ADMIN\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Expected HTTP 400. ADMIN cannot be registered through the public endpoint."
+          },
+          "response": []
+        },
+        {
+          "name": "Password Too Short",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"short-password@example.com\",\n  \"password\": \"short\",\n  \"role\": \"CANDIDATE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Expected HTTP 400."
+          },
+          "response": []
+        },
+        {
+          "name": "Extra Property",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"extra-property@example.com\",\n  \"password\": \"{{password}}\",\n  \"role\": \"CANDIDATE\",\n  \"isAdmin\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Expected HTTP 400 because forbidNonWhitelisted is enabled."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
