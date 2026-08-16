@@ -7,17 +7,9 @@ import { CandidatesService } from './candidates.service';
 import { CandidateProfilesRepository } from './repositories/candidate-profiles.repository';
 
 @Module({
-  imports: [
-    AuthModule,
-  ],
-
-  controllers: [
-    CandidatesController,
-  ],
-
-  providers: [
-    CandidatesService,
-    CandidateProfilesRepository,
-  ],
+  imports: [AuthModule],
+  controllers: [CandidatesController],
+  providers: [CandidateProfilesRepository, CandidatesService],
+  exports: [CandidatesService],
 })
 export class CandidatesModule { }

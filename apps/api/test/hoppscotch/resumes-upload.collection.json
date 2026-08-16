@@ -1,0 +1,94 @@
+{
+  "info": {
+    "_postman_id": "f046fa4e-a558-4c6d-89b5-2b8a8160cc23",
+    "name": "HireSense - Resume Upload",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/api"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "resumeId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Create Resume",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "name",
+              "value": "Backend Developer CV",
+              "type": "text"
+            },
+            {
+              "key": "file",
+              "type": "file",
+              "src": ""
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/resumes",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "resumes"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Upload New Resume Version",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": ""
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/resumes/{{resumeId}}/versions",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "resumes",
+            "{{resumeId}}",
+            "versions"
+          ]
+        }
+      }
+    }
+  ]
+}

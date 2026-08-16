@@ -1,0 +1,169 @@
+{
+  "info": {
+    "_postman_id": "f31745ba-cc2e-4cba-a73c-4514e69890c4",
+    "name": "HireSense - Resume Management",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/api"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "resumeId",
+      "value": ""
+    },
+    {
+      "key": "versionId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "List My Resumes",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/resumes",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "resumes"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Resume Detail",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/resumes/{{resumeId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "resumes",
+            "{{resumeId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Download Current Resume",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/resumes/{{resumeId}}/download",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "resumes",
+            "{{resumeId}}",
+            "download"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Download Resume Version",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/resumes/{{resumeId}}/versions/{{versionId}}/download",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "resumes",
+            "{{resumeId}}",
+            "versions",
+            "{{versionId}}",
+            "download"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Set Default Resume",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/resumes/{{resumeId}}/default",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "resumes",
+            "{{resumeId}}",
+            "default"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delete Resume",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/resumes/{{resumeId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "resumes",
+            "{{resumeId}}"
+          ]
+        }
+      }
+    }
+  ]
+}

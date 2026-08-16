@@ -1,5 +1,5 @@
 import type { Readable } from 'node:stream';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { StorageService } from '../../infrastructure/storage/storage.service';
 import { FileObjectsRepository } from './repositories/file-objects.repository';
 
@@ -55,6 +55,21 @@ export class FileStorageService {
       await this.compensateFailedStore(fileObject.id, storageProvider, input);
       throw error;
     }
+  }
+
+  async open(fileObjectId: string) {
+    const fileObject = await this.fileObjectsRepository.findActiveById(fileObjectId);
+    if (!fileObject) throw new NotFoundException('File object not found');
+
+    const storedObject = await this.storageService.get({
+      fileObjectId: fileObject.id,
+      provider: fileObject.storageProvider,
+      bucket: fileObject.bucket,
+      objectKey: fileObject.objectKey,
+      contentType: fileObject.mimeType,
+    });
+
+    return { fileObject, ...storedObject };
   }
 
   async delete(fileObjectId: string): Promise<void> {
