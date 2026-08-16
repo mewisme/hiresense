@@ -3,6 +3,7 @@
 **AI-assisted recruitment platform with CV–job matching.**
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![GitHub](https://img.shields.io/badge/github-mewisme%2Fhiresense-181717.svg?logo=github)](https://github.com/mewisme/hiresense)
 
 HireSense is a recruitment system that turns CVs and job descriptions into structured data and scores how well a candidate fits a job. It supports the full hiring flow — recruiters publish jobs, candidates upload CVs and apply, and the system parses each CV and computes an explainable match score (skills, experience, education) that recruiters use to review and rank applicants. AI supports the decision; the recruiter always makes it.
 
