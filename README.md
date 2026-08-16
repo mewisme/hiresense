@@ -1,97 +1,141 @@
 # HireSense
 
-AI-assisted recruitment and CV-job matching platform.
+**AI-assisted recruitment platform with CV–job matching.**
 
-## Project structure
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+
+HireSense is a recruitment system that turns CVs and job descriptions into structured data and scores how well a candidate fits a job. It supports the full hiring flow — recruiters publish jobs, candidates upload CVs and apply, and the system parses each CV and computes an explainable match score (skills, experience, education) that recruiters use to review and rank applicants. AI supports the decision; the recruiter always makes it.
+
+> Đề tài: *Xây dựng hệ thống tuyển dụng và phân tích mức độ phù hợp giữa CV và mô tả công việc ứng dụng trí tuệ nhân tạo* — a graduation project developed in phases: internship MVP → full recruitment product → semantic matching platform (embeddings, ranking, recommendation, explainability).
+
+## Highlights
+
+- **Versioned everything that matters** — jobs, resumes, and every AI run are versioned. An application permanently keeps the exact job version and resume version it was evaluated against, so any match score can be reproduced later.
+- **PostgreSQL-first AI data layer** — one PostgreSQL 18 + pgvector instance is the single source of truth; vector/embedding data is derived and rebuildable rather than duplicated in a separate vector database.
+- **Explainable matching** — scores come with a breakdown (skill / experience / education components), matched and missing skills, and evidence, not just a number.
+- **Pluggable file storage** — CVs are stored behind a storage abstraction with a Discord-backed chunked, content-addressed provider; business modules only ever reference `file_objects`.
+
+## Tech stack
+
+| Layer     | Technology                                                                  |
+| --------- | --------------------------------------------------------------------------- |
+| Web       | Next.js 16 (App Router), React 19, Tailwind CSS 4, TypeScript               |
+| API       | NestJS 11, Prisma 7, JWT auth (argon2 hashing), class-validator            |
+| AI service | FastAPI (Python 3.14, managed by uv), Pydantic                             |
+| Database  | PostgreSQL 18 + pgvector, UUIDv7 primary keys, UTC timestamps              |
+| Tooling   | pnpm workspaces, ESLint, Prettier, Jest, Docker Compose                    |
+
+## Repository structure
 
 ```text
 hiresense/
 ├── apps/
-│   ├── web/              # Next.js
-│   ├── api/              # NestJS + Prisma
-│   └── ai/               # FastAPI
+│   ├── web/                  # Next.js frontend
+│   ├── api/                  # NestJS + Prisma backend
+│   │   └── src/
+│   │       ├── modules/      # auth, users, candidates, recruiters, companies,
+│   │       │                 # skills, files, resumes, jobs, applications, matching
+│   │       ├── infrastructure/ # database (Prisma), storage, ai client, queue
+│   │       ├── common/       # shared guards, filters, decorators
+│   │       └── config/
+│   └── ai/                   # FastAPI service (parsers, matching, embeddings)
 ├── packages/
-│   ├── types/
+│   ├── types/                # shared TypeScript types
 │   ├── eslint-config/
 │   └── tsconfig/
 ├── docs/
-├── compose.yaml
-├── package.json
-└── pnpm-workspace.yaml
+│   └── DATABASE.md           # database architecture — source of truth
+├── plans/                    # graduation project plans (VI/EN)
+├── compose.yaml              # PostgreSQL 18 + pgvector
+└── .env.example
 ```
 
-## Start PostgreSQL
+## Getting started
 
-```powershell
-docker compose up -d postgres
+### Prerequisites
+
+- [Node.js](https://nodejs.org) ≥ 20 and [pnpm](https://pnpm.io) 11.x (`corepack enable`)
+- [Docker](https://www.docker.com/) (for PostgreSQL)
+- [Python](https://www.python.org) 3.14 with [uv](https://docs.astral.sh/uv/) (for the AI service)
+
+### 1. Install dependencies
+
+```bash
+pnpm install
 ```
 
-## Start Web
+### 2. Configure environment
 
-```powershell
-pnpm dev:web
+```bash
+cp .env.example .env
 ```
 
-## Start API
+Then review the values — at minimum change the JWT secrets for anything beyond local development:
 
-```powershell
-pnpm dev:api
+| Variable              | Purpose                                | Default                                        |
+| --------------------- | -------------------------------------- | ---------------------------------------------- |
+| `DATABASE_URL`        | PostgreSQL connection string           | `postgresql://postgres:postgres@localhost:5432/hiresense` |
+| `PORT`                | API port                               | `4000`                                         |
+| `AI_SERVICE_URL`      | FastAPI base URL used by the API       | `http://localhost:8000`                        |
+| `JWT_ACCESS_SECRET`   | Access token signing secret            | `change-me`                                    |
+| `JWT_REFRESH_SECRET`  | Refresh token signing secret           | `change-me`                                    |
+| `NEXT_PUBLIC_API_URL` | API base URL used by the web app       | `http://localhost:4000`                        |
+| `AI_HOST` / `AI_PORT` | FastAPI bind address                   | `0.0.0.0` / `8000`                             |
+
+### 3. Start PostgreSQL
+
+```bash
+docker compose up -d
 ```
 
-## Start AI
+This starts PostgreSQL 18 with pgvector and the required extensions (`vector`, `pg_trgm`, `unaccent`, `citext`, `pgcrypto`, `btree_gist`) are enabled by the foundation migration.
 
-```powershell
+### 4. Apply database migrations
+
+```bash
+pnpm prisma:generate        # generate the Prisma client
+pnpm prisma:migrate:dev     # apply migrations in development
+```
+
+For production-style deployments use `pnpm prisma:migrate` (runs `prisma migrate deploy`).
+
+### 5. Run the services
+
+Each in its own terminal:
+
+```bash
+pnpm dev:api                # NestJS API on http://localhost:4000
+
+pnpm dev:web                # Next.js web on http://localhost:3000
+
 cd apps/ai
-uv run uvicorn app.main:app --reload --port 8000
+uv run uvicorn app.main:app --reload --port 8000   # FastAPI AI service
 ```
 
 ## Quality checks
 
-```powershell
-pnpm lint
-pnpm typecheck
-pnpm test
-pnpm build
+```bash
+pnpm lint         # ESLint across the workspace
+pnpm typecheck    # TypeScript, no emit
+pnpm test         # Jest unit tests
+pnpm build        # build all packages and apps
+pnpm format       # Prettier (also format:check)
 ```
 
-## pnpm dependency build policy
+## Documentation
 
-Default: `approve-current`.
+- [`docs/DATABASE.md`](docs/DATABASE.md) — database architecture and evolution guide (source of truth for the schema, conventions, and phase roadmap)
+- [`apps/api/BACKEND_STRUCTURE.md`](apps/api/BACKEND_STRUCTURE.md) — backend module layout and dependency rules
+- [`plans/`](plans/) — detailed internship and final graduation project plans (Vietnamese and English)
 
-During bootstrap, pnpm uses `strictDepBuilds: false` so framework scaffolding can finish.
-After the full dependency graph is installed, the script approves the currently pending build scripts, rebuilds them, then restores `strictDepBuilds: true` for future installs.
+## Project phases
 
-Available overrides:
+1. **Internship (MVP)** — end-to-end recruitment flow with baseline CV parsing and CV–JD matching (skill/experience/education scoring).
+2. **V1 — Recruitment product** — skill taxonomy and aliases, structured requirements, interviews, notifications, audit, fuzzy/full-text search.
+3. **V2 — Intelligent matching** — pgvector embeddings, semantic and hybrid matching, candidate ranking, job recommendation, and explainable AI, with every AI result tied to an exact content + model + pipeline version.
 
-- `approve-current`: recommended; approve only the dependency build scripts present during bootstrap, then return to strict mode.
-- `warn`: keep unapproved build scripts blocked but do not fail installation.
-- `strict`: fail immediately when pnpm encounters an unreviewed dependency build script.
+## License
 
-## Dependency policy
+Copyright 2026 Nguyễn Mậu Minh
 
-- New JavaScript dependencies are installed from latest stable releases.
-- Alpha, beta, RC, canary and preview versions are avoided by default.
-- Commit `pnpm-lock.yaml` and `apps/ai/uv.lock`.
-- Python uses the latest maintenance release in the 3.14 stable line.
-- PostgreSQL uses the version selected by `-PostgresVersion`.
-
-## Bootstrap versions
-
-- TypeScript: configurable; default is 6.x
-- Next.js: configurable; default is latest stable
-- NestJS CLI: configurable; default is latest stable
-- Prisma: configurable; default is latest stable
-- Python: configurable; default is 3.14
-- PostgreSQL: configurable; default is 18.6
-
-## Override examples
-
-```powershell
-pwsh ./init.ps1 -TypeScriptVersion "6.0.3"
-pwsh ./init.ps1 -PythonVersion "3.14" -PostgresVersion "18.6"
-pwsh ./init.ps1 -NextVersion "latest" -NestCliVersion "latest"
-pwsh ./init.ps1 -Force
-pwsh ./init.ps1 -DependencyBuildPolicy "approve-current"
-pwsh ./init.ps1 -DependencyBuildPolicy "warn"
-pwsh ./init.ps1 -DependencyBuildPolicy "strict"
-```
+Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for the full license text.

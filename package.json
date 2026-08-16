@@ -2,7 +2,17 @@
   "name": "@hiresense/root",
   "version": "0.0.0",
   "private": true,
+  "author": "Nguyễn Mậu Minh",
+  "license": "Apache-2.0",
   "packageManager": "pnpm@11.22.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mewisme/hiresense.git"
+  },
+  "homepage": "https://github.com/mewisme/hiresense",
+  "bugs": {
+    "url": "https://github.com/mewisme/hiresense/issues"
+  },
   "scripts": {
     "dev:web": "pnpm --filter @hiresense/web dev",
     "dev:api": "pnpm --filter @hiresense/api start:dev",
