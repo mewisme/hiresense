@@ -1,0 +1,53 @@
+{
+  "info": {
+    "_postman_id": "587d40b0-f13d-42fe-b458-bc41f561f966",
+    "name": "HireSense - Job Archive and Delete",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/api"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "companyId",
+      "value": ""
+    },
+    {
+      "key": "jobId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Archive Job",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/companies/{{companyId}}/jobs/{{jobId}}/archive"
+      }
+    },
+    {
+      "name": "Delete Job",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/companies/{{companyId}}/jobs/{{jobId}}"
+      }
+    }
+  ]
+}

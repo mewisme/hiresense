@@ -1,0 +1,75 @@
+{
+  "info": {
+    "_postman_id": "88547079-5446-45ec-96da-b6cb87ba9727",
+    "name": "HireSense - Public Jobs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/api"
+    },
+    {
+      "key": "jobId",
+      "value": ""
+    },
+    {
+      "key": "companyId",
+      "value": ""
+    },
+    {
+      "key": "skillId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "List Public Jobs",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/jobs?page=1&limit=20"
+      }
+    },
+    {
+      "name": "Search Public Jobs",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/jobs?q=backend&page=1&limit=20"
+      }
+    },
+    {
+      "name": "Filter Public Jobs by Company",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/jobs?companyId={{companyId}}&page=1&limit=20"
+      }
+    },
+    {
+      "name": "Filter Public Jobs by Skill",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/jobs?skillId={{skillId}}&page=1&limit=20"
+      }
+    },
+    {
+      "name": "Filter Public Jobs by Employment and Workplace Type",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/jobs?employmentType=FULL_TIME&workplaceType=HYBRID&page=1&limit=20"
+      }
+    },
+    {
+      "name": "Get Public Job Detail",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/jobs/{{jobId}}"
+      }
+    }
+  ]
+}

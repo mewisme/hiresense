@@ -1,0 +1,79 @@
+{
+  "info": {
+    "_postman_id": "5ce24a91-b3a5-4447-9fb0-168e0dbb57a6",
+    "name": "HireSense - Job Lifecycle",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/api"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "companyId",
+      "value": ""
+    },
+    {
+      "key": "jobId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Publish Job",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/companies/{{companyId}}/jobs/{{jobId}}/publish"
+      }
+    },
+    {
+      "name": "Pause Job",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/companies/{{companyId}}/jobs/{{jobId}}/pause"
+      }
+    },
+    {
+      "name": "Close Job",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/companies/{{companyId}}/jobs/{{jobId}}/close"
+      }
+    },
+    {
+      "name": "Reopen Job",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/companies/{{companyId}}/jobs/{{jobId}}/reopen"
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "info": {
+    "_postman_id": "e8ac6120-ca55-4554-9c2c-ee1a710d16e2",
+    "name": "HireSense - Job Management Read",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/api"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "companyId",
+      "value": ""
+    },
+    {
+      "key": "jobId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "List Company Jobs",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/companies/{{companyId}}/jobs"
+      }
+    },
+    {
+      "name": "Get Company Job Detail",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/companies/{{companyId}}/jobs/{{jobId}}"
+      }
+    }
+  ]
+}

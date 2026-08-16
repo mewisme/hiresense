@@ -1,0 +1,50 @@
+{
+  "info": {
+    "_postman_id": "13d35326-b78c-4f34-97df-e1cf0616ef43",
+    "name": "HireSense - Create Job",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/api"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "companyId",
+      "value": ""
+    },
+    {
+      "key": "skillId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Create Job Draft",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Backend Developer\",\n  \"summary\": \"Backend developer for HireSense\",\n  \"description\": \"Develop and maintain backend services using NestJS and PostgreSQL.\",\n  \"responsibilities\": \"Build APIs, write tests and review code.\",\n  \"benefits\": \"Competitive salary and flexible working environment.\",\n  \"employmentType\": \"FULL_TIME\",\n  \"workplaceType\": \"HYBRID\",\n  \"experienceMinMonths\": 12,\n  \"experienceMaxMonths\": 36,\n  \"salaryMin\": \"15000000\",\n  \"salaryMax\": \"30000000\",\n  \"salaryCurrency\": \"VND\",\n  \"skills\": [\n    {\n      \"skillId\": \"{{skillId}}\",\n      \"importance\": 5,\n      \"isRequired\": true,\n      \"weight\": \"1\",\n      \"minExperienceMonths\": 12\n    }\n  ]\n}"
+        },
+        "url": "{{baseUrl}}/companies/{{companyId}}/jobs"
+      }
+    }
+  ]
+}
