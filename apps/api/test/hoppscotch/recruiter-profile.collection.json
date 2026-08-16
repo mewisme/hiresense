@@ -1,0 +1,337 @@
+{
+  "info": {
+    "_postman_id": "6d9339fe-80f8-4558-9556-hiresense-recruiter-profile",
+    "name": "Recruiter - Profile",
+    "description": "HireSense recruiter profile API test cases",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/api"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "candidateAccessToken",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Success",
+      "item": [
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Tran Thi B\",\n  \"phone\": \"+84 987 654 321\",\n  \"jobTitle\": \"Technical Recruiter\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/recruiters/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recruiters",
+                "me"
+              ]
+            },
+            "description": "Expected HTTP 201 for a recruiter without an existing profile."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/recruiters/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recruiters",
+                "me"
+              ]
+            },
+            "description": "Expected HTTP 200 and the authenticated recruiter profile."
+          },
+          "response": []
+        },
+        {
+          "name": "Update",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Tran Thi B Updated\",\n  \"jobTitle\": \"Senior Technical Recruiter\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/recruiters/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recruiters",
+                "me"
+              ]
+            },
+            "description": "Expected HTTP 200 and updated recruiter profile."
+          },
+          "response": []
+        },
+        {
+          "name": "Clear Optional Fields",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": null,\n  \"jobTitle\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/recruiters/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recruiters",
+                "me"
+              ]
+            },
+            "description": "Expected HTTP 200. Clears nullable profile fields."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Failure",
+      "item": [
+        {
+          "name": "Missing Access Token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/recruiters/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recruiters",
+                "me"
+              ]
+            },
+            "description": "Expected HTTP 401."
+          },
+          "response": []
+        },
+        {
+          "name": "Candidate Role",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{candidateAccessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/recruiters/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recruiters",
+                "me"
+              ]
+            },
+            "description": "Expected HTTP 403 when using an authenticated CANDIDATE account."
+          },
+          "response": []
+        },
+        {
+          "name": "Duplicate Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Duplicate Recruiter\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/recruiters/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recruiters",
+                "me"
+              ]
+            },
+            "description": "Run after Create. Expected HTTP 409."
+          },
+          "response": []
+        },
+        {
+          "name": "Null Required Field",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/recruiters/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recruiters",
+                "me"
+              ]
+            },
+            "description": "Expected HTTP 400 because fullName cannot be null."
+          },
+          "response": []
+        },
+        {
+          "name": "Extra Property",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jobTitle\": \"Recruiter\",\n  \"isAdmin\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/recruiters/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "recruiters",
+                "me"
+              ]
+            },
+            "description": "Expected HTTP 400 because forbidNonWhitelisted is enabled."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
