@@ -213,15 +213,53 @@ model FileObject {
   sizeBytes        BigInt    @map("size_bytes")
   sha256           String?
   uploadedByUserId String    @map("uploaded_by_user_id") @db.Uuid
-  status           String    @default("ACTIVE")
+  status           String    @default("UPLOADING")
   createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   deletedAt        DateTime? @map("deleted_at") @db.Timestamptz(6)
 
-  uploadedBy     User            @relation("FileUploadedBy", fields: [uploadedByUserId], references: [id], onDelete: Restrict)
+  uploadedBy     User              @relation("FileUploadedBy", fields: [uploadedByUserId], references: [id], onDelete: Restrict)
   resumeVersions ResumeVersion[]
+  discordParts   DiscordFilePart[]
 
   @@unique([storageProvider, bucket, objectKey])
   @@map("file_objects")
+}
+
+model DiscordStorageChunk {
+  id                 String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  channelId          String    @map("channel_id") @db.VarChar(32)
+  sha256             String    @db.VarChar(64)
+  sizeBytes          BigInt    @map("size_bytes")
+  status             String    @default("UPLOADING") @db.VarChar(32)
+  messageId          String?   @map("message_id") @db.VarChar(32)
+  attachmentId       String?   @map("attachment_id") @db.VarChar(32)
+  attachmentFilename String?   @map("attachment_filename")
+  botKey             String?   @map("bot_key") @db.VarChar(64)
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt          DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  fileParts DiscordFilePart[]
+
+  @@unique([channelId, sha256], map: "discord_storage_chunks_channel_sha256_uq")
+  @@index([status], map: "discord_storage_chunks_status_idx")
+  @@index([channelId, messageId], map: "discord_storage_chunks_message_idx")
+  @@map("discord_storage_chunks")
+}
+
+model DiscordFilePart {
+  id           String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  fileObjectId String   @map("file_object_id") @db.Uuid
+  chunkId      String   @map("chunk_id") @db.Uuid
+  ordinal      Int
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  fileObject FileObject          @relation(fields: [fileObjectId], references: [id], onDelete: Cascade)
+  chunk      DiscordStorageChunk @relation(fields: [chunkId], references: [id], onDelete: Restrict)
+
+  @@unique([fileObjectId, ordinal], map: "discord_file_parts_file_ordinal_uq")
+  @@index([chunkId], map: "discord_file_parts_chunk_id_idx")
+  @@map("discord_file_parts")
 }
 
 model Resume {

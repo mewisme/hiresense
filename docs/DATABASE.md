@@ -1165,6 +1165,109 @@ UNIQUE(storage_provider, bucket, object_key)
 
 File access luôn authorization qua entity sở hữu.
 
+## 19.2. Discord-backed storage provider internals
+
+HireSense có thể sử dụng provider `DISCLOUD`, trong đó file bytes
+được chia thành content-addressed chunks và lưu dưới dạng Discord
+message attachments.
+
+`file_objects` vẫn là canonical storage abstraction của HireSense.
+
+Provider-specific tables:
+
+```text
+discord_storage_chunks
+discord_file_parts
+```
+
+`file_objects.sha256` luôn là SHA-256 chuẩn của toàn bộ raw file.
+
+`discord_storage_chunks.sha256` là SHA-256 của từng chunk riêng lẻ.
+
+Không lưu Discord bot token trong database.
+
+`bot_key` là stable logical key dùng để resolve bot credential từ
+application configuration.
+
+Discord attachment/message metadata không được expose trực tiếp cho
+business modules.
+
+### 19.2.1. `discord_storage_chunks`
+
+```text
+id
+channel_id
+sha256
+size_bytes
+status
+message_id
+attachment_id
+attachment_filename
+bot_key
+created_at
+updated_at
+deleted_at
+```
+
+Unique:
+
+```text
+UNIQUE(channel_id, sha256)
+```
+
+Status:
+
+```text
+UPLOADING
+ACTIVE
+FAILED
+MISSING
+DELETED
+```
+
+`ACTIVE` chunk phải có Discord locator metadata.
+
+### 19.2.2. `discord_file_parts`
+
+```text
+id
+file_object_id
+chunk_id
+ordinal
+created_at
+```
+
+Unique:
+
+```text
+UNIQUE(file_object_id, ordinal)
+```
+
+`ordinal` bắt đầu từ 0.
+
+Một chunk có thể được nhiều file reference để hỗ trợ deduplication.
+
+`discord_file_parts` là provider-internal data; Resume và
+ResumeVersion chỉ reference `file_objects`.
+
+Điểm cuối cực kỳ quan trọng:
+
+```text
+ResumeVersion
+    ↓
+FileObject
+```
+
+không phải:
+
+```text
+ResumeVersion
+    ↓
+DiscordStorageChunk
+```
+
+Resume versioning hiện đã được canonical hóa độc lập với storage implementation. 
+
 ---
 
 # 20. Resume

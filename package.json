@@ -7,6 +7,8 @@
     "dev:web": "pnpm --filter @hiresense/web dev",
     "dev:api": "pnpm --filter @hiresense/api start:dev",
     "prisma:generate": "pnpm --filter @hiresense/api prisma:generate",
+    "prisma:migrate": "pnpm --filter @hiresense/api prisma:migrate",
+    "prisma:migrate:dev": "pnpm --filter @hiresense/api prisma:migrate:dev",
     "build": "pnpm -r --if-present build",
     "lint": "pnpm -r --if-present lint",
     "typecheck": "pnpm -r --if-present typecheck",
