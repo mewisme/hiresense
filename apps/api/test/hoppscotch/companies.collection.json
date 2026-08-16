@@ -1,0 +1,275 @@
+{
+  "info": {
+    "_postman_id": "7b807f85-6f85-4679-9557-hiresense-companies",
+    "name": "Companies",
+    "description": "HireSense company and membership API requests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/api"
+    },
+    {
+      "key": "recruiterAccessToken",
+      "value": ""
+    },
+    {
+      "key": "candidateAccessToken",
+      "value": ""
+    },
+    {
+      "key": "companyId",
+      "value": ""
+    },
+    {
+      "key": "otherCompanyId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Success",
+      "item": [
+        {
+          "name": "Create Company",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{recruiterAccessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"HireSense Labs\",\n  \"slug\": \"hiresense-labs\",\n  \"description\": \"AI-assisted recruitment platform.\",\n  \"websiteUrl\": \"https://example.com\",\n  \"companySizeMin\": 10,\n  \"companySizeMax\": 50\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "Expected HTTP 201. Copy the returned company id into the companyId collection variable."
+          },
+          "response": []
+        },
+        {
+          "name": "List My Companies",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{recruiterAccessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/companies/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies",
+                "me"
+              ]
+            },
+            "description": "Expected HTTP 200 and active memberships with companies."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Company By Id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{recruiterAccessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/companies/{{companyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies",
+                "{{companyId}}"
+              ]
+            },
+            "description": "Expected HTTP 200 when the authenticated user has an ACTIVE membership."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Failure",
+      "item": [
+        {
+          "name": "Missing Access Token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/companies/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies",
+                "me"
+              ]
+            },
+            "description": "Expected HTTP 401."
+          },
+          "response": []
+        },
+        {
+          "name": "Candidate Forbidden",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{candidateAccessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/companies/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies",
+                "me"
+              ]
+            },
+            "description": "Expected HTTP 403 because CANDIDATE does not satisfy RECRUITER or ADMIN RBAC."
+          },
+          "response": []
+        },
+        {
+          "name": "Duplicate Slug",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{recruiterAccessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Another HireSense Labs\",\n  \"slug\": \"hiresense-labs\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "Run after Create Company. Expected HTTP 409."
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid Company Size Range",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{recruiterAccessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Invalid Company Size\",\n  \"companySizeMin\": 500,\n  \"companySizeMax\": 10\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "Expected HTTP 400."
+          },
+          "response": []
+        },
+        {
+          "name": "No Active Membership",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{recruiterAccessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/companies/{{otherCompanyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "companies",
+                "{{otherCompanyId}}"
+              ]
+            },
+            "description": "Set otherCompanyId to a company owned by another recruiter. Expected HTTP 403."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
