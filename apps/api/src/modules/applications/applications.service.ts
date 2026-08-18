@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { isPrismaUniqueConstraintError } from '../../common/utils/prisma-error.util';
 import { ApplyJobDto } from './dto/apply-job.dto';
@@ -7,11 +7,16 @@ import { ApplicationJobsRepository } from './repositories/application-jobs.repos
 import { ApplicationStageHistoryRepository } from './repositories/application-stage-history.repository';
 import { ApplicationsRepository } from './repositories/applications.repository';
 import { RecruitmentStagesRepository } from './repositories/recruitment-stages.repository';
+import { RecruiterApplicationsQueryDto } from './dto/recruiter-applications-query.dto';
+import { ApplicationCompanyMembershipsRepository } from './repositories/application-company-memberships.repository';
+
+const APPLICATION_VIEW_MEMBERSHIP_ROLES = new Set(['OWNER', 'ADMIN', 'RECRUITER', 'REVIEWER']);
 
 @Injectable()
 export class ApplicationsService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly applicationCompanyMembershipsRepository: ApplicationCompanyMembershipsRepository,
     private readonly applicationsRepository: ApplicationsRepository,
     private readonly recruitmentStagesRepository: RecruitmentStagesRepository,
     private readonly applicationStageHistoryRepository: ApplicationStageHistoryRepository,
@@ -120,5 +125,54 @@ export class ApplicationsService {
 
       return { application: updated, currentStage: withdrawnStage };
     });
+  }
+
+  async listForRecruiter(companyId: string, jobId: string, userId: string, query: RecruiterApplicationsQueryDto) {
+    await this.requireCompanyViewMembership(companyId, userId);
+
+    const page = query.page;
+    const limit = query.limit;
+    const skip = (page - 1) * limit;
+    const repositoryQuery = {
+      stageId: query.stageId,
+      skip,
+      take: limit,
+    };
+
+    const [items, total] = await Promise.all([
+      this.applicationsRepository.findRecruiterApplications(jobId, companyId, repositoryQuery),
+      this.applicationsRepository.countRecruiterApplications(jobId, companyId, repositoryQuery),
+    ]);
+
+    return {
+      items,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: total === 0 ? 0 : Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async getForRecruiter(companyId: string, applicationId: string, userId: string) {
+    await this.requireCompanyViewMembership(companyId, userId);
+
+    const application = await this.applicationsRepository.findRecruiterOwnedByIdWithDetail(applicationId, companyId);
+    if (!application) throw new NotFoundException('Application not found');
+
+    const history = await this.applicationStageHistoryRepository.findByApplicationId(application.id);
+
+    return { application, history };
+  }
+
+  private async requireCompanyViewMembership(companyId: string, userId: string) {
+    const membership = await this.applicationCompanyMembershipsRepository.findByCompanyAndUser(companyId, userId);
+
+    if (!membership || membership.status !== 'ACTIVE' || !APPLICATION_VIEW_MEMBERSHIP_ROLES.has(membership.role)) {
+      throw new ForbiddenException('You do not have access to company applications');
+    }
+
+    return membership;
   }
 }

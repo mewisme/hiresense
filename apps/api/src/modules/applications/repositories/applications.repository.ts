@@ -15,6 +15,12 @@ export interface CreateApplicationInput {
   coverLetter?: string | null;
 }
 
+export interface RecruiterApplicationsQuery {
+  stageId?: string;
+  skip: number;
+  take: number;
+}
+
 @Injectable()
 export class ApplicationsRepository {
   constructor(private readonly prisma: PrismaService) { }
@@ -84,6 +90,58 @@ export class ApplicationsRepository {
     return db.application.findFirst({
       where: { id, candidateProfileId },
       include: { currentStage: true },
+    });
+  }
+
+  findRecruiterApplications(jobId: string, companyId: string, query: RecruiterApplicationsQuery, db: DbClient = this.prisma) {
+    return db.application.findMany({
+      where: {
+        jobId,
+        job: { companyId },
+        ...(query.stageId ? { currentStageId: query.stageId } : {}),
+      },
+      include: {
+        candidateProfile: true,
+        resumeVersion: { include: { resume: true } },
+        currentStage: true,
+        jobVersion: true,
+      },
+      orderBy: { appliedAt: 'desc' },
+      skip: query.skip,
+      take: query.take,
+    });
+  }
+
+  countRecruiterApplications(jobId: string, companyId: string, query: RecruiterApplicationsQuery, db: DbClient = this.prisma) {
+    return db.application.count({
+      where: {
+        jobId,
+        job: { companyId },
+        ...(query.stageId ? { currentStageId: query.stageId } : {}),
+      },
+    });
+  }
+
+  findRecruiterOwnedByIdWithDetail(id: string, companyId: string, db: DbClient = this.prisma) {
+    return db.application.findFirst({
+      where: {
+        id,
+        job: { companyId },
+      },
+      include: {
+        candidateProfile: true,
+        job: { include: { company: true } },
+        jobVersion: {
+          include: {
+            skills: {
+              include: { skill: true },
+              orderBy: [{ isRequired: 'desc' }, { importance: 'desc' }],
+            },
+          },
+        },
+        resumeVersion: { include: { resume: true } },
+        currentStage: true,
+      },
     });
   }
 

@@ -1,0 +1,74 @@
+{
+  "info": {
+    "_postman_id": "4c1f42f6-d009-4764-a379-76c957516e95",
+    "name": "HireSense - Recruiter Applications",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/api"
+    },
+    {
+      "key": "recruiterAccessToken",
+      "value": ""
+    },
+    {
+      "key": "companyId",
+      "value": ""
+    },
+    {
+      "key": "jobId",
+      "value": ""
+    },
+    {
+      "key": "applicationId",
+      "value": ""
+    },
+    {
+      "key": "stageId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "List Applicants",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiterAccessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/companies/{{companyId}}/jobs/{{jobId}}/applications?page=1&limit=20"
+      }
+    },
+    {
+      "name": "List Applicants By Stage",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiterAccessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/companies/{{companyId}}/jobs/{{jobId}}/applications?stageId={{stageId}}&page=1&limit=20"
+      }
+    },
+    {
+      "name": "Get Applicant Detail",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiterAccessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/companies/{{companyId}}/applications/{{applicationId}}"
+      }
+    }
+  ]
+}

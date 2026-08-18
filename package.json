@@ -20,6 +20,8 @@
     "prisma:migrate": "pnpm --filter @hiresense/api prisma:migrate",
     "prisma:migrate:dev": "pnpm --filter @hiresense/api prisma:migrate:dev",
     "build": "pnpm -r --if-present build",
+    "build:web": "pnpm --filter @hiresense/web build",
+    "build:api": "pnpm --filter @hiresense/api build",
     "lint": "pnpm -r --if-present lint",
     "typecheck": "pnpm -r --if-present typecheck",
     "test": "pnpm -r --if-present test",
