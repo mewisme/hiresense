@@ -3,6 +3,9 @@ ALTER COLUMN status
 SET DEFAULT 'UPLOADING';
 
 ALTER TABLE file_objects
+DROP CONSTRAINT IF EXISTS file_objects_status_chk;
+
+ALTER TABLE file_objects
 ADD CONSTRAINT file_objects_status_chk
 CHECK (
   status IN (

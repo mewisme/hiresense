@@ -7,10 +7,16 @@ class SkillDictionaryItem(BaseModel):
     name: str = Field(min_length=1, max_length=200)
     normalized_name: str = Field(min_length=1, max_length=200)
 
+class SkillAliasDictionaryItem(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+    skill_id: str = Field(min_length=1, max_length=100)
+    alias: str = Field(min_length=1, max_length=200)
+
 class ResumeSkillExtractionRequest(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
     text: str = Field(min_length=1, max_length=500_000)
     skills: list[SkillDictionaryItem] = Field(max_length=5_000)
+    aliases: list[SkillAliasDictionaryItem] = Field(default_factory=list, max_length=10_000)
 
 class ResumeSkillMatch(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)

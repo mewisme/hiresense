@@ -20,6 +20,8 @@
     "prisma:generate": "pnpm --filter @hiresense/api prisma:generate",
     "prisma:migrate": "pnpm --filter @hiresense/api prisma:migrate",
     "prisma:migrate:dev": "pnpm --filter @hiresense/api prisma:migrate:dev",
+    "prisma:migrate:reset": "pnpm --filter @hiresense/api prisma:migrate:reset",
+    "prisma:studio": "pnpm --filter @hiresense/api prisma:studio",
     "build": "pnpm -r --if-present build",
     "build:web": "pnpm --filter @hiresense/web build",
     "build:api": "pnpm --filter @hiresense/api build",

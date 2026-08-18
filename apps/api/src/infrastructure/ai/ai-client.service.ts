@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { AiClientError } from './ai-client.error';
 import type { ExtractResumeTextInput, ExtractResumeTextResponse } from './dto/extract-resume-text.dto';
 import type { ExtractResumeSkillsInput, ExtractResumeSkillsResponse } from './dto/extract-resume-skills.dto';
+import type { ExtractResumeExperiencesInput, ExtractResumeExperiencesResponse } from './dto/extract-resume-experiences.dto';
 
 @Injectable()
 export class AiClientService {
@@ -56,6 +57,50 @@ export class AiClientService {
     }
 
     return payload;
+  }
+
+  async extractResumeExperiences(input: ExtractResumeExperiencesInput): Promise<ExtractResumeExperiencesResponse> {
+    const payload = await this.postJson('/v1/resume/extract-experiences', input);
+
+    if (!this.isExtractResumeExperiencesResponse(payload)) {
+      throw new AiClientError('AI_INVALID_RESPONSE', 'AI service returned an invalid resume experience extraction response');
+    }
+
+    return payload;
+  }
+
+  private isExtractResumeExperiencesResponse(value: unknown): value is ExtractResumeExperiencesResponse {
+    if (!value || typeof value !== 'object') return false;
+    const result = value as Record<string, unknown>;
+
+    if (!Array.isArray(result.experiences) || !Array.isArray(result.warnings)) return false;
+    if (!result.warnings.every((warning) => typeof warning === 'string')) return false;
+
+    return result.experiences.every((item) => {
+      if (!item || typeof item !== 'object') return false;
+      const experience = item as Record<string, unknown>;
+
+      return (typeof experience.companyName === 'string' || experience.companyName === null)
+        && (typeof experience.jobTitle === 'string' || experience.jobTitle === null)
+        && this.isIsoDate(experience.startDate)
+        && (experience.endDate === null || this.isIsoDate(experience.endDate))
+        && typeof experience.isCurrent === 'boolean'
+        && (typeof experience.description === 'string' || experience.description === null)
+        && typeof experience.experienceMonths === 'number'
+        && Number.isInteger(experience.experienceMonths)
+        && experience.experienceMonths >= 0
+        && typeof experience.ordinal === 'number'
+        && Number.isInteger(experience.ordinal)
+        && experience.ordinal >= 0
+        && typeof experience.confidence === 'number'
+        && Number.isFinite(experience.confidence)
+        && experience.confidence >= 0
+        && experience.confidence <= 1;
+    });
+  }
+
+  private isIsoDate(value: unknown): value is string {
+    return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value);
   }
 
   private isExtractResumeTextResponse(value: unknown): value is ExtractResumeTextResponse {

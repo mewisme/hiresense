@@ -9,44 +9,69 @@ class SkillDictionaryEntry:
     normalized_name: str
 
 @dataclass(frozen=True, slots=True)
+class SkillAliasEntry:
+    skill_id: str
+    alias: str
+
+@dataclass(frozen=True, slots=True)
 class SkillDictionaryMatch:
     skill_id: str
     matched_text: str
     evidence_text: str
     confidence: float
 
-def extract_skill_dictionary_matches(text: str, skills: list[SkillDictionaryEntry]) -> list[SkillDictionaryMatch]:
+def extract_skill_dictionary_matches(
+    text: str,
+    skills: list[SkillDictionaryEntry],
+    aliases: list[SkillAliasEntry],
+) -> list[SkillDictionaryMatch]:
+    lines = [(line.strip(), normalize_match_text(line)) for line in text.splitlines() if line.strip()]
+    aliases_by_skill: dict[str, list[str]] = {}
+
+    for alias in aliases:
+        aliases_by_skill.setdefault(alias.skill_id, []).append(alias.alias)
+
     matches: list[SkillDictionaryMatch] = []
-    seen: set[str] = set()
 
-    for raw_line in text.splitlines():
-        evidence = raw_line.strip()
-        if not evidence:
-            continue
+    for skill in skills:
+        canonical = find_first_match(lines, skill.normalized_name or skill.name)
 
-        normalized_line = normalize_match_text(evidence)
-
-        for skill in skills:
-            if skill.id in seen:
-                continue
-
-            term = normalize_match_text(skill.normalized_name or skill.name)
-            if not term:
-                continue
-
-            pattern = build_skill_pattern(term)
-            if not pattern.search(normalized_line):
-                continue
-
-            seen.add(skill.id)
+        if canonical:
             matches.append(SkillDictionaryMatch(
                 skill_id=skill.id,
                 matched_text=skill.name,
-                evidence_text=truncate_evidence(evidence),
+                evidence_text=truncate_evidence(canonical),
                 confidence=1.0,
             ))
+            continue
+
+        for alias in aliases_by_skill.get(skill.id, []):
+            evidence = find_first_match(lines, alias)
+            if not evidence:
+                continue
+
+            matches.append(SkillDictionaryMatch(
+                skill_id=skill.id,
+                matched_text=alias,
+                evidence_text=truncate_evidence(evidence),
+                confidence=0.95,
+            ))
+            break
 
     return matches
+
+def find_first_match(lines: list[tuple[str, str]], term: str) -> str | None:
+    normalized_term = normalize_match_text(term)
+    if not normalized_term:
+        return None
+
+    pattern = build_skill_pattern(normalized_term)
+
+    for raw_line, normalized_line in lines:
+        if pattern.search(normalized_line):
+            return raw_line
+
+    return None
 
 def normalize_match_text(value: str) -> str:
     normalized = unicodedata.normalize('NFKC', value).strip().lower()
@@ -56,8 +81,8 @@ def build_skill_pattern(term: str) -> re.Pattern[str]:
     parts = [re.escape(part) for part in term.split(' ') if part]
     body = r'\s+'.join(parts)
 
-    prefix = r'(?<!\w)' if term[0].isalnum() or term[0] == '_' else ''
-    suffix = r'(?!\w)' if term[-1].isalnum() or term[-1] == '_' else ''
+    prefix = r'(?<![\w.])' if term[0].isalnum() or term[0] == '_' else ''
+    suffix = r'(?![\w.])' if term[-1].isalnum() or term[-1] == '_' else ''
 
     return re.compile(f'{prefix}{body}{suffix}')
 

@@ -6,6 +6,7 @@
   "private": true,
   "license": "Apache-2.0",
   "scripts": {
-    "compile:all": "uv run python -m compileall app"
+    "compile:all": "uv run python -m compileall app",
+    "dev": "uv run uvicorn app.main:app --reload --port 8000"
   }
 }

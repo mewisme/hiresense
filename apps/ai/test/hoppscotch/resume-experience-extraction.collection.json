@@ -1,0 +1,49 @@
+{
+  "info": {
+    "_postman_id": "ee5fe1da-3520-4879-9b6c-35dbdf1e7276",
+    "name": "HireSense AI - Resume Experience Extraction",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "aiBaseUrl",
+      "value": "http://localhost:8000"
+    }
+  ],
+  "item": [
+    {
+      "name": "Extract English Experience",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"text\": \"WORK EXPERIENCE\\n\\nBackend Developer\\nABC Technology\\nJan 2023 - Present\\n- Built REST APIs using NestJS and PostgreSQL.\\n- Maintained Docker-based services.\\n\\nSoftware Engineer | Example Corp | Jun 2021 - Dec 2022\\n- Developed internal backend services.\\n\\nEDUCATION\\nUniversity of Example\\n2017 - 2021\",\n  \"referenceDate\": \"2026-08-18\"\n}"
+        },
+        "url": "{{aiBaseUrl}}/v1/resume/extract-experiences"
+      }
+    },
+    {
+      "name": "Extract Vietnamese Experience",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"text\": \"KINH NGHIỆM LÀM VIỆC\\n\\nLập trình viên Backend\\nCông ty ABC\\nTháng 1/2023 - Hiện tại\\n- Phát triển REST API với NestJS.\\n\\nKỸ NĂNG\\nTypeScript, PostgreSQL, Docker\",\n  \"referenceDate\": \"2026-08-18\"\n}"
+        },
+        "url": "{{aiBaseUrl}}/v1/resume/extract-experiences"
+      }
+    }
+  ]
+}
