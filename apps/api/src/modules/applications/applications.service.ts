@@ -9,8 +9,13 @@ import { ApplicationsRepository } from './repositories/applications.repository';
 import { RecruitmentStagesRepository } from './repositories/recruitment-stages.repository';
 import { RecruiterApplicationsQueryDto } from './dto/recruiter-applications-query.dto';
 import { ApplicationCompanyMembershipsRepository } from './repositories/application-company-memberships.repository';
+import { Prisma } from '../../generated/prisma/client';
+import { ChangeApplicationStageDto } from './dto/change-application-stage.dto';
+import { isSystemRecruitmentStageCode } from './types/recruitment-stage.type';
+import { canRecruiterTransitionApplicationStage } from './utils/application-stage-transition.util';
 
 const APPLICATION_VIEW_MEMBERSHIP_ROLES = new Set(['OWNER', 'ADMIN', 'RECRUITER', 'REVIEWER']);
+const APPLICATION_MANAGE_MEMBERSHIP_ROLES = new Set(['OWNER', 'ADMIN', 'RECRUITER']);
 
 @Injectable()
 export class ApplicationsService {
@@ -155,6 +160,56 @@ export class ApplicationsService {
     };
   }
 
+  async changeStage(companyId: string, applicationId: string, userId: string, dto: ChangeApplicationStageDto) {
+    return this.prisma.$transaction(async (tx) => {
+      await this.requireCompanyManageMembership(companyId, userId, tx);
+
+      const locked = await this.applicationsRepository.lockRecruiterOwnedById(applicationId, companyId, tx);
+      if (!locked) throw new NotFoundException('Application not found');
+
+      const application = await this.applicationsRepository.findRecruiterOwnedByIdWithStage(applicationId, companyId, tx);
+      if (!application) throw new NotFoundException('Application not found');
+
+      if (application.currentStage.isTerminal || application.currentStage.code === 'WITHDRAWN') {
+        throw new ConflictException('Application is already in a terminal stage');
+      }
+
+      const targetStage = await this.recruitmentStagesRepository.findActiveSystemById(dto.stageId, tx);
+      if (!targetStage) throw new BadRequestException('Target recruitment stage is invalid or inactive');
+
+      if (!isSystemRecruitmentStageCode(application.currentStage.code) || !isSystemRecruitmentStageCode(targetStage.code)) {
+        throw new BadRequestException('Unsupported recruitment stage');
+      }
+
+      if (targetStage.code === 'WITHDRAWN') {
+        throw new BadRequestException('WITHDRAWN stage can only be set by the candidate');
+      }
+
+      if (application.currentStageId === targetStage.id) {
+        throw new ConflictException('Application is already in the requested stage');
+      }
+
+      if (!canRecruiterTransitionApplicationStage(application.currentStage.code, targetStage.code)) {
+        throw new BadRequestException(`Invalid application stage transition: ${application.currentStage.code} -> ${targetStage.code}`);
+      }
+
+      const updated = await this.applicationsRepository.updateCurrentStage(application.id, targetStage.id, tx);
+
+      await this.applicationStageHistoryRepository.create({
+        applicationId: application.id,
+        fromStageId: application.currentStageId,
+        toStageId: targetStage.id,
+        changedByUserId: userId,
+        note: dto.note ?? null,
+      }, tx);
+
+      return {
+        application: updated,
+        currentStage: targetStage,
+      };
+    });
+  }
+
   async getForRecruiter(companyId: string, applicationId: string, userId: string) {
     await this.requireCompanyViewMembership(companyId, userId);
 
@@ -171,6 +226,16 @@ export class ApplicationsService {
 
     if (!membership || membership.status !== 'ACTIVE' || !APPLICATION_VIEW_MEMBERSHIP_ROLES.has(membership.role)) {
       throw new ForbiddenException('You do not have access to company applications');
+    }
+
+    return membership;
+  }
+
+  private async requireCompanyManageMembership(companyId: string, userId: string, tx?: Prisma.TransactionClient) {
+    const membership = await this.applicationCompanyMembershipsRepository.findByCompanyAndUser(companyId, userId, tx);
+
+    if (!membership || membership.status !== 'ACTIVE' || !APPLICATION_MANAGE_MEMBERSHIP_ROLES.has(membership.role)) {
+      throw new ForbiddenException('You do not have permission to manage company applications');
     }
 
     return membership;

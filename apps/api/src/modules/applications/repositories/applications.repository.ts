@@ -145,6 +145,18 @@ export class ApplicationsRepository {
     });
   }
 
+  findRecruiterOwnedByIdWithStage(id: string, companyId: string, db: DbClient = this.prisma) {
+    return db.application.findFirst({
+      where: {
+        id,
+        job: { companyId },
+      },
+      include: {
+        currentStage: true,
+      },
+    });
+  }
+
   create(input: CreateApplicationInput, db: DbClient = this.prisma) {
     return db.application.create({
       data: {
@@ -189,6 +201,20 @@ export class ApplicationsRepository {
         WHERE id = CAST(${id} AS uuid)
           AND candidate_profile_id = CAST(${candidateProfileId} AS uuid)
         FOR UPDATE
+      `,
+    );
+    return rows.length > 0;
+  }
+
+  async lockRecruiterOwnedById(id: string, companyId: string, db: Prisma.TransactionClient): Promise<boolean> {
+    const rows = await db.$queryRaw<Array<{ id: string }>>(
+      Prisma.sql`
+        SELECT a.id
+        FROM applications a
+        JOIN jobs j ON j.id = a.job_id
+        WHERE a.id = CAST(${id} AS uuid)
+          AND j.company_id = CAST(${companyId} AS uuid)
+        FOR UPDATE OF a
       `,
     );
     return rows.length > 0;

@@ -38,4 +38,14 @@ export class RecruitmentStagesRepository {
       orderBy: [{ ordinal: 'asc' }, { code: 'asc' }],
     });
   }
+
+  findActiveSystemById(id: string, db: DbClient = this.prisma) {
+    return db.recruitmentStage.findFirst({
+      where: {
+        id,
+        companyId: null,
+        isActive: true,
+      },
+    });
+  }
 }

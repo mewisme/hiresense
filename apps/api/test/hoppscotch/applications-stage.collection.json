@@ -1,0 +1,202 @@
+{
+  "info": {
+    "_postman_id": "6c41aed1-3b86-41bb-92bc-3e463765de58",
+    "name": "HireSense - Application Stage",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/api"
+    },
+    {
+      "key": "recruiterAccessToken",
+      "value": ""
+    },
+    {
+      "key": "companyId",
+      "value": ""
+    },
+    {
+      "key": "applicationId",
+      "value": ""
+    },
+    {
+      "key": "screeningStageId",
+      "value": ""
+    },
+    {
+      "key": "shortlistedStageId",
+      "value": ""
+    },
+    {
+      "key": "interviewStageId",
+      "value": ""
+    },
+    {
+      "key": "offerStageId",
+      "value": ""
+    },
+    {
+      "key": "hiredStageId",
+      "value": ""
+    },
+    {
+      "key": "rejectedStageId",
+      "value": ""
+    },
+    {
+      "key": "withdrawnStageId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "APPLIED -> SCREENING",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiterAccessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"stageId\": \"{{screeningStageId}}\",\n  \"note\": \"Candidate passed initial review.\"\n}"
+        },
+        "url": "{{baseUrl}}/companies/{{companyId}}/applications/{{applicationId}}/stage"
+      }
+    },
+    {
+      "name": "SCREENING -> SHORTLISTED",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiterAccessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"stageId\": \"{{shortlistedStageId}}\"\n}"
+        },
+        "url": "{{baseUrl}}/companies/{{companyId}}/applications/{{applicationId}}/stage"
+      }
+    },
+    {
+      "name": "SHORTLISTED -> INTERVIEW",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiterAccessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"stageId\": \"{{interviewStageId}}\"\n}"
+        },
+        "url": "{{baseUrl}}/companies/{{companyId}}/applications/{{applicationId}}/stage"
+      }
+    },
+    {
+      "name": "INTERVIEW -> OFFER",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiterAccessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"stageId\": \"{{offerStageId}}\"\n}"
+        },
+        "url": "{{baseUrl}}/companies/{{companyId}}/applications/{{applicationId}}/stage"
+      }
+    },
+    {
+      "name": "OFFER -> HIRED",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiterAccessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"stageId\": \"{{hiredStageId}}\"\n}"
+        },
+        "url": "{{baseUrl}}/companies/{{companyId}}/applications/{{applicationId}}/stage"
+      }
+    },
+    {
+      "name": "Reject Application",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiterAccessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"stageId\": \"{{rejectedStageId}}\",\n  \"note\": \"Candidate does not meet current requirements.\"\n}"
+        },
+        "url": "{{baseUrl}}/companies/{{companyId}}/applications/{{applicationId}}/stage"
+      }
+    },
+    {
+      "name": "Recruiter Set WITHDRAWN - Expect 400",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiterAccessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"stageId\": \"{{withdrawnStageId}}\"\n}"
+        },
+        "url": "{{baseUrl}}/companies/{{companyId}}/applications/{{applicationId}}/stage"
+      }
+    }
+  ]
+}

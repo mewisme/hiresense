@@ -1,9 +1,11 @@
-import { Controller, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Query } from '@nestjs/common';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user.type';
 import { ApplicationsService } from './applications.service';
+import { ChangeApplicationStageDto } from './dto/change-application-stage.dto';
 import { RecruiterApplicationsQueryDto } from './dto/recruiter-applications-query.dto';
+import { toApplicationResponse } from './mappers/application-response.mapper';
 import { toRecruiterApplicationDetailResponse, toRecruiterApplicationListItemResponse } from './mappers/recruiter-application-response.mapper';
 
 @Controller('companies/:companyId')
@@ -34,5 +36,16 @@ export class RecruiterApplicationsController {
   ) {
     const result = await this.applicationsService.getForRecruiter(companyId, applicationId, user.id);
     return toRecruiterApplicationDetailResponse(result.application, result.history);
+  }
+
+  @Patch('applications/:applicationId/stage')
+  async changeStage(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('companyId', ParseUUIDPipe) companyId: string,
+    @Param('applicationId', ParseUUIDPipe) applicationId: string,
+    @Body() dto: ChangeApplicationStageDto,
+  ) {
+    const result = await this.applicationsService.changeStage(companyId, applicationId, user.id, dto);
+    return toApplicationResponse(result.application, result.currentStage);
   }
 }
