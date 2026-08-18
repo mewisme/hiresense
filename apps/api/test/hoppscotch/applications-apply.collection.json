@@ -1,0 +1,69 @@
+{
+  "info": {
+    "_postman_id": "e32ae85c-a93e-48fa-aeb7-54294ed7b067",
+    "name": "HireSense - Apply Job",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/api"
+    },
+    {
+      "key": "candidateAccessToken",
+      "value": ""
+    },
+    {
+      "key": "jobId",
+      "value": ""
+    },
+    {
+      "key": "resumeVersionId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Apply Job",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{candidateAccessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"resumeVersionId\": \"{{resumeVersionId}}\",\n  \"coverLetter\": \"I am interested in this position and believe my backend experience is a strong fit.\"\n}"
+        },
+        "url": "{{baseUrl}}/jobs/{{jobId}}/applications"
+      }
+    },
+    {
+      "name": "Apply Job Without Cover Letter",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{candidateAccessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"resumeVersionId\": \"{{resumeVersionId}}\"\n}"
+        },
+        "url": "{{baseUrl}}/jobs/{{jobId}}/applications"
+      }
+    }
+  ]
+}

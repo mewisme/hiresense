@@ -1,11 +1,25 @@
 import { Module } from '@nestjs/common';
+import { AuthModule } from '../auth/auth.module';
 import { ApplicationsController } from './applications.controller';
 import { ApplicationsService } from './applications.service';
+import { CandidateApplicationsController } from './candidate-applications.controller';
+import { ApplicationCandidatesRepository } from './repositories/application-candidates.repository';
+import { ApplicationJobsRepository } from './repositories/application-jobs.repository';
+import { ApplicationStageHistoryRepository } from './repositories/application-stage-history.repository';
 import { ApplicationsRepository } from './repositories/applications.repository';
+import { RecruitmentStagesRepository } from './repositories/recruitment-stages.repository';
 
 @Module({
-  controllers: [ApplicationsController],
-  providers: [ApplicationsService, ApplicationsRepository],
-  exports: [ApplicationsService, ApplicationsRepository],
+  imports: [AuthModule],
+  controllers: [ApplicationsController, CandidateApplicationsController],
+  providers: [
+    ApplicationsService,
+    ApplicationsRepository,
+    RecruitmentStagesRepository,
+    ApplicationStageHistoryRepository,
+    ApplicationCandidatesRepository,
+    ApplicationJobsRepository,
+  ],
+  exports: [ApplicationsService, ApplicationsRepository, RecruitmentStagesRepository, ApplicationStageHistoryRepository],
 })
-export class ApplicationsModule {}
+export class ApplicationsModule { }

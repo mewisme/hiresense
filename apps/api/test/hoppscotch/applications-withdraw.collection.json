@@ -1,0 +1,49 @@
+{
+  "info": {
+    "_postman_id": "ddb06840-32d1-4db7-b085-d34ea2dbef54",
+    "name": "HireSense - Withdraw Application",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/api"
+    },
+    {
+      "key": "candidateAccessToken",
+      "value": ""
+    },
+    {
+      "key": "applicationId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Withdraw My Application",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{candidateAccessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/candidates/me/applications/{{applicationId}}/withdraw"
+      }
+    },
+    {
+      "name": "Withdraw Again - Expect 409",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{candidateAccessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/candidates/me/applications/{{applicationId}}/withdraw"
+      }
+    }
+  ]
+}
