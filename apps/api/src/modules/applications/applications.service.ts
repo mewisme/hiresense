@@ -1,16 +1,17 @@
-import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { PrismaService } from '../../infrastructure/database/prisma.service';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import type { Prisma } from '../../generated/prisma/client';
 import { isPrismaUniqueConstraintError } from '../../common/utils/prisma-error.util';
+import { PrismaService } from '../../infrastructure/database/prisma.service';
+import { FileStorageService } from '../files/file-storage.service';
 import { ApplyJobDto } from './dto/apply-job.dto';
+import { ChangeApplicationStageDto } from './dto/change-application-stage.dto';
+import { RecruiterApplicationsQueryDto } from './dto/recruiter-applications-query.dto';
 import { ApplicationCandidatesRepository } from './repositories/application-candidates.repository';
+import { ApplicationCompanyMembershipsRepository } from './repositories/application-company-memberships.repository';
 import { ApplicationJobsRepository } from './repositories/application-jobs.repository';
 import { ApplicationStageHistoryRepository } from './repositories/application-stage-history.repository';
 import { ApplicationsRepository } from './repositories/applications.repository';
 import { RecruitmentStagesRepository } from './repositories/recruitment-stages.repository';
-import { RecruiterApplicationsQueryDto } from './dto/recruiter-applications-query.dto';
-import { ApplicationCompanyMembershipsRepository } from './repositories/application-company-memberships.repository';
-import { Prisma } from '../../generated/prisma/client';
-import { ChangeApplicationStageDto } from './dto/change-application-stage.dto';
 import { isSystemRecruitmentStageCode } from './types/recruitment-stage.type';
 import { canRecruiterTransitionApplicationStage } from './utils/application-stage-transition.util';
 
@@ -21,6 +22,7 @@ const APPLICATION_MANAGE_MEMBERSHIP_ROLES = new Set(['OWNER', 'ADMIN', 'RECRUITE
 export class ApplicationsService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly fileStorageService: FileStorageService,
     private readonly applicationCompanyMembershipsRepository: ApplicationCompanyMembershipsRepository,
     private readonly applicationsRepository: ApplicationsRepository,
     private readonly recruitmentStagesRepository: RecruitmentStagesRepository,
@@ -170,6 +172,10 @@ export class ApplicationsService {
       const application = await this.applicationsRepository.findRecruiterOwnedByIdWithStage(applicationId, companyId, tx);
       if (!application) throw new NotFoundException('Application not found');
 
+      if (!isSystemRecruitmentStageCode(application.currentStage.code)) {
+        throw new BadRequestException('Unsupported current recruitment stage');
+      }
+
       if (application.currentStage.isTerminal || application.currentStage.code === 'WITHDRAWN') {
         throw new ConflictException('Application is already in a terminal stage');
       }
@@ -177,16 +183,16 @@ export class ApplicationsService {
       const targetStage = await this.recruitmentStagesRepository.findActiveSystemById(dto.stageId, tx);
       if (!targetStage) throw new BadRequestException('Target recruitment stage is invalid or inactive');
 
-      if (!isSystemRecruitmentStageCode(application.currentStage.code) || !isSystemRecruitmentStageCode(targetStage.code)) {
-        throw new BadRequestException('Unsupported recruitment stage');
-      }
-
-      if (targetStage.code === 'WITHDRAWN') {
-        throw new BadRequestException('WITHDRAWN stage can only be set by the candidate');
+      if (!isSystemRecruitmentStageCode(targetStage.code)) {
+        throw new BadRequestException('Unsupported target recruitment stage');
       }
 
       if (application.currentStageId === targetStage.id) {
         throw new ConflictException('Application is already in the requested stage');
+      }
+
+      if (targetStage.code === 'WITHDRAWN') {
+        throw new BadRequestException('WITHDRAWN stage can only be set by the candidate');
       }
 
       if (!canRecruiterTransitionApplicationStage(application.currentStage.code, targetStage.code)) {
@@ -203,10 +209,7 @@ export class ApplicationsService {
         note: dto.note ?? null,
       }, tx);
 
-      return {
-        application: updated,
-        currentStage: targetStage,
-      };
+      return { application: updated, currentStage: targetStage };
     });
   }
 
@@ -219,6 +222,21 @@ export class ApplicationsService {
     const history = await this.applicationStageHistoryRepository.findByApplicationId(application.id);
 
     return { application, history };
+  }
+
+  async openRecruiterResume(companyId: string, applicationId: string, userId: string) {
+    await this.requireCompanyViewMembership(companyId, userId);
+
+    const target = await this.applicationsRepository.findRecruiterResumeTarget(applicationId, companyId);
+    if (!target) throw new NotFoundException('Application not found');
+
+    const stored = await this.fileStorageService.open(target.resumeVersion.fileObjectId);
+
+    return {
+      applicationId: target.id,
+      resumeVersion: target.resumeVersion,
+      ...stored,
+    };
   }
 
   private async requireCompanyViewMembership(companyId: string, userId: string) {

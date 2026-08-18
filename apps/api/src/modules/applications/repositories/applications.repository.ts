@@ -157,6 +157,32 @@ export class ApplicationsRepository {
     });
   }
 
+  findRecruiterResumeTarget(id: string, companyId: string, db: DbClient = this.prisma) {
+    return db.application.findFirst({
+      where: {
+        id,
+        job: { companyId },
+      },
+      select: {
+        id: true,
+        resumeVersionId: true,
+        resumeVersion: {
+          select: {
+            id: true,
+            versionNo: true,
+            fileObjectId: true,
+            resume: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
   create(input: CreateApplicationInput, db: DbClient = this.prisma) {
     return db.application.create({
       data: {

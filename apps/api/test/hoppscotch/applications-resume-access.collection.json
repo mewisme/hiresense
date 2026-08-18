@@ -1,0 +1,40 @@
+{
+  "info": {
+    "_postman_id": "7d186e20-87f9-48cb-9103-dd3b79047fca",
+    "name": "HireSense - Application Resume Access",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/api"
+    },
+    {
+      "key": "recruiterAccessToken",
+      "value": ""
+    },
+    {
+      "key": "companyId",
+      "value": ""
+    },
+    {
+      "key": "applicationId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Download Application Resume",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiterAccessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/companies/{{companyId}}/applications/{{applicationId}}/resume"
+      }
+    }
+  ]
+}

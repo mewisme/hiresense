@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
+import { FilesModule } from '../files/files.module';
 import { ApplicationsController } from './applications.controller';
 import { ApplicationsService } from './applications.service';
 import { CandidateApplicationsController } from './candidate-applications.controller';
@@ -12,7 +13,7 @@ import { ApplicationsRepository } from './repositories/applications.repository';
 import { RecruitmentStagesRepository } from './repositories/recruitment-stages.repository';
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, FilesModule],
   controllers: [ApplicationsController, CandidateApplicationsController, RecruiterApplicationsController],
   providers: [
     ApplicationsService,
