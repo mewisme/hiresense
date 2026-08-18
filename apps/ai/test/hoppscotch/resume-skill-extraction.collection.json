@@ -1,0 +1,32 @@
+{
+  "info": {
+    "_postman_id": "93763e4d-13e1-421d-8cb0-7e679ff357fe",
+    "name": "HireSense AI - Resume Skill Extraction",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "aiBaseUrl",
+      "value": "http://localhost:8000"
+    }
+  ],
+  "item": [
+    {
+      "name": "Extract Canonical Skills",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"text\": \"Backend Developer\\nBuilt REST APIs using NestJS, TypeScript and PostgreSQL.\\nContainerized services with Docker.\",\n  \"skills\": [\n    { \"id\": \"skill-nestjs\", \"name\": \"NestJS\", \"normalizedName\": \"nestjs\" },\n    { \"id\": \"skill-typescript\", \"name\": \"TypeScript\", \"normalizedName\": \"typescript\" },\n    { \"id\": \"skill-postgresql\", \"name\": \"PostgreSQL\", \"normalizedName\": \"postgresql\" },\n    { \"id\": \"skill-docker\", \"name\": \"Docker\", \"normalizedName\": \"docker\" },\n    { \"id\": \"skill-java\", \"name\": \"Java\", \"normalizedName\": \"java\" }\n  ]\n}"
+        },
+        "url": "{{aiBaseUrl}}/v1/resume/extract-skills"
+      }
+    }
+  ]
+}

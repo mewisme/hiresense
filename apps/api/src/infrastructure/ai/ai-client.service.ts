@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AiClientError } from './ai-client.error';
 import type { ExtractResumeTextInput, ExtractResumeTextResponse } from './dto/extract-resume-text.dto';
+import type { ExtractResumeSkillsInput, ExtractResumeSkillsResponse } from './dto/extract-resume-skills.dto';
 
 @Injectable()
 export class AiClientService {
@@ -47,6 +48,16 @@ export class AiClientService {
     }
   }
 
+  async extractResumeSkills(input: ExtractResumeSkillsInput): Promise<ExtractResumeSkillsResponse> {
+    const payload = await this.postJson('/v1/resume/extract-skills', input);
+
+    if (!this.isExtractResumeSkillsResponse(payload)) {
+      throw new AiClientError('AI_INVALID_RESPONSE', 'AI service returned an invalid resume skill extraction response');
+    }
+
+    return payload;
+  }
+
   private isExtractResumeTextResponse(value: unknown): value is ExtractResumeTextResponse {
     if (!value || typeof value !== 'object') return false;
     const result = value as Record<string, unknown>;
@@ -68,5 +79,54 @@ export class AiClientService {
       code: typeof record.code === 'string' ? record.code : 'AI_SERVICE_ERROR',
       message: typeof record.message === 'string' ? record.message : 'AI service request failed',
     };
+  }
+
+  private async postJson(path: string, body: unknown): Promise<unknown> {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
+
+    try {
+      const response = await fetch(`${this.baseUrl}${path}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+
+      const payload: unknown = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        const detail = this.readErrorDetail(payload);
+        throw new AiClientError(detail.code, detail.message, response.status);
+      }
+
+      return payload;
+    } catch (error) {
+      if (error instanceof AiClientError) throw error;
+      if (error instanceof Error && error.name === 'AbortError') throw new AiClientError('AI_TIMEOUT', `AI service request timed out after ${this.timeoutMs}ms`);
+      throw new AiClientError('AI_UNAVAILABLE', error instanceof Error ? error.message : 'AI service is unavailable');
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
+  private isExtractResumeSkillsResponse(value: unknown): value is ExtractResumeSkillsResponse {
+    if (!value || typeof value !== 'object') return false;
+
+    const result = value as Record<string, unknown>;
+    if (!Array.isArray(result.skills)) return false;
+
+    return result.skills.every((item) => {
+      if (!item || typeof item !== 'object') return false;
+      const skill = item as Record<string, unknown>;
+
+      return typeof skill.skillId === 'string'
+        && typeof skill.matchedText === 'string'
+        && typeof skill.evidenceText === 'string'
+        && typeof skill.confidence === 'number'
+        && Number.isFinite(skill.confidence)
+        && skill.confidence >= 0
+        && skill.confidence <= 1;
+    });
   }
 }

@@ -18,6 +18,8 @@ importers:
         specifier: '6'
         version: 6.0.3
 
+  apps/ai: {}
+
   apps/api:
     dependencies:
       '@hiresense/types':

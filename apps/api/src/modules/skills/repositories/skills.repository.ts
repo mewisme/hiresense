@@ -46,6 +46,18 @@ export class SkillsRepository {
     });
   }
 
+  findActiveDictionary(db: DbClient = this.prisma) {
+    return db.skill.findMany({
+      where: { isActive: true },
+      select: {
+        id: true,
+        name: true,
+        normalizedName: true,
+      },
+      orderBy: { normalizedName: 'asc' },
+    });
+  }
+
   create(input: CreateSkillInput, db: DbClient = this.prisma) {
     return db.skill.create({
       data: {

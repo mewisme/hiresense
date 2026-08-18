@@ -11,12 +11,15 @@ import { ResumeParsingSourceRepository } from './repositories/resume-parsing-sou
 import { ResumeSkillsRepository } from './repositories/resume-skills.repository';
 import { ResumeParsingController } from './resume-parsing.controller';
 import { ResumeParsingService } from './resume-parsing.service';
+import { SkillsModule } from '../skills/skills.module';
+import { ResumeSkillExtractionService } from './resume-skill-extraction.service';
 
 @Module({
-  imports: [AuthModule, CandidatesModule, AiClientModule, FilesModule],
+  imports: [AuthModule, CandidatesModule, AiClientModule, FilesModule, SkillsModule],
   controllers: [ResumeParsingController],
   providers: [
     ResumeParsingService,
+    ResumeSkillExtractionService,
     AiPipelineVersionsRepository,
     ResumeParsingSourceRepository,
     ResumeParseRunsRepository,
@@ -26,6 +29,7 @@ import { ResumeParsingService } from './resume-parsing.service';
   ],
   exports: [
     ResumeParsingService,
+    ResumeSkillExtractionService,
     ResumeParseRunsRepository,
     ResumeSkillsRepository,
     ResumeExperiencesRepository,

@@ -16,15 +16,18 @@
   "scripts": {
     "dev:web": "pnpm --filter @hiresense/web dev",
     "dev:api": "pnpm --filter @hiresense/api start:dev",
+    "dev:ai": "pnpm --filter @hiresense/ai dev",
     "prisma:generate": "pnpm --filter @hiresense/api prisma:generate",
     "prisma:migrate": "pnpm --filter @hiresense/api prisma:migrate",
     "prisma:migrate:dev": "pnpm --filter @hiresense/api prisma:migrate:dev",
     "build": "pnpm -r --if-present build",
     "build:web": "pnpm --filter @hiresense/web build",
     "build:api": "pnpm --filter @hiresense/api build",
+    "build:ai": "pnpm --filter @hiresense/ai build",
     "lint": "pnpm -r --if-present lint",
     "typecheck": "pnpm -r --if-present typecheck",
     "test": "pnpm -r --if-present test",
+    "compile:all": "pnpm -r --if-present compile:all",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "ts:version": "tsc --version"
