@@ -1,0 +1,66 @@
+{
+  "info": {
+    "_postman_id": "9fce0591-41f8-4631-a1a1-e1d916701360",
+    "name": "HireSense - Resume Parsing Lifecycle",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/api"
+    },
+    {
+      "key": "candidateAccessToken",
+      "value": ""
+    },
+    {
+      "key": "resumeId",
+      "value": ""
+    },
+    {
+      "key": "resumeVersionId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Parse Resume Version",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{candidateAccessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/resumes/{{resumeId}}/versions/{{resumeVersionId}}/parse-runs"
+      }
+    },
+    {
+      "name": "Parse Same Version Again - Reused",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{candidateAccessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/resumes/{{resumeId}}/versions/{{resumeVersionId}}/parse-runs"
+      }
+    },
+    {
+      "name": "Latest Parse Status",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{candidateAccessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/resumes/{{resumeId}}/versions/{{resumeVersionId}}/parse-runs/latest"
+      }
+    }
+  ]
+}
