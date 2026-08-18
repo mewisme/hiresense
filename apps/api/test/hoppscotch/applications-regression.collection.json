@@ -1,0 +1,332 @@
+{
+  "info": {
+    "_postman_id": "f9af737f-ff87-4a0c-88c6-f16cb91c48bd",
+    "name": "HireSense - Week 6 Applications Regression",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/api"
+    },
+    {
+      "key": "candidateAccessToken",
+      "value": ""
+    },
+    {
+      "key": "recruiterAccessToken",
+      "value": ""
+    },
+    {
+      "key": "reviewerAccessToken",
+      "value": ""
+    },
+    {
+      "key": "companyId",
+      "value": ""
+    },
+    {
+      "key": "otherCompanyId",
+      "value": ""
+    },
+    {
+      "key": "jobId",
+      "value": ""
+    },
+    {
+      "key": "otherCompanyJobId",
+      "value": ""
+    },
+    {
+      "key": "resumeVersionId",
+      "value": ""
+    },
+    {
+      "key": "applicationId",
+      "value": ""
+    },
+    {
+      "key": "screeningStageId",
+      "value": ""
+    },
+    {
+      "key": "interviewStageId",
+      "value": ""
+    },
+    {
+      "key": "withdrawnStageId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Candidate Apply",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{candidateAccessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"resumeVersionId\": \"{{resumeVersionId}}\",\n  \"coverLetter\": \"Week 6 regression application\"\n}"
+        },
+        "url": "{{baseUrl}}/jobs/{{jobId}}/applications"
+      }
+    },
+    {
+      "name": "02 Duplicate Apply - Expect 409",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{candidateAccessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"resumeVersionId\": \"{{resumeVersionId}}\"\n}"
+        },
+        "url": "{{baseUrl}}/jobs/{{jobId}}/applications"
+      }
+    },
+    {
+      "name": "03 Candidate Application List",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{candidateAccessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/candidates/me/applications"
+      }
+    },
+    {
+      "name": "04 Candidate Application Detail",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{candidateAccessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/candidates/me/applications/{{applicationId}}"
+      }
+    },
+    {
+      "name": "05 Recruiter Applicant List",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiterAccessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/companies/{{companyId}}/jobs/{{jobId}}/applications?page=1&limit=20"
+      }
+    },
+    {
+      "name": "06 Recruiter Applicant List By Stage",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiterAccessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/companies/{{companyId}}/jobs/{{jobId}}/applications?stageId={{screeningStageId}}&page=1&limit=20"
+      }
+    },
+    {
+      "name": "07 Cross Company Job List - Expect 404",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiterAccessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/companies/{{companyId}}/jobs/{{otherCompanyJobId}}/applications"
+      }
+    },
+    {
+      "name": "08 Recruiter Application Detail",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiterAccessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/companies/{{companyId}}/applications/{{applicationId}}"
+      }
+    },
+    {
+      "name": "09 Recruiter Download Exact Resume",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiterAccessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/companies/{{companyId}}/applications/{{applicationId}}/resume"
+      }
+    },
+    {
+      "name": "10 Reviewer Download Exact Resume",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{reviewerAccessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/companies/{{companyId}}/applications/{{applicationId}}/resume"
+      }
+    },
+    {
+      "name": "11 APPLIED To SCREENING",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiterAccessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"stageId\": \"{{screeningStageId}}\",\n  \"note\": \"Passed initial review\"\n}"
+        },
+        "url": "{{baseUrl}}/companies/{{companyId}}/applications/{{applicationId}}/stage"
+      }
+    },
+    {
+      "name": "12 SCREENING To INTERVIEW Direct - Expect 400",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiterAccessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"stageId\": \"{{interviewStageId}}\"\n}"
+        },
+        "url": "{{baseUrl}}/companies/{{companyId}}/applications/{{applicationId}}/stage"
+      }
+    },
+    {
+      "name": "13 Recruiter Set WITHDRAWN - Expect 400",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiterAccessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"stageId\": \"{{withdrawnStageId}}\"\n}"
+        },
+        "url": "{{baseUrl}}/companies/{{companyId}}/applications/{{applicationId}}/stage"
+      }
+    },
+    {
+      "name": "14 Candidate Withdraw",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{candidateAccessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/candidates/me/applications/{{applicationId}}/withdraw"
+      }
+    },
+    {
+      "name": "15 Withdraw Again - Expect 409",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{candidateAccessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/candidates/me/applications/{{applicationId}}/withdraw"
+      }
+    },
+    {
+      "name": "16 Recruiter Change Withdrawn Application - Expect 409",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiterAccessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"stageId\": \"{{screeningStageId}}\"\n}"
+        },
+        "url": "{{baseUrl}}/companies/{{companyId}}/applications/{{applicationId}}/stage"
+      }
+    },
+    {
+      "name": "17 Resume After Withdraw - Expect 200",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiterAccessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/companies/{{companyId}}/applications/{{applicationId}}/resume"
+      }
+    }
+  ]
+}

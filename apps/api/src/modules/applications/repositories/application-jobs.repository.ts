@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '../../../generated/prisma/client';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
 
+type DbClient = PrismaService | Prisma.TransactionClient;
+
 export interface PublishedApplicationJob {
   id: string;
   currentPublishedVersionId: string;
@@ -10,6 +12,13 @@ export interface PublishedApplicationJob {
 @Injectable()
 export class ApplicationJobsRepository {
   constructor(private readonly prisma: PrismaService) { }
+
+  findCompanyJobById(jobId: string, companyId: string, db: DbClient = this.prisma) {
+    return db.job.findFirst({
+      where: { id: jobId, companyId },
+      select: { id: true },
+    });
+  }
 
   async lockPublishedById(jobId: string, db: Prisma.TransactionClient): Promise<PublishedApplicationJob | null> {
     const rows = await db.$queryRaw<PublishedApplicationJob[]>(
@@ -30,7 +39,6 @@ export class ApplicationJobsRepository {
         FOR SHARE OF j, c, jv
       `,
     );
-
     return rows[0] ?? null;
   }
 }

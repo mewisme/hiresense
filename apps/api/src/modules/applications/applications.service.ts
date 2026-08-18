@@ -137,14 +137,17 @@ export class ApplicationsService {
   async listForRecruiter(companyId: string, jobId: string, userId: string, query: RecruiterApplicationsQueryDto) {
     await this.requireCompanyViewMembership(companyId, userId);
 
+    const job = await this.applicationJobsRepository.findCompanyJobById(jobId, companyId);
+    if (!job) throw new NotFoundException('Job not found');
+
+    if (query.stageId) {
+      const stage = await this.recruitmentStagesRepository.findActiveForCompanyById(query.stageId, companyId);
+      if (!stage) throw new BadRequestException('Recruitment stage is invalid or inactive');
+    }
+
     const page = query.page;
     const limit = query.limit;
-    const skip = (page - 1) * limit;
-    const repositoryQuery = {
-      stageId: query.stageId,
-      skip,
-      take: limit,
-    };
+    const repositoryQuery = { stageId: query.stageId, skip: (page - 1) * limit, take: limit };
 
     const [items, total] = await Promise.all([
       this.applicationsRepository.findRecruiterApplications(jobId, companyId, repositoryQuery),
