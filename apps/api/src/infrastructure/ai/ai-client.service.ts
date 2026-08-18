@@ -4,6 +4,7 @@ import { AiClientError } from './ai-client.error';
 import type { ExtractResumeTextInput, ExtractResumeTextResponse } from './dto/extract-resume-text.dto';
 import type { ExtractResumeSkillsInput, ExtractResumeSkillsResponse } from './dto/extract-resume-skills.dto';
 import type { ExtractResumeExperiencesInput, ExtractResumeExperiencesResponse } from './dto/extract-resume-experiences.dto';
+import type { ExtractResumeEducationsInput, ExtractResumeEducationsResponse } from './dto/extract-resume-educations.dto';
 
 @Injectable()
 export class AiClientService {
@@ -64,6 +65,16 @@ export class AiClientService {
 
     if (!this.isExtractResumeExperiencesResponse(payload)) {
       throw new AiClientError('AI_INVALID_RESPONSE', 'AI service returned an invalid resume experience extraction response');
+    }
+
+    return payload;
+  }
+
+  async extractResumeEducations(input: ExtractResumeEducationsInput): Promise<ExtractResumeEducationsResponse> {
+    const payload = await this.postJson('/v1/resume/extract-educations', input);
+
+    if (!this.isExtractResumeEducationsResponse(payload)) {
+      throw new AiClientError('AI_INVALID_RESPONSE', 'AI service returned an invalid resume education extraction response');
     }
 
     return payload;
@@ -172,6 +183,33 @@ export class AiClientService {
         && Number.isFinite(skill.confidence)
         && skill.confidence >= 0
         && skill.confidence <= 1;
+    });
+  }
+
+  private isExtractResumeEducationsResponse(value: unknown): value is ExtractResumeEducationsResponse {
+    if (!value || typeof value !== 'object') return false;
+    const result = value as Record<string, unknown>;
+
+    if (!Array.isArray(result.educations) || !Array.isArray(result.warnings)) return false;
+    if (!result.warnings.every((warning) => typeof warning === 'string')) return false;
+
+    return result.educations.every((item) => {
+      if (!item || typeof item !== 'object') return false;
+      const education = item as Record<string, unknown>;
+
+      return (typeof education.institutionName === 'string' || education.institutionName === null)
+        && (typeof education.degree === 'string' || education.degree === null)
+        && (typeof education.fieldOfStudy === 'string' || education.fieldOfStudy === null)
+        && (education.startDate === null || this.isIsoDate(education.startDate))
+        && (education.endDate === null || this.isIsoDate(education.endDate))
+        && (typeof education.description === 'string' || education.description === null)
+        && typeof education.ordinal === 'number'
+        && Number.isInteger(education.ordinal)
+        && education.ordinal >= 0
+        && typeof education.confidence === 'number'
+        && Number.isFinite(education.confidence)
+        && education.confidence >= 0
+        && education.confidence <= 1;
     });
   }
 }

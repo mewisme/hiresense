@@ -1,0 +1,49 @@
+{
+  "info": {
+    "_postman_id": "c4699721-2e4f-46cf-bc01-a7d391c212fa",
+    "name": "HireSense AI - Resume Education Extraction",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "aiBaseUrl",
+      "value": "http://localhost:8000"
+    }
+  ],
+  "item": [
+    {
+      "name": "Extract English Education",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"text\": \"EDUCATION\\n\\nUniversity of Example\\nBachelor of Science in Computer Science\\nSep 2018 - Jun 2022\\nGPA: 3.7/4.0\\n\\nSKILLS\\nTypeScript, PostgreSQL\"\n}"
+        },
+        "url": "{{aiBaseUrl}}/v1/resume/extract-educations"
+      }
+    },
+    {
+      "name": "Extract Vietnamese Education",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"text\": \"HỌC VẤN\\n\\nĐại học Bách Khoa\\nKỹ sư - Chuyên ngành Công nghệ thông tin\\n2019 - 2024\\nXếp loại: Giỏi\\n\\nKINH NGHIỆM\\nBackend Developer\"\n}"
+        },
+        "url": "{{aiBaseUrl}}/v1/resume/extract-educations"
+      }
+    }
+  ]
+}
