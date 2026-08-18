@@ -56,7 +56,12 @@ export class ResumeParseRunsRepository {
   findLatestByResumeVersionId(resumeVersionId: string, db: DbClient = this.prisma) {
     return db.resumeParseRun.findFirst({
       where: { resumeVersionId },
-      include: { pipelineVersion: true },
+      include: {
+        pipelineVersion: true,
+        skills: { include: { skill: true }, orderBy: { createdAt: 'asc' } },
+        experiences: { orderBy: { ordinal: 'asc' } },
+        educations: { orderBy: { ordinal: 'asc' } },
+      },
       orderBy: { createdAt: 'desc' },
     });
   }

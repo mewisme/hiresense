@@ -82,7 +82,7 @@ def build_skill_pattern(term: str) -> re.Pattern[str]:
     body = r'\s+'.join(parts)
 
     prefix = r'(?<![\w.])' if term[0].isalnum() or term[0] == '_' else ''
-    suffix = r'(?![\w.])' if term[-1].isalnum() or term[-1] == '_' else ''
+    suffix = r'(?!\w)' if term[-1].isalnum() or term[-1] == '_' else ''
 
     return re.compile(f'{prefix}{body}{suffix}')
 

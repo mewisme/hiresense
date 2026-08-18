@@ -7,6 +7,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "compile:all": "uv run python -m compileall app",
-    "dev": "uv run uvicorn app.main:app --reload --port 8000"
+    "dev": "uv run uvicorn app.main:app --reload --port 8000",
+    "test": "uv run python -m unittest discover -s test -p \"test_*.py\""
   }
 }

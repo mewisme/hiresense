@@ -7,8 +7,14 @@ import { FileStorageService } from '../files/file-storage.service';
 import { RESUME_MAX_FILE_SIZE_BYTES } from '../resumes/utils/resume-file.util';
 import { RESUME_PARSER_PIPELINE_CODE, RESUME_PARSER_PIPELINE_TYPE } from './constants/resume-parsing.constants';
 import { AiPipelineVersionsRepository } from './repositories/ai-pipeline-versions.repository';
+import { ResumeEducationsRepository } from './repositories/resume-educations.repository';
+import { ResumeExperiencesRepository } from './repositories/resume-experiences.repository';
 import { ResumeParseRunsRepository } from './repositories/resume-parse-runs.repository';
 import { ResumeParsingSourceRepository, type LockedResumeParsingSource } from './repositories/resume-parsing-source.repository';
+import { ResumeSkillsRepository } from './repositories/resume-skills.repository';
+import { ResumeEducationExtractionService } from './resume-education-extraction.service';
+import { ResumeExperienceExtractionService } from './resume-experience-extraction.service';
+import { ResumeSkillExtractionService } from './resume-skill-extraction.service';
 
 @Injectable()
 export class ResumeParsingService {
@@ -19,13 +25,28 @@ export class ResumeParsingService {
     private readonly aiPipelineVersionsRepository: AiPipelineVersionsRepository,
     private readonly resumeParsingSourceRepository: ResumeParsingSourceRepository,
     private readonly resumeParseRunsRepository: ResumeParseRunsRepository,
+    private readonly resumeSkillExtractionService: ResumeSkillExtractionService,
+    private readonly resumeExperienceExtractionService: ResumeExperienceExtractionService,
+    private readonly resumeEducationExtractionService: ResumeEducationExtractionService,
+    private readonly resumeSkillsRepository: ResumeSkillsRepository,
+    private readonly resumeExperiencesRepository: ResumeExperiencesRepository,
+    private readonly resumeEducationsRepository: ResumeEducationsRepository,
   ) { }
 
   async parseForCandidate(resumeId: string, resumeVersionId: string, candidateProfileId: string) {
     const prepared = await this.prepareCandidateRun(resumeId, resumeVersionId, candidateProfileId);
-    if (!prepared.shouldProcess) return { parseRun: prepared.parseRun, reused: true };
 
-    await this.processRun(prepared.parseRun.id, prepared.source);
+    if (!prepared.shouldProcess) {
+      const hydrated = await this.resumeParseRunsRepository.findByIdWithResult(prepared.parseRun.id);
+      if (!hydrated) throw new InternalServerErrorException('Resume parse run disappeared');
+      return { parseRun: hydrated, reused: true };
+    }
+
+    await this.processRun(
+      prepared.parseRun.id,
+      prepared.source,
+      prepared.pipeline.config,
+    );
 
     const completed = await this.resumeParseRunsRepository.findByIdWithResult(prepared.parseRun.id);
     if (!completed) throw new InternalServerErrorException('Resume parse run disappeared after processing');
@@ -36,7 +57,6 @@ export class ResumeParsingService {
   async getLatestForCandidate(resumeId: string, resumeVersionId: string, candidateProfileId: string) {
     const source = await this.resumeParsingSourceRepository.findCandidateOwnedResumeVersion(resumeId, resumeVersionId, candidateProfileId);
     if (!source) throw new NotFoundException('Resume version not found');
-
     return this.resumeParseRunsRepository.findLatestByResumeVersionId(source.id);
   }
 
@@ -55,7 +75,12 @@ export class ResumeParsingService {
       const source = await this.resumeParsingSourceRepository.lockCandidateOwnedAvailableResumeVersion(resumeId, resumeVersionId, candidateProfileId, tx);
       if (!source) throw new NotFoundException('Resume version is not available for parsing');
 
-      const pipeline = await this.aiPipelineVersionsRepository.findActiveByCodeAndType(RESUME_PARSER_PIPELINE_CODE, RESUME_PARSER_PIPELINE_TYPE, tx);
+      const pipeline = await this.aiPipelineVersionsRepository.findActiveByCodeAndType(
+        RESUME_PARSER_PIPELINE_CODE,
+        RESUME_PARSER_PIPELINE_TYPE,
+        tx,
+      );
+
       if (!pipeline) throw new InternalServerErrorException('Active resume parser pipeline is not configured');
 
       const latest = await this.resumeParseRunsRepository.findLatestByResumeVersionAndPipeline(source.id, pipeline.id, tx);
@@ -76,30 +101,95 @@ export class ResumeParsingService {
     });
   }
 
-  private async processRun(parseRunId: string, source: LockedResumeParsingSource): Promise<void> {
+  private async processRun(parseRunId: string, source: LockedResumeParsingSource, pipelineConfig: unknown): Promise<void> {
+    const startedAt = new Date();
+
     try {
-      const processing = await this.resumeParseRunsRepository.markProcessing(parseRunId);
+      const processing = await this.resumeParseRunsRepository.markProcessing(parseRunId, startedAt);
       if (!processing) return;
 
       const stored = await this.fileStorageService.open(source.fileObjectId);
       const buffer = await this.readPdfStream(stored.stream);
 
-      const extraction = await this.aiClientService.extractResumeText({
+      const textExtraction = await this.aiClientService.extractResumeText({
         file: buffer,
         filename: source.originalFilename,
         contentType: source.mimeType,
       });
 
-      const succeeded = await this.resumeParseRunsRepository.markSucceeded(parseRunId, {
-        rawText: extraction.text,
-        rawOutput: {
-          pageCount: extraction.pageCount,
-          textLength: extraction.textLength,
-        },
-        warnings: extraction.warnings,
-      });
+      const [skills, experienceExtraction, educationExtraction] = await Promise.all([
+        this.resumeSkillExtractionService.extract(textExtraction.text, pipelineConfig),
+        this.resumeExperienceExtractionService.extract(textExtraction.text, startedAt),
+        this.resumeEducationExtractionService.extract(textExtraction.text),
+      ]);
 
-      if (!succeeded) throw new Error('Resume parse run could not enter SUCCEEDED status');
+      const warnings = [...new Set([
+        ...textExtraction.warnings,
+        ...experienceExtraction.warnings,
+        ...educationExtraction.warnings,
+      ])];
+
+      await this.prisma.$transaction(async (tx) => {
+        await this.resumeSkillsRepository.createMany(
+          parseRunId,
+          skills.map((skill) => ({
+            skillId: skill.skillId,
+            confidence: skill.confidence,
+            evidenceText: skill.evidenceText,
+          })),
+          tx,
+        );
+
+        await this.resumeExperiencesRepository.createMany(
+          parseRunId,
+          experienceExtraction.experiences.map((experience) => ({
+            companyName: experience.companyName,
+            jobTitle: experience.jobTitle,
+            startDate: this.toDateOnly(experience.startDate),
+            endDate: this.toDateOnly(experience.endDate),
+            isCurrent: experience.isCurrent,
+            description: experience.description,
+            experienceMonths: experience.experienceMonths,
+            ordinal: experience.ordinal,
+            confidence: experience.confidence,
+          })),
+          tx,
+        );
+
+        await this.resumeEducationsRepository.createMany(
+          parseRunId,
+          educationExtraction.educations.map((education) => ({
+            institutionName: education.institutionName,
+            degree: education.degree,
+            fieldOfStudy: education.fieldOfStudy,
+            startDate: this.toDateOnly(education.startDate),
+            endDate: this.toDateOnly(education.endDate),
+            description: education.description,
+            ordinal: education.ordinal,
+            confidence: education.confidence,
+          })),
+          tx,
+        );
+
+        const succeeded = await this.resumeParseRunsRepository.markSucceeded(parseRunId, {
+          rawText: textExtraction.text,
+          rawOutput: {
+            extraction: {
+              pageCount: textExtraction.pageCount,
+              textLength: textExtraction.textLength,
+            },
+            parsing: {
+              referenceDate: startedAt.toISOString().slice(0, 10),
+              skillCount: skills.length,
+              experienceCount: experienceExtraction.experiences.length,
+              educationCount: educationExtraction.educations.length,
+            },
+          },
+          warnings,
+        }, tx);
+
+        if (!succeeded) throw new Error('Resume parse run could not enter SUCCEEDED status');
+      });
     } catch (error) {
       const failure = this.resolveFailure(error);
 
@@ -131,6 +221,10 @@ export class ResumeParsingService {
     return Buffer.concat(chunks, totalBytes);
   }
 
+  private toDateOnly(value: string | null): Date | null {
+    return value ? new Date(`${value}T00:00:00.000Z`) : null;
+  }
+
   private resolveFailure(error: unknown): { code: string; message: string } {
     if (error instanceof AiClientError) {
       return {
@@ -148,16 +242,11 @@ export class ResumeParsingService {
 
     const message = error instanceof Error ? error.message : 'Unknown resume parsing error';
 
-    if (message === 'Resume PDF is empty') {
-      return { code: 'SOURCE_FILE_EMPTY', message };
-    }
-
-    if (message === 'Resume PDF exceeds maximum supported parsing size') {
-      return { code: 'SOURCE_FILE_TOO_LARGE', message };
-    }
+    if (message === 'Resume PDF is empty') return { code: 'SOURCE_FILE_EMPTY', message };
+    if (message === 'Resume PDF exceeds maximum supported parsing size') return { code: 'SOURCE_FILE_TOO_LARGE', message };
 
     return {
-      code: 'TEXT_EXTRACTION_FAILED',
+      code: 'RESUME_PARSING_FAILED',
       message: message.slice(0, 2000),
     };
   }
