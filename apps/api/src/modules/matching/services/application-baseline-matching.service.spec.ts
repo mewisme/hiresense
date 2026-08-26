@@ -1,6 +1,7 @@
 import { BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { describe, expect, it, jest } from '@jest/globals';
 import { ResumeParseRunsRepository } from '../../resume-parsing/repositories/resume-parse-runs.repository';
+import { ApplicationMatchRunsRepository } from '../repositories/application-match-runs.repository';
 import { MatchingRepository } from '../repositories/matching.repository';
 import { ApplicationBaselineMatchingService } from './application-baseline-matching.service';
 import { BaselineExperienceMatchingService } from './baseline-experience-matching.service';
@@ -53,25 +54,36 @@ function pipeline(): MockPipeline {
   return { id: '0198c8e8-0000-7000-8000-000000000009', code: 'matching-baseline-v1', config: { phase: 'internship', components: { skill: 0.6, experience: 0.25, education: 0.15 } } };
 }
 
-function createService(options: { application?: MockApplicationSource | null; requirements?: JobSkillRequirementSnapshot | null; parseRun?: MockParseRun | null; pipeline?: MockPipeline | null } = {}) {
+function createService(options: { application?: MockApplicationSource | null; requirements?: JobSkillRequirementSnapshot | null; parseRun?: MockParseRun | null; pipeline?: MockPipeline | null; persistError?: Error } = {}) {
   const findApplicationSource = jest.fn<(applicationId: string) => Promise<MockApplicationSource | null>>();
   const findActivePipelineByCodeAndType = jest.fn<(code: string, type: string) => Promise<MockPipeline | null>>();
   const findLatestSucceededByResumeVersionId = jest.fn<(resumeVersionId: string) => Promise<MockParseRun | null>>();
   const getSnapshot = jest.fn<(jobVersionId: string) => Promise<JobSkillRequirementSnapshot | null>>();
+  const createPending = jest.fn<() => Promise<{ id: string }>>();
+  const markProcessing = jest.fn<() => Promise<boolean>>();
+  const persistSucceeded = jest.fn<() => Promise<void>>();
+  const markFailed = jest.fn<() => Promise<boolean>>();
+  const findByIdWithResult = jest.fn<() => Promise<{ id: string; status: string } | null>>();
   findApplicationSource.mockImplementation(async () => options.application === undefined ? application() : options.application);
   findActivePipelineByCodeAndType.mockImplementation(async () => options.pipeline === undefined ? pipeline() : options.pipeline);
   findLatestSucceededByResumeVersionId.mockImplementation(async () => options.parseRun === undefined ? parseRun() : options.parseRun);
   getSnapshot.mockImplementation(async () => options.requirements === undefined ? requirements() : options.requirements);
+  createPending.mockImplementation(async () => ({ id: '0198c8e8-0000-7000-8000-000000000010' }));
+  markProcessing.mockImplementation(async () => true);
+  persistSucceeded.mockImplementation(async () => { if (options.persistError) throw options.persistError; });
+  markFailed.mockImplementation(async () => true);
+  findByIdWithResult.mockImplementation(async () => ({ id: '0198c8e8-0000-7000-8000-000000000010', status: 'SUCCEEDED' }));
 
   const service = new ApplicationBaselineMatchingService(
     { findApplicationSource, findActivePipelineByCodeAndType } as unknown as MatchingRepository,
     { findLatestSucceededByResumeVersionId } as unknown as ResumeParseRunsRepository,
     { getSnapshot } as unknown as JobSkillRequirementsService,
+    { createPending, markProcessing, persistSucceeded, markFailed, findByIdWithResult } as unknown as ApplicationMatchRunsRepository,
     new BaselineSkillMatchingService(),
     new BaselineExperienceMatchingService(),
     new BaselineOverallMatchingService(),
   );
-  return { service, findApplicationSource, findActivePipelineByCodeAndType, findLatestSucceededByResumeVersionId, getSnapshot };
+  return { service, findApplicationSource, findActivePipelineByCodeAndType, findLatestSucceededByResumeVersionId, getSnapshot, createPending, markProcessing, persistSucceeded, markFailed, findByIdWithResult };
 }
 
 describe('ApplicationBaselineMatchingService', () => {
@@ -103,6 +115,33 @@ describe('ApplicationBaselineMatchingService', () => {
     const result = await service.preview('0198c8e8-0000-7000-8000-000000000001');
     expect(result.experienceScore).toMatchObject({ score: null, status: 'UNKNOWN' });
     expect(result.overallScore).toMatchObject({ score: 100, status: 'PARTIAL', scoredWeightTotal: '0.6' });
+  });
+
+  it('persists a succeeded match run from the exact immutable inputs', async () => {
+    const { service, createPending, markProcessing, persistSucceeded, markFailed, findByIdWithResult } = createService();
+    await expect(service.run(application().id)).resolves.toEqual({ id: '0198c8e8-0000-7000-8000-000000000010', status: 'SUCCEEDED' });
+    expect(createPending).toHaveBeenCalledWith({ applicationId: application().id, resumeParseRunId: '0198c8e8-0000-7000-8000-000000000007', jobVersionId: application().jobVersionId, pipelineVersionId: '0198c8e8-0000-7000-8000-000000000009' });
+    expect(markProcessing).toHaveBeenCalledWith('0198c8e8-0000-7000-8000-000000000010');
+    expect(persistSucceeded).toHaveBeenCalledWith(
+      '0198c8e8-0000-7000-8000-000000000010',
+      application().id,
+      85.29,
+      expect.arrayContaining([
+        expect.objectContaining({ componentCode: 'SKILL', rawScore: 100, weight: '0.705882', weightedScore: 70.588235 }),
+        expect.objectContaining({ componentCode: 'EXPERIENCE', rawScore: 50, weight: '0.294118', weightedScore: 14.705882 }),
+      ]),
+      [{ jobVersionSkillId: '0198c8e8-0000-7000-8000-000000000005', resumeSkillId: '0198c8e8-0000-7000-8000-000000000008', status: 'MATCHED', similarityScore: 1, evidenceText: 'TypeScript' }],
+    );
+    expect(markFailed).not.toHaveBeenCalled();
+    expect(findByIdWithResult).toHaveBeenCalledWith('0198c8e8-0000-7000-8000-000000000010');
+  });
+
+  it('marks a processing run failed when persistence fails', async () => {
+    const error = new Error('database write failed');
+    const { service, markFailed, findByIdWithResult } = createService({ persistError: error });
+    await expect(service.run(application().id)).rejects.toThrow('database write failed');
+    expect(markFailed).toHaveBeenCalledWith('0198c8e8-0000-7000-8000-000000000010', 'MATCHING_FAILED', 'database write failed');
+    expect(findByIdWithResult).not.toHaveBeenCalled();
   });
 
   it('rejects missing immutable matching inputs', async () => {

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ResumeParsingModule } from '../resume-parsing/resume-parsing.module';
 import { MatchingController } from './matching.controller';
 import { MatchingService } from './matching.service';
+import { ApplicationMatchRunsRepository } from './repositories/application-match-runs.repository';
 import { MatchingRepository } from './repositories/matching.repository';
 import { ApplicationBaselineMatchingService } from './services/application-baseline-matching.service';
 import { ApplicationSkillMatchingService } from './services/application-skill-matching.service';
@@ -13,7 +14,7 @@ import { JobSkillRequirementsService } from './services/job-skill-requirements.s
 @Module({
   imports: [ResumeParsingModule],
   controllers: [MatchingController],
-  providers: [MatchingService, MatchingRepository, JobSkillRequirementsService, BaselineSkillMatchingService, BaselineExperienceMatchingService, BaselineOverallMatchingService, ApplicationSkillMatchingService, ApplicationBaselineMatchingService],
-  exports: [MatchingService, MatchingRepository, JobSkillRequirementsService, BaselineSkillMatchingService, BaselineExperienceMatchingService, BaselineOverallMatchingService, ApplicationSkillMatchingService, ApplicationBaselineMatchingService],
+  providers: [MatchingService, MatchingRepository, ApplicationMatchRunsRepository, JobSkillRequirementsService, BaselineSkillMatchingService, BaselineExperienceMatchingService, BaselineOverallMatchingService, ApplicationSkillMatchingService, ApplicationBaselineMatchingService],
+  exports: [MatchingService, MatchingRepository, ApplicationMatchRunsRepository, JobSkillRequirementsService, BaselineSkillMatchingService, BaselineExperienceMatchingService, BaselineOverallMatchingService, ApplicationSkillMatchingService, ApplicationBaselineMatchingService],
 })
 export class MatchingModule {}
