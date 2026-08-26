@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { MATCHING_BASELINE_PIPELINE_CODE, MATCHING_PIPELINE_TYPE } from '../constants/matching.constants';
 import { ResumeParseRunsRepository } from '../../resume-parsing/repositories/resume-parse-runs.repository';
+import { MATCHING_BASELINE_PIPELINE_CODE, MATCHING_PIPELINE_TYPE } from '../constants/matching.constants';
+import { mapBaselineSkillResults } from '../mappers/baseline-skill-result.mapper';
 import { MatchingRepository } from '../repositories/matching.repository';
 import { BaselineExperienceMatchingService } from './baseline-experience-matching.service';
 import { BaselineOverallMatchingService } from './baseline-overall-matching.service';
@@ -32,6 +33,7 @@ export class ApplicationBaselineMatchingService {
     if (!pipeline) throw new InternalServerErrorException('Active matching baseline pipeline is not configured');
 
     const skillScore = this.baselineSkillMatchingService.score(requirements.skills, parseRun.skills.map((skill) => ({ resumeSkillId: skill.id, skillId: skill.skillId, evidenceText: skill.evidenceText })));
+    const skillResults = mapBaselineSkillResults(requirements.skills, skillScore);
     const experienceScore = this.baselineExperienceMatchingService.score(requirements.experienceMinMonths, requirements.experienceMaxMonths, parseRun.experiences);
     const overallScore = this.baselineOverallMatchingService.score(pipeline.config, [
       { code: 'SKILL', score: skillScore.score, status: 'SCORED' },
@@ -46,6 +48,7 @@ export class ApplicationBaselineMatchingService {
       pipelineVersionId: pipeline.id,
       pipelineCode: pipeline.code,
       skillScore,
+      skillResults,
       experienceScore,
       overallScore,
     };

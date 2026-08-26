@@ -85,6 +85,11 @@ describe('ApplicationBaselineMatchingService', () => {
       pipelineVersionId: '0198c8e8-0000-7000-8000-000000000009',
       pipelineCode: 'matching-baseline-v1',
       skillScore: { score: 100 },
+      skillResults: {
+        matched: [expect.objectContaining({ name: 'TypeScript', status: 'MATCHED', resumeSkillId: '0198c8e8-0000-7000-8000-000000000008', similarityScore: 1, evidenceText: 'TypeScript' })],
+        missing: [],
+        persistence: [{ jobVersionSkillId: '0198c8e8-0000-7000-8000-000000000005', resumeSkillId: '0198c8e8-0000-7000-8000-000000000008', status: 'MATCHED', similarityScore: 1, evidenceText: 'TypeScript' }],
+      },
       experienceScore: { score: 50, status: 'PARTIAL', knownExperienceMonths: 12 },
       overallScore: { score: 85.29, status: 'PARTIAL', scoredWeightTotal: '0.85' },
     });
