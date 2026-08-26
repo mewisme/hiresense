@@ -1,13 +1,16 @@
 import { Module } from '@nestjs/common';
+import { ResumeParsingModule } from '../resume-parsing/resume-parsing.module';
 import { MatchingController } from './matching.controller';
 import { MatchingService } from './matching.service';
 import { MatchingRepository } from './repositories/matching.repository';
+import { ApplicationSkillMatchingService } from './services/application-skill-matching.service';
 import { BaselineSkillMatchingService } from './services/baseline-skill-matching.service';
 import { JobSkillRequirementsService } from './services/job-skill-requirements.service';
 
 @Module({
+  imports: [ResumeParsingModule],
   controllers: [MatchingController],
-  providers: [MatchingService, MatchingRepository, JobSkillRequirementsService, BaselineSkillMatchingService],
-  exports: [MatchingService, MatchingRepository, JobSkillRequirementsService, BaselineSkillMatchingService],
+  providers: [MatchingService, MatchingRepository, JobSkillRequirementsService, BaselineSkillMatchingService, ApplicationSkillMatchingService],
+  exports: [MatchingService, MatchingRepository, JobSkillRequirementsService, BaselineSkillMatchingService, ApplicationSkillMatchingService],
 })
 export class MatchingModule {}

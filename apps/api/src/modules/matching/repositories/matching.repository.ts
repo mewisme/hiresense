@@ -8,6 +8,13 @@ type DbClient = PrismaService | Prisma.TransactionClient;
 export class MatchingRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  findApplicationSource(applicationId: string, db: DbClient = this.prisma) {
+    return db.application.findUnique({
+      where: { id: applicationId },
+      select: { id: true, jobVersionId: true, resumeVersionId: true },
+    });
+  }
+
   findJobVersionRequirements(jobVersionId: string, db: DbClient = this.prisma) {
     return db.jobVersion.findUnique({
       where: { id: jobVersionId },
