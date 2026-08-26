@@ -8,6 +8,10 @@ type DbClient = PrismaService | Prisma.TransactionClient;
 export class MatchingRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  findActivePipelineByCodeAndType(code: string, pipelineType: string, db: DbClient = this.prisma) {
+    return db.aiPipelineVersion.findFirst({ where: { code, pipelineType, isActive: true } });
+  }
+
   findApplicationSource(applicationId: string, db: DbClient = this.prisma) {
     return db.application.findUnique({
       where: { id: applicationId },
