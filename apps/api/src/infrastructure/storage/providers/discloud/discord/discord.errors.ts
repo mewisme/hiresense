@@ -5,13 +5,6 @@ export class DiscordAttachmentGoneError extends Error {
   }
 }
 
-export class DiscordBotUnavailableError extends Error {
-  constructor(botKey: string) {
-    super(`Discord bot is not configured: ${botKey}`);
-    this.name = 'DiscordBotUnavailableError';
-  }
-}
-
 export class DiscordApiError extends Error {
   constructor(
     public readonly statusCode: number,

@@ -226,7 +226,6 @@ model DiscordStorageChunk {
   messageId          String?           @map("message_id") @db.VarChar(32)
   attachmentId       String?           @map("attachment_id") @db.VarChar(32)
   attachmentFilename String?           @map("attachment_filename")
-  botKey             String?           @map("bot_key") @db.VarChar(64)
   createdAt          DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt          DateTime          @default(now()) @map("updated_at") @db.Timestamptz(6)
   deletedAt          DateTime?         @map("deleted_at") @db.Timestamptz(6)

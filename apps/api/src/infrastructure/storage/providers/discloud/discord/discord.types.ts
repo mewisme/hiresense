@@ -6,13 +6,11 @@ export interface DiscordAttachment {
 
 export interface DiscordMessage {
   id: string;
-  attachments:
-  DiscordAttachment[];
+  attachments: DiscordAttachment[];
 }
 
 export interface DiscordUploadResult {
   messageId: string;
   attachmentId: string;
   filename: string;
-  botKey: string;
 }

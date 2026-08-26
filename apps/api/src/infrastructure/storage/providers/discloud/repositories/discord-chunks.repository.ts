@@ -14,7 +14,6 @@ export interface ActivateChunkInput {
   messageId: string;
   attachmentId: string;
   attachmentFilename: string;
-  botKey: string;
 }
 
 @Injectable()
@@ -22,28 +21,15 @@ export class DiscordChunksRepository {
   constructor(private readonly prisma: PrismaService) { }
 
   findById(id: string, db: DbClient = this.prisma) {
-    return db.discordStorageChunk.findUnique({
-      where: { id },
-    });
+    return db.discordStorageChunk.findUnique({ where: { id } });
   }
 
   findByHash(channelId: string, sha256: string, db: DbClient = this.prisma) {
-    return db.discordStorageChunk.findUnique({
-      where: {
-        channelId_sha256: { channelId, sha256 },
-      },
-    });
+    return db.discordStorageChunk.findUnique({ where: { channelId_sha256: { channelId, sha256 } } });
   }
 
   findActiveByHash(channelId: string, sha256: string, db: DbClient = this.prisma) {
-    return db.discordStorageChunk.findFirst({
-      where: {
-        channelId,
-        sha256,
-        status: 'ACTIVE',
-        deletedAt: null,
-      },
-    });
+    return db.discordStorageChunk.findFirst({ where: { channelId, sha256, status: 'ACTIVE', deletedAt: null } });
   }
 
   createUploading(input: CreateUploadingChunkInput, db: DbClient = this.prisma) {
@@ -65,33 +51,23 @@ export class DiscordChunksRepository {
         messageId: input.messageId,
         attachmentId: input.attachmentId,
         attachmentFilename: input.attachmentFilename,
-        botKey: input.botKey,
         deletedAt: null,
       },
     });
   }
 
   markFailed(id: string, db: DbClient = this.prisma) {
-    return db.discordStorageChunk.update({
-      where: { id },
-      data: { status: 'FAILED' },
-    });
+    return db.discordStorageChunk.update({ where: { id }, data: { status: 'FAILED' } });
   }
 
   markMissing(id: string, db: DbClient = this.prisma) {
-    return db.discordStorageChunk.update({
-      where: { id },
-      data: { status: 'MISSING' },
-    });
+    return db.discordStorageChunk.update({ where: { id }, data: { status: 'MISSING' } });
   }
 
   markDeleted(id: string, db: DbClient = this.prisma) {
     return db.discordStorageChunk.update({
       where: { id },
-      data: {
-        status: 'DELETED',
-        deletedAt: new Date(),
-      },
+      data: { status: 'DELETED', deletedAt: new Date() },
     });
   }
 
@@ -104,7 +80,6 @@ export class DiscordChunksRepository {
         messageId: null,
         attachmentId: null,
         attachmentFilename: null,
-        botKey: null,
         deletedAt: null,
       },
     });

@@ -1,5 +1,5 @@
 export interface DiscloudBotConfig {
-  key: string;
+  id: string;
   token: string;
 }
 
@@ -8,25 +8,31 @@ function parseCsv(value: string | undefined): string[] {
   return value.split(',').map((item) => item.trim()).filter(Boolean);
 }
 
-export function parseDiscloudBots(keysValue: string | undefined, tokensValue: string | undefined): DiscloudBotConfig[] {
-  const keys = parseCsv(keysValue);
+export function decodeDiscordBotId(token: string): string {
+  const [encodedId, middle, signature, ...rest] = token.split('.');
+  if (!encodedId || !middle || !signature || rest.length > 0) throw new Error('Invalid Discord bot token format');
+
+  let id: string;
+
+  try {
+    id = Buffer.from(encodedId, 'base64url').toString('utf8');
+  } catch {
+    throw new Error('Invalid Discord bot token id');
+  }
+
+  if (!/^\d{17,20}$/.test(id)) throw new Error('Invalid Discord bot token id');
+  return id;
+}
+
+export function parseDiscloudBots(tokensValue: string | undefined): DiscloudBotConfig[] {
   const tokens = parseCsv(tokensValue);
+  const seenIds = new Set<string>();
 
-  if (keys.length === 0 && tokens.length === 0) return [];
-  if (keys.length !== tokens.length) throw new Error('DISCLOUD_BOT_KEYS and DISCLOUD_BOT_TOKENS must contain the same number of entries');
-
-  const seenKeys = new Set<string>();
-
-  return keys.map((key, index) => {
-    if (!/^[a-zA-Z0-9_-]{1,64}$/.test(key)) throw new Error(`Invalid DisCloud bot key: ${key}`);
-    if (seenKeys.has(key)) throw new Error(`Duplicate DisCloud bot key: ${key}`);
-
-    seenKeys.add(key);
-
-    const token = tokens[index];
-    if (!token) throw new Error(`Missing token for DisCloud bot: ${key}`);
-
-    return { key, token };
+  return tokens.map((token) => {
+    const id = decodeDiscordBotId(token);
+    if (seenIds.has(id)) throw new Error(`Duplicate DisCloud bot id: ${id}`);
+    seenIds.add(id);
+    return { id, token };
   });
 }
 
@@ -35,14 +41,13 @@ function positiveInteger(value: string | undefined, fallback: number): number {
 
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed <= 0) throw new Error(`Expected positive integer, received: ${value}`);
-
   return parsed;
 }
 
 export const storageConfig = () => {
   const provider = process.env.STORAGE_PROVIDER ?? 'discloud';
   const channelId = process.env.DISCLOUD_CHANNEL_ID;
-  const bots = parseDiscloudBots(process.env.DISCLOUD_BOT_KEYS, process.env.DISCLOUD_BOT_TOKENS);
+  const bots = parseDiscloudBots(process.env.DISCLOUD_BOT_TOKENS);
 
   if (provider === 'discloud' && !channelId) throw new Error('DISCLOUD_CHANNEL_ID is required when STORAGE_PROVIDER=discloud');
   if (provider === 'discloud' && bots.length === 0) throw new Error('At least one Discord bot is required when STORAGE_PROVIDER=discloud');

@@ -121,9 +121,7 @@ export class DisCloudStorageProvider implements StorageProvider {
 
       if (totalReferenceCount > localReferenceCount) continue;
 
-      if (chunk.status === 'ACTIVE' && chunk.messageId && chunk.botKey) {
-        await this.discordClient.deleteMessage(chunk.messageId, chunk.botKey);
-      }
+      if (chunk.status === 'ACTIVE' && chunk.messageId) await this.discordClient.deleteMessage(chunk.messageId);
 
       if (chunk.status !== 'DELETED') await this.chunksRepository.markDeleted(chunk.id);
     }
@@ -216,12 +214,11 @@ export class DisCloudStorageProvider implements StorageProvider {
         messageId: uploaded.messageId,
         attachmentId: uploaded.attachmentId,
         attachmentFilename: uploaded.filename,
-        botKey: uploaded.botKey,
       });
     } catch (error) {
       if (uploaded) {
         try {
-          await this.discordClient.deleteMessage(uploaded.messageId, uploaded.botKey);
+          await this.discordClient.deleteMessage(uploaded.messageId);
         } catch {
           // Best-effort compensation.
         }
@@ -241,14 +238,14 @@ export class DisCloudStorageProvider implements StorageProvider {
     for (const part of parts) {
       const chunk = part.chunk;
 
-      if (chunk.status !== 'ACTIVE' || !chunk.messageId || !chunk.attachmentId || !chunk.botKey) {
+      if (chunk.status !== 'ACTIVE' || !chunk.messageId || !chunk.attachmentId) {
         throw new DiscloudChunkUnavailableError(chunk.sha256);
       }
 
       let url: string;
 
       try {
-        url = await this.discordClient.getAttachmentUrl(chunk.messageId, chunk.attachmentId, chunk.botKey);
+        url = await this.discordClient.getAttachmentUrl(chunk.messageId, chunk.attachmentId);
       } catch (error) {
         if (error instanceof DiscordAttachmentGoneError) await this.chunksRepository.markMissing(chunk.id);
         throw error;

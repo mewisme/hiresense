@@ -1184,10 +1184,7 @@ discord_file_parts
 
 `discord_storage_chunks.sha256` là SHA-256 của từng chunk riêng lẻ.
 
-Không lưu Discord bot token trong database.
-
-`bot_key` là stable logical key dùng để resolve bot credential từ
-application configuration.
+Không lưu Discord bot token hoặc bot identity trong database. Bot credentials chỉ tồn tại trong application configuration; mọi bot trong pool có thể đọc hoặc xóa Discord message của chunk khi có đủ quyền trên cùng channel.
 
 Discord attachment/message metadata không được expose trực tiếp cho
 business modules.
@@ -1203,7 +1200,6 @@ status
 message_id
 attachment_id
 attachment_filename
-bot_key
 created_at
 updated_at
 deleted_at

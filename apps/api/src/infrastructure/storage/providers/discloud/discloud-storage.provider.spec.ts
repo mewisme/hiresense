@@ -16,7 +16,6 @@ interface MockChunk {
   messageId: string | null;
   attachmentId: string | null;
   attachmentFilename: string | null;
-  botKey: string | null;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
@@ -31,7 +30,6 @@ interface MockDiscordUploadResult {
   messageId: string;
   attachmentId: string;
   filename: string;
-  botKey: string;
 }
 
 interface CreateChunkInput {
@@ -44,7 +42,6 @@ interface MarkChunkActiveInput {
   messageId: string;
   attachmentId: string;
   attachmentFilename: string;
-  botKey: string;
 }
 
 interface CreatePartInput {
@@ -85,7 +82,6 @@ function uploadingChunk(content: string | Buffer = 'abc', overrides: Partial<Moc
     messageId: null,
     attachmentId: null,
     attachmentFilename: null,
-    botKey: null,
     createdAt: new Date('2026-08-16T00:00:00.000Z'),
     updatedAt: new Date('2026-08-16T00:00:00.000Z'),
     deletedAt: null,
@@ -99,15 +95,14 @@ function activeChunk(content: string | Buffer = 'abc', overrides: Partial<MockCh
     messageId: 'message-1',
     attachmentId: 'attachment-1',
     attachmentFilename: 'chunk.bin',
-    botKey: 'bot-a',
     ...overrides,
   });
 }
 
 function createUploadMocks() {
   const uploadChunk = jest.fn<(filename: string, content: Buffer) => Promise<MockDiscordUploadResult>>();
-  const getAttachmentUrl = jest.fn<(messageId: string, attachmentId: string, botKey: string) => Promise<string>>();
-  const deleteMessage = jest.fn<(messageId: string, botKey: string) => Promise<void>>();
+  const getAttachmentUrl = jest.fn<(messageId: string, attachmentId: string) => Promise<string>>();
+  const deleteMessage = jest.fn<(messageId: string) => Promise<void>>();
 
   const findByHash = jest.fn<(channelId: string, chunkSha256: string) => Promise<MockChunk | null>>();
   const createUploading = jest.fn<(input: CreateChunkInput) => Promise<MockChunk>>();
@@ -186,7 +181,6 @@ describe('DisCloudStorageProvider', () => {
         messageId: 'message-1',
         attachmentId: 'attachment-1',
         filename: 'chunk.bin',
-        botKey: 'bot-a',
       };
     });
     mocks.markActive.mockImplementation(async () => active);
@@ -297,7 +291,6 @@ describe('DisCloudStorageProvider', () => {
       messageId: 'message-1',
       attachmentId: 'attachment-1',
       filename: 'chunk.bin',
-      botKey: 'bot-a',
     }));
     mocks.markActive.mockImplementation(async () => activeChunk());
     mocks.createPart.mockImplementation(async () => undefined);
@@ -366,7 +359,6 @@ describe('DisCloudStorageProvider', () => {
       messageId: 'message-2',
       attachmentId: 'attachment-2',
       filename: 'chunk.bin',
-      botKey: 'bot-b',
     }));
     mocks.markActive.mockImplementation(async () => active);
     mocks.createPart.mockImplementation(async () => undefined);
@@ -402,7 +394,6 @@ describe('DisCloudStorageProvider', () => {
           id: 'chunk-1',
           messageId: 'message-1',
           attachmentId: 'attachment-1',
-          botKey: 'bot-a',
         }),
       },
       {
@@ -411,7 +402,6 @@ describe('DisCloudStorageProvider', () => {
           id: 'chunk-2',
           messageId: 'message-2',
           attachmentId: 'attachment-2',
-          botKey: 'bot-b',
         }),
       },
     ]);
@@ -450,19 +440,9 @@ describe('DisCloudStorageProvider', () => {
     expect(stored.contentType).toBe('application/pdf');
     expect(stored.sizeBytes).toBe(6n);
 
-    expect(mocks.getAttachmentUrl).toHaveBeenNthCalledWith(
-      1,
-      'message-1',
-      'attachment-1',
-      'bot-a',
-    );
+    expect(mocks.getAttachmentUrl).toHaveBeenNthCalledWith(1, 'message-1', 'attachment-1');
 
-    expect(mocks.getAttachmentUrl).toHaveBeenNthCalledWith(
-      2,
-      'message-2',
-      'attachment-2',
-      'bot-b',
-    );
+    expect(mocks.getAttachmentUrl).toHaveBeenNthCalledWith(2, 'message-2', 'attachment-2');
   });
 
   it('rejects a downloaded chunk whose bytes do not match its SHA-256', async () => {
@@ -475,7 +455,6 @@ describe('DisCloudStorageProvider', () => {
           id: 'chunk-1',
           messageId: 'message-1',
           attachmentId: 'attachment-1',
-          botKey: 'bot-a',
         }),
       },
     ]);
@@ -617,7 +596,7 @@ describe('DisCloudStorageProvider', () => {
       contentType: 'application/pdf',
     });
 
-    expect(mocks.deleteMessage).toHaveBeenCalledWith('message-1', 'bot-a');
+    expect(mocks.deleteMessage).toHaveBeenCalledWith('message-1');
     expect(mocks.markDeleted).toHaveBeenCalledWith('chunk-1');
     expect(mocks.deleteByFileObjectId).toHaveBeenCalledWith(
       '0198c8e8-8abc-7000-8000-000000000014',
