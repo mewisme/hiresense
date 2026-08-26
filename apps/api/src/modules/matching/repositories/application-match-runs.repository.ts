@@ -2,6 +2,18 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '../../../generated/prisma/client';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
 
+const applicationMatchRunResultInclude = {
+  pipelineVersion: { select: { id: true, code: true, pipelineType: true, semanticVersion: true, codeRevision: true } },
+  resumeParseRun: { select: { id: true, pipelineVersionId: true, status: true, detectedLanguage: true, startedAt: true, completedAt: true, createdAt: true } },
+  components: { orderBy: { componentCode: 'asc' as const } },
+  skillResults: {
+    include: { jobVersionSkill: { include: { skill: true } }, resumeSkill: { include: { skill: true } } },
+    orderBy: [{ status: 'asc' as const }, { jobVersionSkillId: 'asc' as const }],
+  },
+} satisfies Prisma.ApplicationMatchRunInclude;
+
+export type ApplicationMatchRunResult = Prisma.ApplicationMatchRunGetPayload<{ include: typeof applicationMatchRunResultInclude }>;
+
 export interface CreateApplicationMatchRunInput {
   applicationId: string;
   resumeParseRunId: string;
@@ -93,14 +105,22 @@ export class ApplicationMatchRunsRepository {
   findByIdWithResult(id: string) {
     return this.prisma.applicationMatchRun.findUnique({
       where: { id },
-      include: {
-        pipelineVersion: true,
-        components: { orderBy: { componentCode: 'asc' } },
-        skillResults: {
-          include: { jobVersionSkill: { include: { skill: true } }, resumeSkill: true },
-          orderBy: [{ status: 'asc' }, { jobVersionSkillId: 'asc' }],
-        },
-      },
+      include: applicationMatchRunResultInclude,
     });
+  }
+
+  findByIdForApplication(id: string, applicationId: string) {
+    return this.prisma.applicationMatchRun.findFirst({
+      where: { id, applicationId },
+      include: applicationMatchRunResultInclude,
+    });
+  }
+
+  async findCurrentByApplicationId(applicationId: string): Promise<ApplicationMatchRunResult | null> {
+    const application = await this.prisma.application.findUnique({
+      where: { id: applicationId },
+      select: { currentMatchRun: { include: applicationMatchRunResultInclude } },
+    });
+    return application?.currentMatchRun ?? null;
   }
 }

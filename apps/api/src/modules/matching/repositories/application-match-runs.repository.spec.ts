@@ -7,6 +7,9 @@ function createRepository(options: { completeCount?: number; applicationCount?: 
   const skillCreateMany = jest.fn(async () => ({ count: 1 }));
   const runUpdateMany = jest.fn(async () => ({ count: options.completeCount ?? 1 }));
   const applicationUpdateMany = jest.fn(async () => ({ count: options.applicationCount ?? 1 }));
+  const runFindFirst = jest.fn(async () => ({ id: 'run' }));
+  const runFindUnique = jest.fn(async () => ({ id: 'run' }));
+  const applicationFindUnique = jest.fn(async () => ({ currentMatchRun: { id: 'run' } }));
   const tx = {
     matchScoreComponent: { createMany: componentCreateMany },
     matchSkillResult: { createMany: skillCreateMany },
@@ -14,8 +17,12 @@ function createRepository(options: { completeCount?: number; applicationCount?: 
     application: { updateMany: applicationUpdateMany },
   };
   const transaction = jest.fn(async (callback: (client: typeof tx) => Promise<void>) => callback(tx));
-  const repository = new ApplicationMatchRunsRepository({ $transaction: transaction } as unknown as PrismaService);
-  return { repository, transaction, componentCreateMany, skillCreateMany, runUpdateMany, applicationUpdateMany };
+  const repository = new ApplicationMatchRunsRepository({
+    $transaction: transaction,
+    applicationMatchRun: { findFirst: runFindFirst, findUnique: runFindUnique },
+    application: { findUnique: applicationFindUnique },
+  } as unknown as PrismaService);
+  return { repository, transaction, componentCreateMany, skillCreateMany, runUpdateMany, applicationUpdateMany, runFindFirst, runFindUnique, applicationFindUnique };
 }
 
 describe('ApplicationMatchRunsRepository', () => {
@@ -45,5 +52,17 @@ describe('ApplicationMatchRunsRepository', () => {
   it('aborts the transaction when the application current pointer cannot be updated', async () => {
     const { repository } = createRepository({ applicationCount: 0 });
     await expect(repository.persistSucceeded('run', 'application', 50, [], [])).rejects.toThrow('Application current match run could not be updated');
+  });
+
+  it('scopes historical run lookup to its application', async () => {
+    const { repository, runFindFirst } = createRepository();
+    await repository.findByIdForApplication('run', 'application');
+    expect(runFindFirst).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 'run', applicationId: 'application' } }));
+  });
+
+  it('loads the application current match run through the composite relation', async () => {
+    const { repository, applicationFindUnique } = createRepository();
+    await expect(repository.findCurrentByApplicationId('application')).resolves.toEqual({ id: 'run' });
+    expect(applicationFindUnique).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 'application' }, select: expect.objectContaining({ currentMatchRun: expect.any(Object) }) }));
   });
 });

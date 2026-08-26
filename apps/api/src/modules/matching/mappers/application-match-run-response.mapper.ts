@@ -1,0 +1,65 @@
+import type { ApplicationMatchRunResult } from '../repositories/application-match-runs.repository';
+
+export function toApplicationMatchRunResponse(run: ApplicationMatchRunResult) {
+  return {
+    id: run.id,
+    applicationId: run.applicationId,
+    resumeParseRunId: run.resumeParseRunId,
+    jobVersionId: run.jobVersionId,
+    pipelineVersionId: run.pipelineVersionId,
+    status: run.status,
+    overallScore: run.overallScore ? Number(run.overallScore) : null,
+    startedAt: run.startedAt,
+    completedAt: run.completedAt,
+    errorCode: run.errorCode,
+    errorMessage: run.errorMessage,
+    createdAt: run.createdAt,
+    pipeline: {
+      id: run.pipelineVersion.id,
+      code: run.pipelineVersion.code,
+      pipelineType: run.pipelineVersion.pipelineType,
+      semanticVersion: run.pipelineVersion.semanticVersion,
+      codeRevision: run.pipelineVersion.codeRevision,
+    },
+    resumeParseRun: {
+      id: run.resumeParseRun.id,
+      pipelineVersionId: run.resumeParseRun.pipelineVersionId,
+      status: run.resumeParseRun.status,
+      detectedLanguage: run.resumeParseRun.detectedLanguage,
+      startedAt: run.resumeParseRun.startedAt,
+      completedAt: run.resumeParseRun.completedAt,
+      createdAt: run.resumeParseRun.createdAt,
+    },
+    components: run.components.map((component) => ({
+      id: component.id,
+      code: component.componentCode,
+      rawScore: Number(component.rawScore),
+      weight: Number(component.weight),
+      weightedScore: Number(component.weightedScore),
+      details: component.details,
+    })),
+    skills: run.skillResults.map((result) => ({
+      id: result.id,
+      status: result.status,
+      similarityScore: result.similarityScore ? Number(result.similarityScore) : null,
+      evidenceText: result.evidenceText,
+      requirement: {
+        jobVersionSkillId: result.jobVersionSkillId,
+        skillId: result.jobVersionSkill.skillId,
+        name: result.jobVersionSkill.skill.name,
+        normalizedName: result.jobVersionSkill.skill.normalizedName,
+        importance: result.jobVersionSkill.importance,
+        isRequired: result.jobVersionSkill.isRequired,
+        weight: result.jobVersionSkill.weight.toString(),
+        minExperienceMonths: result.jobVersionSkill.minExperienceMonths,
+      },
+      resumeSkill: result.resumeSkill ? {
+        id: result.resumeSkill.id,
+        skillId: result.resumeSkill.skillId,
+        name: result.resumeSkill.skill.name,
+        normalizedName: result.resumeSkill.skill.normalizedName,
+        confidence: result.resumeSkill.confidence?.toString() ?? null,
+      } : null,
+    })),
+  };
+}
