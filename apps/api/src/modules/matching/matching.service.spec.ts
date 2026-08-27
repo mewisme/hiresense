@@ -12,15 +12,16 @@ const userId = '0198c8e8-0000-7000-8000-000000000004';
 
 function createService(options: { current?: ApplicationMatchRunResult | null; run?: ApplicationMatchRunResult | null } = {}) {
   const getForRecruiter = jest.fn(async () => ({ application: { id: applicationId }, history: [] }));
+  const getMine = jest.fn(async () => ({ application: { id: applicationId }, history: [] }));
   const findCurrentByApplicationId = jest.fn(async () => options.current === undefined ? ({ id: matchRunId } as ApplicationMatchRunResult) : options.current);
   const findByIdForApplication = jest.fn(async () => options.run === undefined ? ({ id: matchRunId } as ApplicationMatchRunResult) : options.run);
   const run = jest.fn(async () => ({ id: matchRunId } as ApplicationMatchRunResult));
   const service = new MatchingService(
-    { getForRecruiter } as unknown as ApplicationsService,
+    { getForRecruiter, getMine } as unknown as ApplicationsService,
     { findCurrentByApplicationId, findByIdForApplication } as unknown as ApplicationMatchRunsRepository,
     { run } as unknown as ApplicationBaselineMatchingService,
   );
-  return { service, getForRecruiter, findCurrentByApplicationId, findByIdForApplication, run };
+  return { service, getForRecruiter, getMine, findCurrentByApplicationId, findByIdForApplication, run };
 }
 
 describe('MatchingService', () => {
@@ -45,8 +46,16 @@ describe('MatchingService', () => {
     expect(findByIdForApplication).toHaveBeenCalledWith(matchRunId, applicationId);
   });
 
+  it('returns the current match run after candidate application ownership authorization', async () => {
+    const { service, getMine, findCurrentByApplicationId } = createService();
+    await expect(service.getCurrentForCandidate(applicationId, userId)).resolves.toMatchObject({ id: matchRunId });
+    expect(getMine).toHaveBeenCalledWith(applicationId, userId);
+    expect(findCurrentByApplicationId).toHaveBeenCalledWith(applicationId);
+  });
+
   it('rejects missing current and scoped historical match runs', async () => {
     await expect(createService({ current: null }).service.getCurrentForRecruiter(companyId, applicationId, userId)).rejects.toBeInstanceOf(NotFoundException);
+    await expect(createService({ current: null }).service.getCurrentForCandidate(applicationId, userId)).rejects.toBeInstanceOf(NotFoundException);
     await expect(createService({ run: null }).service.getRunForRecruiter(companyId, applicationId, matchRunId, userId)).rejects.toBeInstanceOf(NotFoundException);
   });
 });
