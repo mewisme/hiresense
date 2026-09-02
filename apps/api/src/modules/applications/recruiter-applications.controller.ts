@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Query, Res, StreamableFile } from '@nestjs/common';
 import type { Response } from 'express';
+import { applyPrivateFileResponseHeaders } from '../../common/http/private-file-response.util';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user.type';
@@ -49,9 +50,7 @@ export class RecruiterApplicationsController {
     const result = await this.applicationsService.openRecruiterResume(companyId, applicationId, user.id);
 
     response.setHeader('Content-Disposition', createAttachmentDisposition(result.fileObject.originalFilename));
-    response.setHeader('Cache-Control', 'private, no-store');
-    response.setHeader('Pragma', 'no-cache');
-    response.setHeader('X-Content-Type-Options', 'nosniff');
+    applyPrivateFileResponseHeaders(response);
 
     return new StreamableFile(result.stream, {
       type: result.contentType,

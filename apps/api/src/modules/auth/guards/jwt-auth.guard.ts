@@ -10,7 +10,7 @@ import type { Request } from 'express';
 import { AuthSessionsRepository } from '../repositories/auth-sessions.repository';
 import { TokenService } from '../services/token.service';
 import type { AuthenticatedUser } from '../types/authenticated-user.type';
-import { isAppRole, type AppRole } from '../types/role.type';
+import type { AppRole } from '../types/role.type';
 import { parseAppRoles } from '../utils/role.util';
 
 type AuthenticatedRequest =

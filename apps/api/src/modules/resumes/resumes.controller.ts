@@ -2,6 +2,7 @@ import { Readable } from 'node:stream';
 import { Body, Controller, Delete, Get, NotFoundException, Param, ParseUUIDPipe, Patch, Post, Res, StreamableFile, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Express, Response } from 'express';
+import { applyPrivateFileResponseHeaders } from '../../common/http/private-file-response.util';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user.type';
@@ -156,6 +157,7 @@ export class ResumesController {
     const result = await this.resumesService.openCurrentVersion(resumeId, candidate.id);
 
     response.setHeader('Content-Disposition', createAttachmentDisposition(result.fileObject.originalFilename));
+    applyPrivateFileResponseHeaders(response);
 
     return new StreamableFile(result.stream, {
       type: result.contentType,
@@ -174,6 +176,7 @@ export class ResumesController {
     const result = await this.resumesService.openVersion(resumeId, versionId, candidate.id);
 
     response.setHeader('Content-Disposition', createAttachmentDisposition(result.fileObject.originalFilename));
+    applyPrivateFileResponseHeaders(response);
 
     return new StreamableFile(result.stream, {
       type: result.contentType,
