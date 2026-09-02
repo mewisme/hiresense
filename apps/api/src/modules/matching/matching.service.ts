@@ -23,6 +23,13 @@ export class MatchingService {
     return run;
   }
 
+  async getCurrentForCandidate(applicationId: string, userId: string) {
+    await this.applicationsService.getMine(applicationId, userId);
+    const run = await this.applicationMatchRunsRepository.findCurrentByApplicationId(applicationId);
+    if (!run) throw new NotFoundException('Application match result not found');
+    return run;
+  }
+
   async getRunForRecruiter(companyId: string, applicationId: string, matchRunId: string, userId: string) {
     await this.requireRecruiterApplicationAccess(companyId, applicationId, userId);
     const run = await this.applicationMatchRunsRepository.findByIdForApplication(matchRunId, applicationId);

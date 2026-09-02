@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ApplicationsModule } from '../applications/applications.module';
 import { AuthModule } from '../auth/auth.module';
 import { ResumeParsingModule } from '../resume-parsing/resume-parsing.module';
+import { CandidateMatchingController } from './candidate-matching.controller';
 import { MatchingController } from './matching.controller';
 import { MatchingService } from './matching.service';
 import { ApplicationMatchRunsRepository } from './repositories/application-match-runs.repository';
@@ -16,7 +17,7 @@ import { JobSkillRequirementsService } from './services/job-skill-requirements.s
 
 @Module({
   imports: [AuthModule, ApplicationsModule, ResumeParsingModule],
-  controllers: [MatchingController],
+  controllers: [MatchingController, CandidateMatchingController],
   providers: [MatchingService, MatchingRepository, ApplicationMatchRunsRepository, JobSkillRequirementsService, BaselineSkillMatchingService, BaselineExperienceMatchingService, BaselineEducationMatchingService, BaselineOverallMatchingService, ApplicationSkillMatchingService, ApplicationBaselineMatchingService],
   exports: [MatchingService, MatchingRepository, ApplicationMatchRunsRepository, JobSkillRequirementsService, BaselineSkillMatchingService, BaselineExperienceMatchingService, BaselineEducationMatchingService, BaselineOverallMatchingService, ApplicationSkillMatchingService, ApplicationBaselineMatchingService],
 })
