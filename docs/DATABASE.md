@@ -1564,6 +1564,7 @@ workplace_type
 
 experience_min_months
 experience_max_months
+education_min_level
 
 salary_min
 salary_max
@@ -1572,6 +1573,16 @@ salary_currency
 created_by_user_id
 published_at
 created_at
+```
+
+`education_min_level` is nullable and, for the internship baseline, accepts:
+
+```text
+HIGH_SCHOOL
+ASSOCIATE
+BACHELOR
+MASTER
+DOCTORATE
 ```
 
 Unique:

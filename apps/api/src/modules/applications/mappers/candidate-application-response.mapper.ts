@@ -107,6 +107,7 @@ export function toCandidateApplicationDetailResponse(application: CandidateAppli
       workplaceType: application.jobVersion.workplaceType,
       experienceMinMonths: application.jobVersion.experienceMinMonths,
       experienceMaxMonths: application.jobVersion.experienceMaxMonths,
+      educationMinLevel: application.jobVersion.educationMinLevel,
       salaryMin: application.jobVersion.salaryMin?.toString() ?? null,
       salaryMax: application.jobVersion.salaryMax?.toString() ?? null,
       salaryCurrency: application.jobVersion.salaryCurrency,

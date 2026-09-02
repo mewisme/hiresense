@@ -24,6 +24,7 @@ type EditableJobVersion = {
   workplaceType: string | null;
   experienceMinMonths: number | null;
   experienceMaxMonths: number | null;
+  educationMinLevel: string | null;
   salaryMin: Prisma.Decimal | null;
   salaryMax: Prisma.Decimal | null;
   salaryCurrency: string | null;
@@ -68,6 +69,7 @@ export class JobsService {
         workplaceType: dto.workplaceType ?? null,
         experienceMinMonths: dto.experienceMinMonths ?? null,
         experienceMaxMonths: dto.experienceMaxMonths ?? null,
+        educationMinLevel: dto.educationMinLevel ?? null,
         salaryMin: dto.salaryMin ? new Prisma.Decimal(dto.salaryMin) : null,
         salaryMax: dto.salaryMax ? new Prisma.Decimal(dto.salaryMax) : null,
         salaryCurrency: dto.salaryCurrency ?? null,
@@ -152,6 +154,7 @@ export class JobsService {
         workplaceType: merged.workplaceType,
         experienceMinMonths: merged.experienceMinMonths,
         experienceMaxMonths: merged.experienceMaxMonths,
+        educationMinLevel: merged.educationMinLevel,
         salaryMin: merged.salaryMin,
         salaryMax: merged.salaryMax,
         salaryCurrency: merged.salaryCurrency,
@@ -441,6 +444,7 @@ export class JobsService {
       workplaceType: dto.workplaceType !== undefined ? dto.workplaceType : current.workplaceType,
       experienceMinMonths: dto.experienceMinMonths !== undefined ? dto.experienceMinMonths : current.experienceMinMonths,
       experienceMaxMonths: dto.experienceMaxMonths !== undefined ? dto.experienceMaxMonths : current.experienceMaxMonths,
+      educationMinLevel: dto.educationMinLevel !== undefined ? dto.educationMinLevel : current.educationMinLevel,
       salaryMin: dto.salaryMin !== undefined ? dto.salaryMin === null ? null : new Prisma.Decimal(dto.salaryMin) : current.salaryMin,
       salaryMax: dto.salaryMax !== undefined ? dto.salaryMax === null ? null : new Prisma.Decimal(dto.salaryMax) : current.salaryMax,
       salaryCurrency: dto.salaryCurrency !== undefined ? dto.salaryCurrency : current.salaryCurrency,
@@ -483,6 +487,7 @@ export class JobsService {
       workplaceType: version.workplaceType,
       experienceMinMonths: version.experienceMinMonths,
       experienceMaxMonths: version.experienceMaxMonths,
+      educationMinLevel: version.educationMinLevel,
       salaryMin: version.salaryMin,
       salaryMax: version.salaryMax,
       salaryCurrency: version.salaryCurrency,
@@ -510,6 +515,7 @@ export class JobsService {
       workplaceType: null,
       experienceMinMonths: version.experienceMinMonths,
       experienceMaxMonths: version.experienceMaxMonths,
+      educationMinLevel: null,
       salaryMin: version.salaryMin,
       salaryMax: version.salaryMax,
       salaryCurrency: version.salaryCurrency,

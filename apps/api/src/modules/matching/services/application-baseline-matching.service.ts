@@ -4,6 +4,7 @@ import { MATCHING_BASELINE_PIPELINE_CODE, MATCHING_PIPELINE_TYPE } from '../cons
 import { mapBaselineSkillResults } from '../mappers/baseline-skill-result.mapper';
 import { ApplicationMatchRunsRepository } from '../repositories/application-match-runs.repository';
 import { MatchingRepository } from '../repositories/matching.repository';
+import { BaselineEducationMatchingService } from './baseline-education-matching.service';
 import { BaselineExperienceMatchingService } from './baseline-experience-matching.service';
 import { BaselineOverallMatchingService } from './baseline-overall-matching.service';
 import { BaselineSkillMatchingService } from './baseline-skill-matching.service';
@@ -18,6 +19,7 @@ export class ApplicationBaselineMatchingService {
     private readonly applicationMatchRunsRepository: ApplicationMatchRunsRepository,
     private readonly baselineSkillMatchingService: BaselineSkillMatchingService,
     private readonly baselineExperienceMatchingService: BaselineExperienceMatchingService,
+    private readonly baselineEducationMatchingService: BaselineEducationMatchingService,
     private readonly baselineOverallMatchingService: BaselineOverallMatchingService,
   ) {}
 
@@ -39,7 +41,9 @@ export class ApplicationBaselineMatchingService {
           ? { formulaVersion: result.skillScore.formulaVersion, status: component.status, configuredWeight: component.configuredWeight, matchedWeight: result.skillScore.matchedWeight, totalWeight: result.skillScore.totalWeight, required: result.skillScore.required, preferred: result.skillScore.preferred }
           : component.code === 'EXPERIENCE'
             ? { formulaVersion: result.experienceScore.formulaVersion, status: result.experienceScore.status, configuredWeight: component.configuredWeight, requiredMinMonths: result.experienceScore.requiredMinMonths, preferredMaxMonths: result.experienceScore.preferredMaxMonths, knownExperienceMonths: result.experienceScore.knownExperienceMonths, quantifiedEntryCount: result.experienceScore.quantifiedEntryCount, unknownEntryCount: result.experienceScore.unknownEntryCount }
-            : { status: component.status, configuredWeight: component.configuredWeight };
+            : component.code === 'EDUCATION'
+              ? { formulaVersion: result.educationScore.formulaVersion, status: result.educationScore.status, configuredWeight: component.configuredWeight, requiredMinLevel: result.educationScore.requiredMinLevel, highestCandidateLevel: result.educationScore.highestCandidateLevel, recognizedEducationCount: result.educationScore.recognizedEducationCount, unknownEducationCount: result.educationScore.unknownEducationCount, totalEducationCount: result.educationScore.totalEducationCount }
+              : { status: component.status, configuredWeight: component.configuredWeight };
         return [{ componentCode: component.code, rawScore: component.score, weight: component.effectiveWeight, weightedScore: component.weightedScore, details }];
       });
       await this.applicationMatchRunsRepository.persistSucceeded(run.id, inputs.application.id, result.overallScore.score, components, result.skillResults.persistence);
@@ -71,9 +75,11 @@ export class ApplicationBaselineMatchingService {
     const skillScore = this.baselineSkillMatchingService.score(requirements.skills, parseRun.skills.map((skill) => ({ resumeSkillId: skill.id, skillId: skill.skillId, evidenceText: skill.evidenceText })));
     const skillResults = mapBaselineSkillResults(requirements.skills, skillScore);
     const experienceScore = this.baselineExperienceMatchingService.score(requirements.experienceMinMonths, requirements.experienceMaxMonths, parseRun.experiences);
+    const educationScore = this.baselineEducationMatchingService.score(requirements.educationMinLevel, parseRun.educations);
     const overallScore = this.baselineOverallMatchingService.score(pipeline.config, [
       { code: 'SKILL', score: skillScore.score, status: 'SCORED' },
       { code: 'EXPERIENCE', score: experienceScore.score, status: experienceScore.status },
+      { code: 'EDUCATION', score: educationScore.score, status: educationScore.status },
     ]);
 
     return {
@@ -86,6 +92,7 @@ export class ApplicationBaselineMatchingService {
       skillScore,
       skillResults,
       experienceScore,
+      educationScore,
       overallScore,
     };
   }

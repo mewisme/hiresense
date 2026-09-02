@@ -16,6 +16,7 @@ export interface CreateJobVersionInput {
   workplaceType?: string | null;
   experienceMinMonths?: number | null;
   experienceMaxMonths?: number | null;
+  educationMinLevel?: string | null;
   salaryMin?: Prisma.Decimal | null;
   salaryMax?: Prisma.Decimal | null;
   salaryCurrency?: string | null;
@@ -32,6 +33,7 @@ export interface UpdateDraftJobVersionInput {
   workplaceType?: string | null;
   experienceMinMonths?: number | null;
   experienceMaxMonths?: number | null;
+  educationMinLevel?: string | null;
   salaryMin?: Prisma.Decimal | null;
   salaryMax?: Prisma.Decimal | null;
   salaryCurrency?: string | null;
@@ -213,6 +215,7 @@ export class JobVersionsRepository {
         workplaceType: input.workplaceType ?? null,
         experienceMinMonths: input.experienceMinMonths ?? null,
         experienceMaxMonths: input.experienceMaxMonths ?? null,
+        educationMinLevel: input.educationMinLevel ?? null,
         salaryMin: input.salaryMin ?? null,
         salaryMax: input.salaryMax ?? null,
         salaryCurrency: input.salaryCurrency ?? null,

@@ -4,6 +4,7 @@ import { ResumeParseRunsRepository } from '../../resume-parsing/repositories/res
 import { ApplicationMatchRunsRepository } from '../repositories/application-match-runs.repository';
 import { MatchingRepository } from '../repositories/matching.repository';
 import { ApplicationBaselineMatchingService } from './application-baseline-matching.service';
+import { BaselineEducationMatchingService } from './baseline-education-matching.service';
 import { BaselineExperienceMatchingService } from './baseline-experience-matching.service';
 import { BaselineOverallMatchingService } from './baseline-overall-matching.service';
 import { BaselineSkillMatchingService } from './baseline-skill-matching.service';
@@ -14,6 +15,7 @@ interface MockParseRun {
   id: string;
   skills: Array<{ id: string; skillId: string; evidenceText: string | null }>;
   experiences: Array<{ experienceMonths: number | null }>;
+  educations: Array<{ degree: string | null }>;
 }
 interface MockPipeline { id: string; code: string; config: Record<string, unknown> }
 
@@ -29,6 +31,7 @@ function requirements(): JobSkillRequirementSnapshot {
     versionStatus: 'PUBLISHED',
     experienceMinMonths: 24,
     experienceMaxMonths: 60,
+    educationMinLevel: null,
     skills: [{
       jobVersionSkillId: '0198c8e8-0000-7000-8000-000000000005',
       skillId: '0198c8e8-0000-7000-8000-000000000006',
@@ -47,6 +50,7 @@ function parseRun(experienceMonths: number | null = 12): MockParseRun {
     id: '0198c8e8-0000-7000-8000-000000000007',
     skills: [{ id: '0198c8e8-0000-7000-8000-000000000008', skillId: '0198c8e8-0000-7000-8000-000000000006', evidenceText: 'TypeScript' }],
     experiences: [{ experienceMonths }],
+    educations: [],
   };
 }
 
@@ -81,6 +85,7 @@ function createService(options: { application?: MockApplicationSource | null; re
     { createPending, markProcessing, persistSucceeded, markFailed, findByIdWithResult } as unknown as ApplicationMatchRunsRepository,
     new BaselineSkillMatchingService(),
     new BaselineExperienceMatchingService(),
+    new BaselineEducationMatchingService(),
     new BaselineOverallMatchingService(),
   );
   return { service, findApplicationSource, findActivePipelineByCodeAndType, findLatestSucceededByResumeVersionId, getSnapshot, createPending, markProcessing, persistSucceeded, markFailed, findByIdWithResult };
@@ -115,6 +120,17 @@ describe('ApplicationBaselineMatchingService', () => {
     const result = await service.preview('0198c8e8-0000-7000-8000-000000000001');
     expect(result.experienceScore).toMatchObject({ score: null, status: 'UNKNOWN' });
     expect(result.overallScore).toMatchObject({ score: 100, status: 'PARTIAL', scoredWeightTotal: '0.6' });
+  });
+
+  it('includes education in the configured overall score when the job requires it', async () => {
+    const required = requirements();
+    required.educationMinLevel = 'BACHELOR';
+    const parsed = parseRun(12);
+    parsed.educations = [{ degree: 'Bachelor of Science' }];
+    const result = await createService({ requirements: required, parseRun: parsed }).service.preview(application().id);
+
+    expect(result.educationScore).toMatchObject({ score: 100, status: 'MET', requiredMinLevel: 'BACHELOR', highestCandidateLevel: 'BACHELOR' });
+    expect(result.overallScore).toMatchObject({ score: 87.5, status: 'COMPLETE', scoredWeightTotal: '1' });
   });
 
   it('persists a succeeded match run from the exact immutable inputs', async () => {

@@ -34,6 +34,7 @@ export function toPublicJobResponse(job: PublicJob, version: PublicJobVersion) {
       workplaceType: version.workplaceType,
       experienceMinMonths: version.experienceMinMonths,
       experienceMaxMonths: version.experienceMaxMonths,
+      educationMinLevel: version.educationMinLevel,
       salaryMin: version.salaryMin?.toString() ?? null,
       salaryMax: version.salaryMax?.toString() ?? null,
       salaryCurrency: version.salaryCurrency,

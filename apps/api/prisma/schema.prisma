@@ -325,6 +325,7 @@ model JobVersion {
   workplaceType                                           String?               @map("workplace_type")
   experienceMinMonths                                     Int?                  @map("experience_min_months")
   experienceMaxMonths                                     Int?                  @map("experience_max_months")
+  educationMinLevel                                       String?               @map("education_min_level")
   salaryMin                                               Decimal?              @map("salary_min") @db.Decimal(19, 4)
   salaryMax                                               Decimal?              @map("salary_max") @db.Decimal(19, 4)
   salaryCurrency                                          String?               @map("salary_currency") @db.Char(3)

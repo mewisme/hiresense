@@ -1,6 +1,7 @@
 import { Transform, Type } from 'class-transformer';
-import { IsArray, IsInt, IsOptional, IsString, Length, Matches, MaxLength, Min, MinLength, ValidateNested } from 'class-validator';
+import { IsArray, IsIn, IsInt, IsOptional, IsString, Length, Matches, MaxLength, Min, MinLength, ValidateNested } from 'class-validator';
 import { CreateJobSkillDto } from './create-job-skill.dto';
+import { JOB_EDUCATION_LEVELS, type JobEducationLevel } from '../types/job-education-level.type';
 
 export class UpdateJobDto {
   @IsOptional()
@@ -49,6 +50,11 @@ export class UpdateJobDto {
   @IsInt()
   @Min(0)
   experienceMaxMonths?: number | null;
+
+  @IsOptional()
+  @Transform(({ value }) => typeof value === 'string' ? value.trim().toUpperCase() : value)
+  @IsIn(JOB_EDUCATION_LEVELS)
+  educationMinLevel?: JobEducationLevel | null;
 
   @IsOptional()
   @Transform(({ value }) => typeof value === 'number' ? String(value) : value)

@@ -54,6 +54,7 @@ function publicVersion() {
     workplaceType: 'HYBRID',
     experienceMinMonths: 12,
     experienceMaxMonths: 36,
+    educationMinLevel: 'BACHELOR',
     salaryMin: new Prisma.Decimal('15000000.0000'),
     salaryMax: new Prisma.Decimal('30000000.0000'),
     salaryCurrency: 'VND',
@@ -133,6 +134,7 @@ describe('public-job-response.mapper', () => {
         workplaceType: 'HYBRID',
         experienceMinMonths: 12,
         experienceMaxMonths: 36,
+        educationMinLevel: 'BACHELOR',
         salaryCurrency: 'VND',
         publishedAt: now,
       }));

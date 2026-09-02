@@ -44,6 +44,7 @@ interface MockJobVersion {
   workplaceType: string | null;
   experienceMinMonths: number | null;
   experienceMaxMonths: number | null;
+  educationMinLevel: string | null;
   salaryMin: Prisma.Decimal | null;
   salaryMax: Prisma.Decimal | null;
   salaryCurrency: string | null;
@@ -109,6 +110,7 @@ function version(overrides: Partial<MockJobVersion> = {}): MockJobVersion {
     workplaceType: 'HYBRID',
     experienceMinMonths: 12,
     experienceMaxMonths: 36,
+    educationMinLevel: 'BACHELOR',
     salaryMin: new Prisma.Decimal('15000000'),
     salaryMax: new Prisma.Decimal('30000000'),
     salaryCurrency: 'VND',
@@ -267,6 +269,7 @@ describe('JobsService', () => {
         workplaceType: 'HYBRID',
         experienceMinMonths: 12,
         experienceMaxMonths: 36,
+        educationMinLevel: 'BACHELOR',
         salaryMin: '15000000',
         salaryMax: '30000000',
         salaryCurrency: 'VND',
@@ -294,6 +297,7 @@ describe('JobsService', () => {
         versionNo: 1,
         title: 'Backend Developer',
         description: 'Develop backend services.',
+        educationMinLevel: 'BACHELOR',
         createdByUserId: userId,
       }), tx);
 

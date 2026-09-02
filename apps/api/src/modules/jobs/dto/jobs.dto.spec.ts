@@ -84,6 +84,7 @@ describe('Job DTOs', () => {
         workplaceType: 'HYBRID',
         experienceMinMonths: 12,
         experienceMaxMonths: 36,
+        educationMinLevel: 'bachelor',
         salaryMin: '15000000',
         salaryMax: '30000000',
         salaryCurrency: 'VND',
@@ -96,6 +97,19 @@ describe('Job DTOs', () => {
       });
 
       expect(result).toHaveLength(0);
+    });
+
+    it('normalizes and validates the minimum education level', async () => {
+      const dto = plainToInstance(CreateJobDto, {
+        title: 'Backend Developer',
+        description: 'Description',
+        educationMinLevel: ' bachelor ',
+      });
+      const result = await validate(dto);
+
+      expect(result).toHaveLength(0);
+      expect(dto.educationMinLevel).toBe('BACHELOR');
+      expect((await errors(CreateJobDto, { title: 'Backend Developer', description: 'Description', educationMinLevel: 'DIPLOMA' })).some((error) => error.property === 'educationMinLevel')).toBe(true);
     });
 
     it('trims title', async () => {
@@ -192,6 +206,7 @@ describe('Job DTOs', () => {
         salaryMin: null,
         salaryMax: null,
         salaryCurrency: null,
+        educationMinLevel: null,
       });
 
       expect(result).toHaveLength(0);
