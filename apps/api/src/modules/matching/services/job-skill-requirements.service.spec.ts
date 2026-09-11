@@ -10,6 +10,7 @@ interface MockRequirementSnapshot {
   versionStatus: string;
   experienceMinMonths: number | null;
   experienceMaxMonths: number | null;
+  educationMinDegree: string | null;
   skills: Array<{
     id: string;
     jobVersionId: string;
@@ -30,6 +31,7 @@ function snapshot(): MockRequirementSnapshot {
     versionStatus: 'PUBLISHED',
     experienceMinMonths: 24,
     experienceMaxMonths: 60,
+    educationMinDegree: 'BACHELOR',
     skills: [
       {
         id: '0198c8e8-0000-7000-8000-000000000030',
@@ -88,6 +90,7 @@ describe('JobSkillRequirementsService', () => {
       versionStatus: 'PUBLISHED',
       experienceMinMonths: 24,
       experienceMaxMonths: 60,
+      educationMinDegree: 'BACHELOR',
       skills: [
         {
           jobVersionSkillId: '0198c8e8-0000-7000-8000-000000000030',

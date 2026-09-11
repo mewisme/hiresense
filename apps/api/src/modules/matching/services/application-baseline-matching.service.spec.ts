@@ -8,6 +8,7 @@ import { ResumeParseRunsRepository } from '../../resume-parsing/repositories/res
 import { ApplicationMatchRunsRepository } from '../repositories/application-match-runs.repository';
 import { MatchingRepository } from '../repositories/matching.repository';
 import { ApplicationBaselineMatchingService } from './application-baseline-matching.service';
+import { BaselineEducationMatchingService } from './baseline-education-matching.service';
 import { BaselineExperienceMatchingService } from './baseline-experience-matching.service';
 import { BaselineOverallMatchingService } from './baseline-overall-matching.service';
 import { BaselineSkillMatchingService } from './baseline-skill-matching.service';
@@ -25,6 +26,11 @@ interface MockParseRun {
   id: string;
   skills: Array<{ id: string; skillId: string; evidenceText: string | null }>;
   experiences: Array<{ experienceMonths: number | null }>;
+  educations: Array<{
+    degree: string | null;
+    fieldOfStudy?: string | null;
+    institutionName?: string | null;
+  }>;
 }
 interface MockPipeline {
   id: string;
@@ -48,6 +54,7 @@ function requirements(): JobSkillRequirementSnapshot {
     versionStatus: 'PUBLISHED',
     experienceMinMonths: 24,
     experienceMaxMonths: 60,
+    educationMinDegree: null,
     skills: [
       {
         jobVersionSkillId: '0198c8e8-0000-7000-8000-000000000005',
@@ -63,7 +70,12 @@ function requirements(): JobSkillRequirementSnapshot {
   };
 }
 
-function parseRun(experienceMonths: number | null = 12): MockParseRun {
+function parseRun(
+  experienceMonths: number | null = 12,
+  educations: MockParseRun['educations'] = [
+    { degree: 'Bachelor of Science', fieldOfStudy: 'Computer Science' },
+  ],
+): MockParseRun {
   return {
     id: '0198c8e8-0000-7000-8000-000000000007',
     skills: [
@@ -74,6 +86,7 @@ function parseRun(experienceMonths: number | null = 12): MockParseRun {
       },
     ],
     experiences: [{ experienceMonths }],
+    educations,
   };
 }
 
@@ -156,6 +169,7 @@ function createService(
     } as unknown as ApplicationMatchRunsRepository,
     new BaselineSkillMatchingService(),
     new BaselineExperienceMatchingService(),
+    new BaselineEducationMatchingService(),
     new BaselineOverallMatchingService(),
   );
   return {
@@ -173,7 +187,7 @@ function createService(
 }
 
 describe('ApplicationBaselineMatchingService', () => {
-  it('calculates skill, experience and overall score from the exact application snapshot', async () => {
+  it('calculates skill, experience, education and overall score from the exact application snapshot', async () => {
     const {
       service,
       findActivePipelineByCodeAndType,
@@ -216,10 +230,15 @@ describe('ApplicationBaselineMatchingService', () => {
         status: 'PARTIAL',
         knownExperienceMonths: 12,
       },
+      educationScore: {
+        score: 100,
+        status: 'NOT_REQUIRED',
+        highestDegree: 'BACHELOR',
+      },
       overallScore: {
-        score: 85.29,
-        status: 'PARTIAL',
-        scoredWeightTotal: '0.85',
+        score: 87.5,
+        status: 'COMPLETE',
+        scoredWeightTotal: '1',
       },
     });
     expect(getSnapshot).toHaveBeenCalledWith(
@@ -246,7 +265,31 @@ describe('ApplicationBaselineMatchingService', () => {
     expect(result.overallScore).toMatchObject({
       score: 100,
       status: 'PARTIAL',
-      scoredWeightTotal: '0.6',
+      scoredWeightTotal: '0.75',
+    });
+  });
+
+  it('scores education against the job minimum degree requirement', async () => {
+    const { service } = createService({
+      requirements: {
+        ...requirements(),
+        educationMinDegree: 'MASTER',
+      },
+      parseRun: parseRun(12, [{ degree: 'Bachelor of Science' }]),
+    });
+    const result = await service.preview(
+      '0198c8e8-0000-7000-8000-000000000001',
+    );
+    expect(result.educationScore).toMatchObject({
+      score: 75,
+      status: 'PARTIAL',
+      highestDegree: 'BACHELOR',
+      requiredMinDegree: 'MASTER',
+    });
+    expect(result.overallScore).toMatchObject({
+      score: 83.75,
+      status: 'COMPLETE',
+      scoredWeightTotal: '1',
     });
   });
 
@@ -275,19 +318,25 @@ describe('ApplicationBaselineMatchingService', () => {
     expect(persistSucceeded).toHaveBeenCalledWith(
       '0198c8e8-0000-7000-8000-000000000010',
       application().id,
-      85.29,
+      87.5,
       expect.arrayContaining([
         expect.objectContaining({
           componentCode: 'SKILL',
           rawScore: 100,
-          weight: '0.705882',
-          weightedScore: 70.588235,
+          weight: '0.6',
+          weightedScore: 60,
         }),
         expect.objectContaining({
           componentCode: 'EXPERIENCE',
           rawScore: 50,
-          weight: '0.294118',
-          weightedScore: 14.705882,
+          weight: '0.25',
+          weightedScore: 12.5,
+        }),
+        expect.objectContaining({
+          componentCode: 'EDUCATION',
+          rawScore: 100,
+          weight: '0.15',
+          weightedScore: 15,
         }),
       ]),
       [

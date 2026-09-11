@@ -19,6 +19,7 @@ export interface JobSkillRequirementSnapshot {
   versionStatus: string;
   experienceMinMonths: number | null;
   experienceMaxMonths: number | null;
+  educationMinDegree: string | null;
   skills: JobSkillRequirement[];
 }
 
@@ -40,6 +41,7 @@ export class JobSkillRequirementsService {
       versionStatus: version.versionStatus,
       experienceMinMonths: version.experienceMinMonths,
       experienceMaxMonths: version.experienceMaxMonths,
+      educationMinDegree: version.educationMinDegree,
       skills: version.skills.map((item) => ({
         jobVersionSkillId: item.id,
         skillId: item.skillId,

@@ -156,6 +156,29 @@ describe('Job DTOs', () => {
       expect(dto.salaryCurrency).toBe('VND');
     });
 
+    it('accepts and normalizes educationMinDegree', async () => {
+      const dto = plainToInstance(CreateJobDto, {
+        title: 'Backend Developer',
+        description: 'Description',
+        educationMinDegree: ' bachelor ',
+      });
+
+      const result = await validate(dto);
+
+      expect(result).toHaveLength(0);
+      expect(dto.educationMinDegree).toBe('BACHELOR');
+    });
+
+    it('rejects unknown educationMinDegree values', async () => {
+      const result = await errors(CreateJobDto, {
+        title: 'Backend Developer',
+        description: 'Description',
+        educationMinDegree: 'WIZARD',
+      });
+
+      expect(result.length).toBeGreaterThan(0);
+    });
+
     it('rejects salary currency with invalid length', async () => {
       const result = await errors(CreateJobDto, {
         title: 'Backend Developer',

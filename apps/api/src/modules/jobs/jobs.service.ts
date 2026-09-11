@@ -34,6 +34,7 @@ type EditableJobVersion = {
   workplaceType: string | null;
   experienceMinMonths: number | null;
   experienceMaxMonths: number | null;
+  educationMinDegree: string | null;
   salaryMin: Prisma.Decimal | null;
   salaryMax: Prisma.Decimal | null;
   salaryCurrency: string | null;
@@ -82,6 +83,7 @@ export class JobsService {
           workplaceType: dto.workplaceType ?? null,
           experienceMinMonths: dto.experienceMinMonths ?? null,
           experienceMaxMonths: dto.experienceMaxMonths ?? null,
+          educationMinDegree: dto.educationMinDegree ?? null,
           salaryMin: dto.salaryMin ? new Prisma.Decimal(dto.salaryMin) : null,
           salaryMax: dto.salaryMax ? new Prisma.Decimal(dto.salaryMax) : null,
           salaryCurrency: dto.salaryCurrency ?? null,
@@ -206,6 +208,7 @@ export class JobsService {
           workplaceType: merged.workplaceType,
           experienceMinMonths: merged.experienceMinMonths,
           experienceMaxMonths: merged.experienceMaxMonths,
+          educationMinDegree: merged.educationMinDegree,
           salaryMin: merged.salaryMin,
           salaryMax: merged.salaryMax,
           salaryCurrency: merged.salaryCurrency,
@@ -690,6 +693,10 @@ export class JobsService {
         dto.experienceMaxMonths !== undefined
           ? dto.experienceMaxMonths
           : current.experienceMaxMonths,
+      educationMinDegree:
+        dto.educationMinDegree !== undefined
+          ? dto.educationMinDegree
+          : current.educationMinDegree,
       salaryMin:
         dto.salaryMin !== undefined
           ? dto.salaryMin === null
@@ -770,6 +777,7 @@ export class JobsService {
       workplaceType: version.workplaceType,
       experienceMinMonths: version.experienceMinMonths,
       experienceMaxMonths: version.experienceMaxMonths,
+      educationMinDegree: version.educationMinDegree,
       salaryMin: version.salaryMin,
       salaryMax: version.salaryMax,
       salaryCurrency: version.salaryCurrency,
@@ -781,6 +789,7 @@ export class JobsService {
     description: string;
     experienceMinMonths: number | null;
     experienceMaxMonths: number | null;
+    educationMinDegree: string | null;
     salaryMin: Prisma.Decimal | null;
     salaryMax: Prisma.Decimal | null;
     salaryCurrency: string | null;
@@ -801,6 +810,7 @@ export class JobsService {
       workplaceType: null,
       experienceMinMonths: version.experienceMinMonths,
       experienceMaxMonths: version.experienceMaxMonths,
+      educationMinDegree: version.educationMinDegree,
       salaryMin: version.salaryMin,
       salaryMax: version.salaryMax,
       salaryCurrency: version.salaryCurrency,

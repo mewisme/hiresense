@@ -43,6 +43,7 @@ interface MockJobVersion {
   workplaceType: string | null;
   experienceMinMonths: number | null;
   experienceMaxMonths: number | null;
+  educationMinDegree: string | null;
   salaryMin: null;
   salaryMax: null;
   salaryCurrency: string | null;
@@ -100,6 +101,7 @@ function version(overrides: Partial<MockJobVersion> = {}): MockJobVersion {
     workplaceType: 'HYBRID',
     experienceMinMonths: null,
     experienceMaxMonths: null,
+    educationMinDegree: null,
     salaryMin: null,
     salaryMax: null,
     salaryCurrency: null,

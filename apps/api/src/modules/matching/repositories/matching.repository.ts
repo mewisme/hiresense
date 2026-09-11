@@ -35,6 +35,7 @@ export class MatchingRepository {
         versionStatus: true,
         experienceMinMonths: true,
         experienceMaxMonths: true,
+        educationMinDegree: true,
         skills: {
           select: {
             id: true,

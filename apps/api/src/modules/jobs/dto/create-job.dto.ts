@@ -1,6 +1,7 @@
 import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
+  IsIn,
   IsInt,
   IsOptional,
   IsString,
@@ -9,8 +10,10 @@ import {
   MaxLength,
   Min,
   MinLength,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
+import { EDUCATION_MIN_DEGREES } from '../types/education-min-degree.type';
 import { CreateJobSkillDto } from './create-job-skill.dto';
 
 export class CreateJobDto {
@@ -60,6 +63,17 @@ export class CreateJobDto {
   @IsInt()
   @Min(0)
   experienceMaxMonths?: number | null;
+
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === null || value === undefined) return value;
+    if (typeof value !== 'string') return value;
+    const trimmed = value.trim().toUpperCase();
+    return trimmed.length === 0 ? null : trimmed;
+  })
+  @ValidateIf((_, value) => value != null)
+  @IsIn([...EDUCATION_MIN_DEGREES])
+  educationMinDegree?: string | null;
 
   @IsOptional()
   @Transform(({ value }) => (typeof value === 'number' ? String(value) : value))

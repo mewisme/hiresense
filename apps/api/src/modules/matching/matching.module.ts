@@ -9,6 +9,7 @@ import { ApplicationMatchRunsRepository } from './repositories/application-match
 import { MatchingRepository } from './repositories/matching.repository';
 import { ApplicationBaselineMatchingService } from './services/application-baseline-matching.service';
 import { ApplicationSkillMatchingService } from './services/application-skill-matching.service';
+import { BaselineEducationMatchingService } from './services/baseline-education-matching.service';
 import { BaselineExperienceMatchingService } from './services/baseline-experience-matching.service';
 import { BaselineOverallMatchingService } from './services/baseline-overall-matching.service';
 import { BaselineSkillMatchingService } from './services/baseline-skill-matching.service';
@@ -24,6 +25,7 @@ import { JobSkillRequirementsService } from './services/job-skill-requirements.s
     JobSkillRequirementsService,
     BaselineSkillMatchingService,
     BaselineExperienceMatchingService,
+    BaselineEducationMatchingService,
     BaselineOverallMatchingService,
     ApplicationSkillMatchingService,
     ApplicationBaselineMatchingService,
@@ -35,6 +37,7 @@ import { JobSkillRequirementsService } from './services/job-skill-requirements.s
     JobSkillRequirementsService,
     BaselineSkillMatchingService,
     BaselineExperienceMatchingService,
+    BaselineEducationMatchingService,
     BaselineOverallMatchingService,
     ApplicationSkillMatchingService,
     ApplicationBaselineMatchingService,

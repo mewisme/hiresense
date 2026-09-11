@@ -48,6 +48,7 @@ interface MockJobVersion {
   workplaceType: string | null;
   experienceMinMonths: number | null;
   experienceMaxMonths: number | null;
+  educationMinDegree: string | null;
   salaryMin: Prisma.Decimal | null;
   salaryMax: Prisma.Decimal | null;
   salaryCurrency: string | null;
@@ -113,6 +114,7 @@ function version(overrides: Partial<MockJobVersion> = {}): MockJobVersion {
     workplaceType: 'HYBRID',
     experienceMinMonths: 12,
     experienceMaxMonths: 36,
+    educationMinDegree: null,
     salaryMin: new Prisma.Decimal('15000000'),
     salaryMax: new Prisma.Decimal('30000000'),
     salaryCurrency: 'VND',
