@@ -9,13 +9,9 @@ import { CompanyMembershipsRepository } from './repositories/company-memberships
 import { CompaniesRepository } from './repositories/companies.repository';
 
 @Module({
-  imports: [
-    AuthModule,
-  ],
+  imports: [AuthModule],
 
-  controllers: [
-    CompaniesController,
-  ],
+  controllers: [CompaniesController],
 
   providers: [
     CompaniesService,
@@ -31,4 +27,4 @@ import { CompaniesRepository } from './repositories/companies.repository';
     CompanyMembershipsRepository,
   ],
 })
-export class CompaniesModule { }
+export class CompaniesModule {}

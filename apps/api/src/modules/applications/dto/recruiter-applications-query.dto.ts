@@ -7,13 +7,13 @@ export class RecruiterApplicationsQueryDto {
   stageId?: string;
 
   @IsOptional()
-  @Transform(({ value }) => value === undefined ? 1 : Number(value))
+  @Transform(({ value }) => (value === undefined ? 1 : Number(value)))
   @IsInt()
   @Min(1)
   page = 1;
 
   @IsOptional()
-  @Transform(({ value }) => value === undefined ? 20 : Number(value))
+  @Transform(({ value }) => (value === undefined ? 20 : Number(value)))
   @IsInt()
   @Min(1)
   @Max(50)

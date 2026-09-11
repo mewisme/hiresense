@@ -42,7 +42,9 @@ function toStageResponse(stage: RecruiterApplicationListItem['currentStage']) {
   };
 }
 
-export function toRecruiterApplicationListItemResponse(application: RecruiterApplicationListItem) {
+export function toRecruiterApplicationListItemResponse(
+  application: RecruiterApplicationListItem,
+) {
   return {
     id: application.id,
     jobId: application.jobId,
@@ -59,7 +61,8 @@ export function toRecruiterApplicationListItemResponse(application: RecruiterApp
       city: application.candidateProfile.city,
       region: application.candidateProfile.region,
       countryCode: application.candidateProfile.countryCode,
-      experienceMonthsDeclared: application.candidateProfile.experienceMonthsDeclared,
+      experienceMonthsDeclared:
+        application.candidateProfile.experienceMonthsDeclared,
     },
     jobVersion: {
       id: application.jobVersion.id,
@@ -77,7 +80,10 @@ export function toRecruiterApplicationListItemResponse(application: RecruiterApp
   };
 }
 
-export function toRecruiterApplicationDetailResponse(application: RecruiterApplicationDetail, history: RecruiterApplicationHistory[]) {
+export function toRecruiterApplicationDetailResponse(
+  application: RecruiterApplicationDetail,
+  history: RecruiterApplicationHistory[],
+) {
   return {
     id: application.id,
     jobId: application.jobId,
@@ -98,7 +104,8 @@ export function toRecruiterApplicationDetailResponse(application: RecruiterAppli
       region: application.candidateProfile.region,
       countryCode: application.candidateProfile.countryCode,
       timezone: application.candidateProfile.timezone,
-      experienceMonthsDeclared: application.candidateProfile.experienceMonthsDeclared,
+      experienceMonthsDeclared:
+        application.candidateProfile.experienceMonthsDeclared,
       portfolioUrl: application.candidateProfile.portfolioUrl,
       githubUrl: application.candidateProfile.githubUrl,
       linkedinUrl: application.candidateProfile.linkedinUrl,
@@ -149,20 +156,24 @@ export function toRecruiterApplicationDetailResponse(application: RecruiterAppli
     },
     history: history.map((item) => ({
       id: item.id,
-      fromStage: item.fromStage ? {
-        id: item.fromStage.id,
-        code: item.fromStage.code,
-        name: item.fromStage.name,
-      } : null,
+      fromStage: item.fromStage
+        ? {
+            id: item.fromStage.id,
+            code: item.fromStage.code,
+            name: item.fromStage.name,
+          }
+        : null,
       toStage: {
         id: item.toStage.id,
         code: item.toStage.code,
         name: item.toStage.name,
       },
-      changedBy: item.changedBy ? {
-        id: item.changedBy.id,
-        email: item.changedBy.email,
-      } : null,
+      changedBy: item.changedBy
+        ? {
+            id: item.changedBy.id,
+            email: item.changedBy.email,
+          }
+        : null,
       note: item.note,
       createdAt: item.createdAt,
     })),

@@ -14,7 +14,7 @@ export interface CreateApplicationStageHistoryInput {
 
 @Injectable()
 export class ApplicationStageHistoryRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   findByApplicationId(applicationId: string, db: DbClient = this.prisma) {
     return db.applicationStageHistory.findMany({
@@ -30,7 +30,10 @@ export class ApplicationStageHistoryRepository {
     });
   }
 
-  findCandidateVisibleByApplicationId(applicationId: string, db: DbClient = this.prisma) {
+  findCandidateVisibleByApplicationId(
+    applicationId: string,
+    db: DbClient = this.prisma,
+  ) {
     return db.applicationStageHistory.findMany({
       where: { applicationId },
       include: {
@@ -41,7 +44,10 @@ export class ApplicationStageHistoryRepository {
     });
   }
 
-  create(input: CreateApplicationStageHistoryInput, db: DbClient = this.prisma) {
+  create(
+    input: CreateApplicationStageHistoryInput,
+    db: DbClient = this.prisma,
+  ) {
     return db.applicationStageHistory.create({
       data: {
         applicationId: input.applicationId,

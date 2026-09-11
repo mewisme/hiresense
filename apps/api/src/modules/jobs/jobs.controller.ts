@@ -1,16 +1,29 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user.type';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
-import { toJobResponse, toJobVersionResponse, toJobVersionWithSkillsResponse } from './mappers/job-response.mapper';
+import {
+  toJobResponse,
+  toJobVersionResponse,
+  toJobVersionWithSkillsResponse,
+} from './mappers/job-response.mapper';
 import { JobsService } from './jobs.service';
 
 @Controller('companies/:companyId/jobs')
 @Auth('RECRUITER')
 export class JobsController {
-  constructor(private readonly jobsService: JobsService) { }
+  constructor(private readonly jobsService: JobsService) {}
 
   @Post()
   async create(
@@ -64,7 +77,12 @@ export class JobsController {
     @Param('jobId', ParseUUIDPipe) jobId: string,
     @Body() dto: UpdateJobDto,
   ) {
-    const result = await this.jobsService.update(companyId, jobId, user.id, dto);
+    const result = await this.jobsService.update(
+      companyId,
+      jobId,
+      user.id,
+      dto,
+    );
 
     return {
       id: result.job.id,
@@ -164,7 +182,9 @@ export class JobsController {
     return results.map((result) => ({
       ...toJobResponse(result.job),
       currentDraftVersion: toJobVersionResponse(result.currentDraftVersion),
-      currentPublishedVersion: toJobVersionResponse(result.currentPublishedVersion),
+      currentPublishedVersion: toJobVersionResponse(
+        result.currentPublishedVersion,
+      ),
     }));
   }
 
@@ -174,12 +194,20 @@ export class JobsController {
     @Param('companyId', ParseUUIDPipe) companyId: string,
     @Param('jobId', ParseUUIDPipe) jobId: string,
   ) {
-    const result = await this.jobsService.getManagedDetail(companyId, jobId, user.id);
+    const result = await this.jobsService.getManagedDetail(
+      companyId,
+      jobId,
+      user.id,
+    );
 
     return {
       ...toJobResponse(result.job),
-      currentDraftVersion: toJobVersionWithSkillsResponse(result.currentDraftVersion),
-      currentPublishedVersion: toJobVersionWithSkillsResponse(result.currentPublishedVersion),
+      currentDraftVersion: toJobVersionWithSkillsResponse(
+        result.currentDraftVersion,
+      ),
+      currentPublishedVersion: toJobVersionWithSkillsResponse(
+        result.currentPublishedVersion,
+      ),
       versions: result.versions.map(toJobVersionResponse),
     };
   }

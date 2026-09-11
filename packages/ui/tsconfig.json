@@ -1,0 +1,10 @@
+{
+  "extends": "@hiresense/tsconfig/react-library.json",
+  "compilerOptions": {
+    "paths": {
+      "@hiresense/ui/*": ["./src/*"]
+    }
+  },
+  "include": ["."],
+  "exclude": ["node_modules", "dist"]
+}

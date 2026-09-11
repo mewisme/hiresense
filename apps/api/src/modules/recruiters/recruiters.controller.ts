@@ -1,10 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Patch,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post } from '@nestjs/common';
 
 import { Auth } from '../auth/decorators/auth.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -17,18 +11,14 @@ import { RecruitersService } from './recruiters.service';
 @Controller('recruiters')
 @Auth('RECRUITER')
 export class RecruitersController {
-  constructor(
-    private readonly recruitersService:
-      RecruitersService,
-  ) { }
+  constructor(private readonly recruitersService: RecruitersService) {}
 
   @Get('me')
   getMyProfile(
     @CurrentUser()
     user: AuthenticatedUser,
   ) {
-    return this.recruitersService
-      .getMyProfile(user.id);
+    return this.recruitersService.getMyProfile(user.id);
   }
 
   @Post('me')
@@ -39,11 +29,7 @@ export class RecruitersController {
     @Body()
     dto: CreateRecruiterProfileDto,
   ) {
-    return this.recruitersService
-      .createMyProfile(
-        user.id,
-        dto,
-      );
+    return this.recruitersService.createMyProfile(user.id, dto);
   }
 
   @Patch('me')
@@ -54,10 +40,6 @@ export class RecruitersController {
     @Body()
     dto: UpdateRecruiterProfileDto,
   ) {
-    return this.recruitersService
-      .updateMyProfile(
-        user.id,
-        dto,
-      );
+    return this.recruitersService.updateMyProfile(user.id, dto);
   }
 }

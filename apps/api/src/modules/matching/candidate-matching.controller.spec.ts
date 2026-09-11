@@ -17,16 +17,49 @@ describe('CandidateMatchingController', () => {
       errorCode: null,
       errorMessage: null,
       createdAt: new Date('2026-08-27T00:00:00.000Z'),
-      pipelineVersion: { id: 'pipeline', code: 'baseline-match-v1', pipelineType: 'MATCHING', semanticVersion: '1.0.0', codeRevision: null },
-      resumeParseRun: { id: 'parse-run', pipelineVersionId: 'parse-pipeline', status: 'SUCCEEDED', detectedLanguage: 'en', startedAt: null, completedAt: null, createdAt: new Date('2026-08-27T00:00:00.000Z') },
+      pipelineVersion: {
+        id: 'pipeline',
+        code: 'baseline-match-v1',
+        pipelineType: 'MATCHING',
+        semanticVersion: '1.0.0',
+        codeRevision: null,
+      },
+      resumeParseRun: {
+        id: 'parse-run',
+        pipelineVersionId: 'parse-pipeline',
+        status: 'SUCCEEDED',
+        detectedLanguage: 'en',
+        startedAt: null,
+        completedAt: null,
+        createdAt: new Date('2026-08-27T00:00:00.000Z'),
+      },
       components: [],
       skillResults: [],
     }));
-    const controller = new CandidateMatchingController({ getCurrentForCandidate } as unknown as MatchingService);
+    const controller = new CandidateMatchingController({
+      getCurrentForCandidate,
+    } as unknown as MatchingService);
 
-    const result = await controller.getCurrent({ id: 'candidate', email: 'candidate@example.com', roles: ['CANDIDATE'], sessionId: 'session' }, 'application');
+    const result = await controller.getCurrent(
+      {
+        id: 'candidate',
+        email: 'candidate@example.com',
+        roles: ['CANDIDATE'],
+        sessionId: 'session',
+      },
+      'application',
+    );
 
-    expect(getCurrentForCandidate).toHaveBeenCalledWith('application', 'candidate');
-    expect(result).toEqual(expect.objectContaining({ id: 'run', applicationId: 'application', overallScore: 82.5 }));
+    expect(getCurrentForCandidate).toHaveBeenCalledWith(
+      'application',
+      'candidate',
+    );
+    expect(result).toEqual(
+      expect.objectContaining({
+        id: 'run',
+        applicationId: 'application',
+        overallScore: 82.5,
+      }),
+    );
   });
 });

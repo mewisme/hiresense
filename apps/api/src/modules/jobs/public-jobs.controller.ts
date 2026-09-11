@@ -5,14 +5,16 @@ import { PublicJobsService } from './public-jobs.service';
 
 @Controller('jobs')
 export class PublicJobsController {
-  constructor(private readonly publicJobsService: PublicJobsService) { }
+  constructor(private readonly publicJobsService: PublicJobsService) {}
 
   @Get()
   async list(@Query() query: PublicJobsQueryDto) {
     const result = await this.publicJobsService.list(query);
 
     return {
-      items: result.items.map((item) => toPublicJobResponse(item.job, item.version)),
+      items: result.items.map((item) =>
+        toPublicJobResponse(item.job, item.version),
+      ),
       pagination: result.pagination,
     };
   }

@@ -23,23 +23,14 @@ export function IsValidCompanySizeRange(
       options: validationOptions,
 
       validator: {
-        validate(
-          _value: unknown,
-          args: ValidationArguments,
-        ): boolean {
-          const object =
-            args.object as CompanySizeRangeInput;
+        validate(_value: unknown, args: ValidationArguments): boolean {
+          const object = args.object as CompanySizeRangeInput;
 
-          const min =
-            object.companySizeMin;
+          const min = object.companySizeMin;
 
-          const max =
-            object.companySizeMax;
+          const max = object.companySizeMax;
 
-          if (
-            min === undefined ||
-            max === undefined
-          ) {
+          if (min === undefined || max === undefined) {
             return true;
           }
 
@@ -48,8 +39,7 @@ export function IsValidCompanySizeRange(
 
         defaultMessage(): string {
           return (
-            'companySizeMin must be less than ' +
-            'or equal to companySizeMax'
+            'companySizeMin must be less than ' + 'or equal to companySizeMax'
           );
         },
       },

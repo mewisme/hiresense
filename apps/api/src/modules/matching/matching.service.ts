@@ -11,33 +11,76 @@ export class MatchingService {
     private readonly applicationBaselineMatchingService: ApplicationBaselineMatchingService,
   ) {}
 
-  async runForRecruiter(companyId: string, applicationId: string, userId: string) {
-    await this.requireRecruiterApplicationAccess(companyId, applicationId, userId);
+  async runForRecruiter(
+    companyId: string,
+    applicationId: string,
+    userId: string,
+  ) {
+    await this.requireRecruiterApplicationAccess(
+      companyId,
+      applicationId,
+      userId,
+    );
     return this.applicationBaselineMatchingService.run(applicationId);
   }
 
-  async getCurrentForRecruiter(companyId: string, applicationId: string, userId: string) {
-    await this.requireRecruiterApplicationAccess(companyId, applicationId, userId);
-    const run = await this.applicationMatchRunsRepository.findCurrentByApplicationId(applicationId);
+  async getCurrentForRecruiter(
+    companyId: string,
+    applicationId: string,
+    userId: string,
+  ) {
+    await this.requireRecruiterApplicationAccess(
+      companyId,
+      applicationId,
+      userId,
+    );
+    const run =
+      await this.applicationMatchRunsRepository.findCurrentByApplicationId(
+        applicationId,
+      );
     if (!run) throw new NotFoundException('Application match result not found');
     return run;
   }
 
   async getCurrentForCandidate(applicationId: string, userId: string) {
     await this.applicationsService.getMine(applicationId, userId);
-    const run = await this.applicationMatchRunsRepository.findCurrentByApplicationId(applicationId);
+    const run =
+      await this.applicationMatchRunsRepository.findCurrentByApplicationId(
+        applicationId,
+      );
     if (!run) throw new NotFoundException('Application match result not found');
     return run;
   }
 
-  async getRunForRecruiter(companyId: string, applicationId: string, matchRunId: string, userId: string) {
-    await this.requireRecruiterApplicationAccess(companyId, applicationId, userId);
-    const run = await this.applicationMatchRunsRepository.findByIdForApplication(matchRunId, applicationId);
+  async getRunForRecruiter(
+    companyId: string,
+    applicationId: string,
+    matchRunId: string,
+    userId: string,
+  ) {
+    await this.requireRecruiterApplicationAccess(
+      companyId,
+      applicationId,
+      userId,
+    );
+    const run =
+      await this.applicationMatchRunsRepository.findByIdForApplication(
+        matchRunId,
+        applicationId,
+      );
     if (!run) throw new NotFoundException('Application match run not found');
     return run;
   }
 
-  private async requireRecruiterApplicationAccess(companyId: string, applicationId: string, userId: string) {
-    await this.applicationsService.getForRecruiter(companyId, applicationId, userId);
+  private async requireRecruiterApplicationAccess(
+    companyId: string,
+    applicationId: string,
+    userId: string,
+  ) {
+    await this.applicationsService.getForRecruiter(
+      companyId,
+      applicationId,
+      userId,
+    );
   }
 }

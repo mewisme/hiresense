@@ -1,9 +1,4 @@
-import {
-  beforeEach,
-  describe,
-  expect,
-  it,
-} from '@jest/globals';
+import { beforeEach, describe, expect, it } from '@jest/globals';
 
 import { PasswordService } from './password.service';
 
@@ -21,18 +16,14 @@ describe('PasswordService', () => {
 
     expect(hash).not.toBe(password);
 
-    await expect(
-      service.verify(hash, password),
-    ).resolves.toBe(true);
+    await expect(service.verify(hash, password)).resolves.toBe(true);
   });
 
   it('should reject an incorrect password', async () => {
-    const hash = await service.hash(
-      'VeryStrongPassword123!',
-    );
+    const hash = await service.hash('VeryStrongPassword123!');
 
-    await expect(
-      service.verify(hash, 'WrongPassword123!'),
-    ).resolves.toBe(false);
+    await expect(service.verify(hash, 'WrongPassword123!')).resolves.toBe(
+      false,
+    );
   });
 });

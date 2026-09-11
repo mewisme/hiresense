@@ -50,13 +50,17 @@ describe('SkillsService', () => {
     const result = await service.resolveCanonicalSkill('  PostgreSQL  ');
 
     expect(result.normalizedName).toBe('postgresql');
-    expect(skillsRepository.findByNormalizedName).toHaveBeenCalledWith('postgresql');
+    expect(skillsRepository.findByNormalizedName).toHaveBeenCalledWith(
+      'postgresql',
+    );
   });
 
   it('should reject an unknown canonical skill', async () => {
     const { service } = createService();
 
-    await expect(service.resolveCanonicalSkill('Unknown Skill')).rejects.toThrow(NotFoundException);
+    await expect(
+      service.resolveCanonicalSkill('Unknown Skill'),
+    ).rejects.toThrow(NotFoundException);
   });
 
   it('should reject an inactive skill', async () => {
@@ -69,13 +73,17 @@ describe('SkillsService', () => {
       },
     });
 
-    await expect(service.resolveCanonicalSkill('Legacy Skill')).rejects.toThrow(NotFoundException);
+    await expect(service.resolveCanonicalSkill('Legacy Skill')).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it('should reject an empty normalized name', async () => {
     const { service } = createService();
 
-    await expect(service.resolveCanonicalSkill('   ')).rejects.toThrow(BadRequestException);
+    await expect(service.resolveCanonicalSkill('   ')).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('should create a canonical skill', async () => {

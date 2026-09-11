@@ -8,7 +8,7 @@ export class PublicJobsService {
   constructor(
     private readonly jobsRepository: JobsRepository,
     private readonly jobVersionsRepository: JobVersionsRepository,
-  ) { }
+  ) {}
 
   async list(query: PublicJobsQueryDto) {
     const jobs = await this.jobsRepository.findPublicPublished(query.companyId);
@@ -42,8 +42,14 @@ export class PublicJobsService {
     };
 
     const [versions, total] = await Promise.all([
-      this.jobVersionsRepository.findPublicCurrentVersions(versionIds, versionQuery),
-      this.jobVersionsRepository.countPublicCurrentVersions(versionIds, versionQuery),
+      this.jobVersionsRepository.findPublicCurrentVersions(
+        versionIds,
+        versionQuery,
+      ),
+      this.jobVersionsRepository.countPublicCurrentVersions(
+        versionIds,
+        versionQuery,
+      ),
     ]);
 
     const items = versions.flatMap((version) => {
@@ -64,9 +70,14 @@ export class PublicJobsService {
 
   async getDetail(jobId: string) {
     const job = await this.jobsRepository.findPublicPublishedById(jobId);
-    if (!job || !job.currentPublishedVersionId) throw new NotFoundException('Job not found');
+    if (!job || !job.currentPublishedVersionId)
+      throw new NotFoundException('Job not found');
 
-    const version = await this.jobVersionsRepository.findPublishedByJobAndIdWithSkills(job.id, job.currentPublishedVersionId);
+    const version =
+      await this.jobVersionsRepository.findPublishedByJobAndIdWithSkills(
+        job.id,
+        job.currentPublishedVersionId,
+      );
     if (!version) throw new NotFoundException('Job not found');
 
     return { job, version };

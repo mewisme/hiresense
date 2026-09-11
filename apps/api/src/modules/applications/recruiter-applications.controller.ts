@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Query, Res, StreamableFile } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Query,
+  Res,
+  StreamableFile,
+} from '@nestjs/common';
 import type { Response } from 'express';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -8,12 +18,15 @@ import { ApplicationsService } from './applications.service';
 import { ChangeApplicationStageDto } from './dto/change-application-stage.dto';
 import { RecruiterApplicationsQueryDto } from './dto/recruiter-applications-query.dto';
 import { toApplicationResponse } from './mappers/application-response.mapper';
-import { toRecruiterApplicationDetailResponse, toRecruiterApplicationListItemResponse } from './mappers/recruiter-application-response.mapper';
+import {
+  toRecruiterApplicationDetailResponse,
+  toRecruiterApplicationListItemResponse,
+} from './mappers/recruiter-application-response.mapper';
 
 @Controller('companies/:companyId')
 @Auth('RECRUITER')
 export class RecruiterApplicationsController {
-  constructor(private readonly applicationsService: ApplicationsService) { }
+  constructor(private readonly applicationsService: ApplicationsService) {}
 
   @Get('jobs/:jobId/applications')
   async list(
@@ -22,7 +35,12 @@ export class RecruiterApplicationsController {
     @Param('jobId', ParseUUIDPipe) jobId: string,
     @Query() query: RecruiterApplicationsQueryDto,
   ) {
-    const result = await this.applicationsService.listForRecruiter(companyId, jobId, user.id, query);
+    const result = await this.applicationsService.listForRecruiter(
+      companyId,
+      jobId,
+      user.id,
+      query,
+    );
     return {
       items: result.items.map(toRecruiterApplicationListItemResponse),
       pagination: result.pagination,
@@ -35,8 +53,15 @@ export class RecruiterApplicationsController {
     @Param('companyId', ParseUUIDPipe) companyId: string,
     @Param('applicationId', ParseUUIDPipe) applicationId: string,
   ) {
-    const result = await this.applicationsService.getForRecruiter(companyId, applicationId, user.id);
-    return toRecruiterApplicationDetailResponse(result.application, result.history);
+    const result = await this.applicationsService.getForRecruiter(
+      companyId,
+      applicationId,
+      user.id,
+    );
+    return toRecruiterApplicationDetailResponse(
+      result.application,
+      result.history,
+    );
   }
 
   @Get('applications/:applicationId/resume')
@@ -46,9 +71,16 @@ export class RecruiterApplicationsController {
     @Param('applicationId', ParseUUIDPipe) applicationId: string,
     @Res({ passthrough: true }) response: Response,
   ): Promise<StreamableFile> {
-    const result = await this.applicationsService.openRecruiterResume(companyId, applicationId, user.id);
+    const result = await this.applicationsService.openRecruiterResume(
+      companyId,
+      applicationId,
+      user.id,
+    );
 
-    response.setHeader('Content-Disposition', createAttachmentDisposition(result.fileObject.originalFilename));
+    response.setHeader(
+      'Content-Disposition',
+      createAttachmentDisposition(result.fileObject.originalFilename),
+    );
     response.setHeader('Cache-Control', 'private, no-store');
     response.setHeader('Pragma', 'no-cache');
     response.setHeader('X-Content-Type-Options', 'nosniff');
@@ -66,7 +98,12 @@ export class RecruiterApplicationsController {
     @Param('applicationId', ParseUUIDPipe) applicationId: string,
     @Body() dto: ChangeApplicationStageDto,
   ) {
-    const result = await this.applicationsService.changeStage(companyId, applicationId, user.id, dto);
+    const result = await this.applicationsService.changeStage(
+      companyId,
+      applicationId,
+      user.id,
+      dto,
+    );
     return toApplicationResponse(result.application, result.currentStage);
   }
 }

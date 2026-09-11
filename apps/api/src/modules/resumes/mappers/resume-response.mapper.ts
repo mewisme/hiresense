@@ -1,6 +1,8 @@
 import type { Prisma } from '../../../generated/prisma/client';
 
-type ResumeVersionWithFile = Prisma.ResumeVersionGetPayload<{ include: { fileObject: true } }>;
+type ResumeVersionWithFile = Prisma.ResumeVersionGetPayload<{
+  include: { fileObject: true };
+}>;
 
 export function toResumeVersionResponse(version: ResumeVersionWithFile) {
   return {

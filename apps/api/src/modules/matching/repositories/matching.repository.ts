@@ -8,8 +8,14 @@ type DbClient = PrismaService | Prisma.TransactionClient;
 export class MatchingRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  findActivePipelineByCodeAndType(code: string, pipelineType: string, db: DbClient = this.prisma) {
-    return db.aiPipelineVersion.findFirst({ where: { code, pipelineType, isActive: true } });
+  findActivePipelineByCodeAndType(
+    code: string,
+    pipelineType: string,
+    db: DbClient = this.prisma,
+  ) {
+    return db.aiPipelineVersion.findFirst({
+      where: { code, pipelineType, isActive: true },
+    });
   }
 
   findApplicationSource(applicationId: string, db: DbClient = this.prisma) {
@@ -40,7 +46,11 @@ export class MatchingRepository {
             minExperienceMonths: true,
             skill: { select: { id: true, name: true, normalizedName: true } },
           },
-          orderBy: [{ isRequired: 'desc' }, { importance: 'desc' }, { skillId: 'asc' }],
+          orderBy: [
+            { isRequired: 'desc' },
+            { importance: 'desc' },
+            { skillId: 'asc' },
+          ],
         },
       },
     });

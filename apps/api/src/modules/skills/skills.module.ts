@@ -9,25 +9,12 @@ import { SkillsController } from './skills.controller';
 import { SkillsService } from './skills.service';
 
 @Module({
-  imports: [
-    AuthModule,
-  ],
+  imports: [AuthModule],
 
-  controllers: [
-    SkillCategoriesController,
-    SkillsController,
-  ],
+  controllers: [SkillCategoriesController, SkillsController],
 
-  providers: [
-    SkillsService,
-    SkillCategoriesRepository,
-    SkillsRepository,
-  ],
+  providers: [SkillsService, SkillCategoriesRepository, SkillsRepository],
 
-  exports: [
-    SkillsService,
-    SkillCategoriesRepository,
-    SkillsRepository,
-  ],
+  exports: [SkillsService, SkillCategoriesRepository, SkillsRepository],
 })
-export class SkillsModule { }
+export class SkillsModule {}

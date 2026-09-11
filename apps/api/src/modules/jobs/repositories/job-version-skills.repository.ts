@@ -15,7 +15,7 @@ export interface CreateJobVersionSkillInput {
 
 @Injectable()
 export class JobVersionSkillsRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   findByJobVersionId(jobVersionId: string, db: DbClient = this.prisma) {
     return db.jobVersionSkill.findMany({
@@ -25,7 +25,10 @@ export class JobVersionSkillsRepository {
     });
   }
 
-  async findActiveSkillIds(skillIds: string[], db: DbClient = this.prisma): Promise<string[]> {
+  async findActiveSkillIds(
+    skillIds: string[],
+    db: DbClient = this.prisma,
+  ): Promise<string[]> {
     if (skillIds.length === 0) return [];
 
     const skills = await db.skill.findMany({

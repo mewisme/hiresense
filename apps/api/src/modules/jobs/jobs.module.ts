@@ -12,7 +12,20 @@ import { JobsRepository } from './repositories/jobs.repository';
 @Module({
   imports: [AuthModule],
   controllers: [JobsController, PublicJobsController],
-  providers: [JobsService, PublicJobsService, JobsRepository, JobVersionsRepository, JobVersionSkillsRepository, JobCompanyMembershipsRepository],
-  exports: [JobsService, PublicJobsService, JobsRepository, JobVersionsRepository, JobVersionSkillsRepository],
+  providers: [
+    JobsService,
+    PublicJobsService,
+    JobsRepository,
+    JobVersionsRepository,
+    JobVersionSkillsRepository,
+    JobCompanyMembershipsRepository,
+  ],
+  exports: [
+    JobsService,
+    PublicJobsService,
+    JobsRepository,
+    JobVersionsRepository,
+    JobVersionSkillsRepository,
+  ],
 })
-export class JobsModule { }
+export class JobsModule {}

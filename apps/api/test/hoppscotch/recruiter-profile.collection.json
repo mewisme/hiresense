@@ -50,13 +50,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/recruiters/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "recruiters",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["recruiters", "me"]
             },
             "description": "Expected HTTP 201 for a recruiter without an existing profile."
           },
@@ -75,13 +70,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/recruiters/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "recruiters",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["recruiters", "me"]
             },
             "description": "Expected HTTP 200 and the authenticated recruiter profile."
           },
@@ -114,13 +104,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/recruiters/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "recruiters",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["recruiters", "me"]
             },
             "description": "Expected HTTP 200 and updated recruiter profile."
           },
@@ -153,13 +138,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/recruiters/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "recruiters",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["recruiters", "me"]
             },
             "description": "Expected HTTP 200. Clears nullable profile fields."
           },
@@ -177,13 +157,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/recruiters/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "recruiters",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["recruiters", "me"]
             },
             "description": "Expected HTTP 401."
           },
@@ -202,13 +177,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/recruiters/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "recruiters",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["recruiters", "me"]
             },
             "description": "Expected HTTP 403 when using an authenticated CANDIDATE account."
           },
@@ -241,13 +211,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/recruiters/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "recruiters",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["recruiters", "me"]
             },
             "description": "Run after Create. Expected HTTP 409."
           },
@@ -280,13 +245,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/recruiters/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "recruiters",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["recruiters", "me"]
             },
             "description": "Expected HTTP 400 because fullName cannot be null."
           },
@@ -319,13 +279,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/recruiters/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "recruiters",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["recruiters", "me"]
             },
             "description": "Expected HTTP 400 because forbidNonWhitelisted is enabled."
           },

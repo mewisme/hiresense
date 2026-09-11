@@ -1,6 +1,7 @@
 # DETAILED PLAN — GRADUATION INTERNSHIP PHASE
 
 ## Project title
+
 **Building an AI-Assisted Recruitment System for Analyzing the Match Between CVs and Job Descriptions**
 
 ---
@@ -70,6 +71,7 @@ Deliver:
 ## 2.1. Mandatory capabilities
 
 ### Candidate
+
 - Register.
 - Login/logout.
 - Basic password change/recovery.
@@ -85,6 +87,7 @@ Deliver:
 - View personal match results.
 
 ### Recruiter
+
 - Register/login.
 - Create/update company profile.
 - Create job.
@@ -96,6 +99,7 @@ Deliver:
 - Change application status.
 
 ### Admin
+
 - Login.
 - List users.
 - Disable/enable accounts.
@@ -104,6 +108,7 @@ Deliver:
 - Hide/close problematic jobs.
 
 ### AI / Matching
+
 - Extract text from PDF CVs.
 - Normalize extracted text.
 - Extract skills.
@@ -146,6 +151,7 @@ Reserve the following for the final project:
 ## 3.1. Candidate
 
 Can:
+
 - Manage own profile.
 - Manage own CVs.
 - View open jobs.
@@ -154,6 +160,7 @@ Can:
 - View own match results.
 
 Cannot:
+
 - View other candidates' CVs.
 - Access recruiter-only data.
 - Change application status.
@@ -162,6 +169,7 @@ Cannot:
 ## 3.2. Recruiter
 
 Can:
+
 - Manage the assigned company.
 - Manage jobs for that company.
 - View applications submitted to owned company jobs.
@@ -170,6 +178,7 @@ Can:
 - Update application status.
 
 Cannot:
+
 - View private data of unrelated candidates.
 - Manage another company's jobs.
 - Directly overwrite AI scores.
@@ -177,6 +186,7 @@ Cannot:
 ## 3.3. Admin
 
 Can:
+
 - Manage users.
 - Moderate companies and jobs.
 - Review system-level operational information.
@@ -226,12 +236,14 @@ Manual AI score changes should not be allowed except for debug tooling with audi
 ## 4.3. Application statuses
 
 Minimum:
+
 - `APPLIED`
 - `REVIEWING`
 - `ACCEPTED`
 - `REJECTED`
 
 Optional refined MVP:
+
 - `APPLIED`
 - `SCREENING`
 - `INTERVIEW`
@@ -247,6 +259,7 @@ Do not overcomplicate the workflow in Phase 1.
 ## FR-AUTH
 
 ### FR-AUTH-01 — Registration
+
 - Role selection: Candidate or Recruiter.
 - Unique email.
 - Minimum password policy.
@@ -254,17 +267,20 @@ Do not overcomplicate the workflow in Phase 1.
 - Clear duplicate-email validation.
 
 ### FR-AUTH-02 — Login
+
 - Validate credentials.
 - Return access token.
 - Optional refresh token.
 - Return basic user and role context.
 
 ### FR-AUTH-03 — Authorization
+
 - Every private API requires authentication.
 - Recruiter APIs require recruiter role.
 - Candidate resources enforce ownership.
 
 ### FR-AUTH-04 — Password change
+
 - Require current password.
 - Hash new password.
 - Invalidate old refresh tokens when implemented.
@@ -274,7 +290,9 @@ Do not overcomplicate the workflow in Phase 1.
 ## FR-CANDIDATE
 
 ### FR-CAN-01 — Candidate profile
+
 Suggested fields:
+
 - fullName
 - phone
 - location
@@ -286,6 +304,7 @@ Suggested fields:
 - LinkedIn URL
 
 ### FR-CAN-02 — CV upload
+
 - PDF only for MVP.
 - File size limit.
 - MIME validation.
@@ -294,18 +313,22 @@ Suggested fields:
 - Trigger parser.
 
 ### FR-CAN-03 — CV management
+
 - List own CVs.
 - Mark one as default.
 - Delete according to business policy.
 
 ### FR-CAN-04 — Job discovery
+
 Minimum filters:
+
 - keyword;
 - location;
 - employment type;
 - experience level.
 
 ### FR-CAN-05 — Apply
+
 - Candidate must have a CV.
 - Prevent duplicate application when policy is one application per job.
 - Associate selected resume.
@@ -313,7 +336,9 @@ Minimum filters:
 - Trigger matching.
 
 ### FR-CAN-06 — Application tracking
+
 Show:
+
 - Job title.
 - Company.
 - Applied date.
@@ -325,6 +350,7 @@ Show:
 ## FR-RECRUITER
 
 ### FR-REC-01 — Company
+
 - Create company.
 - Update company.
 - Optional logo.
@@ -334,7 +360,9 @@ Show:
 - Description.
 
 ### FR-REC-02 — Job CRUD
+
 Fields:
+
 - title
 - slug
 - description
@@ -351,14 +379,18 @@ Fields:
 - status: DRAFT/PUBLISHED/CLOSED
 
 ### FR-REC-03 — Applicant list
+
 Support:
+
 - list by job;
 - sort by appliedAt;
 - sort by matchScore;
 - filter by status.
 
 ### FR-REC-04 — Applicant detail
+
 Show:
+
 - candidate profile;
 - CV;
 - parsed information;
@@ -368,6 +400,7 @@ Show:
 - application status.
 
 ### FR-REC-05 — Status update
+
 - Only recruiters from the relevant company.
 - Update timestamp.
 - Persist history if status history is implemented.
@@ -385,41 +418,51 @@ Implement a transparent baseline pipeline:
 ## 6.2. CV pipeline
 
 ### Step 1 — File validation
+
 - Valid PDF.
 - File size limit.
 - Detect corrupted file.
 
 ### Step 2 — Text extraction
+
 Prefer direct PDF text extraction.
 Avoid OCR unless required.
 
 Persist:
+
 - rawText
 - extractionStatus
 - extractionError
 
 ### Step 3 — Normalization
+
 - normalize whitespace;
 - normalize punctuation;
 - lowercase for matching while retaining raw text;
 - normalize aliases such as NodeJS -> Node.js, ReactJS -> React, Postgres -> PostgreSQL.
 
 ### Step 4 — Skill extraction
+
 Use:
+
 - controlled skill dictionary;
 - keyword matching;
 - alias matching;
 - optional regex rules.
 
 ### Step 5 — Experience extraction
+
 Estimate:
+
 - explicit “X years of experience”, or
 - rough duration from work history.
 
 Persist as an estimate, not a verified fact.
 
 ### Step 6 — Education extraction
+
 Extract basic:
+
 - school;
 - degree;
 - major;
@@ -430,6 +473,7 @@ Extract basic:
 # 7. JD processing
 
 Normalize each job into:
+
 - required skills;
 - preferred skills;
 - minimum experience;
@@ -446,18 +490,23 @@ Recommended baseline:
 `FinalScore = SkillScore * 0.60 + ExperienceScore * 0.25 + EducationScore * 0.15`
 
 ## SkillScore
+
 - required skills: weight 1.0;
 - preferred skills: weight 0.5.
 
 ## ExperienceScore
+
 Example:
+
 - candidate >= required: 100;
 - one year below: 75;
 - two years below: 50;
 - significantly below: 25 or 0.
 
 ## EducationScore
+
 Example:
+
 - meets requirement: 100;
 - roughly equivalent: 70;
 - unknown: 50;
@@ -484,11 +533,13 @@ The scoring formula must be documented and versioned.
 # 9. Non-functional requirements
 
 ## NFR-01 — Performance
+
 - Normal CRUD API target: typically below 500 ms in a reasonable development environment.
 - Matching can initially be synchronous if execution is only a few seconds.
 - Lists must use pagination.
 
 ## NFR-02 — Security
+
 - bcrypt/argon2 password hashing.
 - JWT expiry.
 - Input validation.
@@ -498,11 +549,13 @@ The scoring formula must be documented and versioned.
 - Never log passwords or tokens.
 
 ## NFR-03 — Privacy
+
 - Treat CVs as sensitive personal data.
 - Only the owner, relevant recruiter, and authorized admin may access them.
 - Avoid using real third-party CVs without permission.
 
 ## NFR-04 — Maintainability
+
 - Clear module boundaries.
 - DTO/schema validation.
 - Versioned migrations.
@@ -510,7 +563,9 @@ The scoring formula must be documented and versioned.
 - `.env.example`.
 
 ## NFR-05 — Extensibility
+
 The design must allow later addition of:
+
 - AI service;
 - vector search;
 - ranking;
@@ -575,6 +630,7 @@ Each table should include created/updated timestamps where appropriate and forei
 # 12. Planned API surface
 
 ## Auth
+
 - `POST /auth/register`
 - `POST /auth/login`
 - `POST /auth/refresh`
@@ -582,6 +638,7 @@ Each table should include created/updated timestamps where appropriate and forei
 - `PATCH /auth/change-password`
 
 ## Candidate
+
 - `GET /candidate/profile`
 - `PATCH /candidate/profile`
 - `GET /candidate/resumes`
@@ -590,6 +647,7 @@ Each table should include created/updated timestamps where appropriate and forei
 - `PATCH /candidate/resumes/:id/default`
 
 ## Jobs
+
 - `GET /jobs`
 - `GET /jobs/:id`
 - `POST /recruiter/jobs`
@@ -598,6 +656,7 @@ Each table should include created/updated timestamps where appropriate and forei
 - `POST /recruiter/jobs/:id/close`
 
 ## Applications
+
 - `POST /jobs/:jobId/applications`
 - `GET /candidate/applications`
 - `GET /candidate/applications/:id`
@@ -606,6 +665,7 @@ Each table should include created/updated timestamps where appropriate and forei
 - `PATCH /recruiter/applications/:id/status`
 
 ## AI/internal
+
 - `POST /internal/resumes/:id/parse`
 - `POST /internal/applications/:id/match`
 - `GET /applications/:id/analysis`
@@ -615,34 +675,18 @@ Each table should include created/updated timestamps where appropriate and forei
 # 13. UI inventory
 
 Public:
+
 1. Landing.
 2. Job listing.
 3. Job detail.
 4. Login.
 5. Register.
 
-Candidate:
-6. Dashboard.
-7. Profile.
-8. CV management.
-9. CV upload.
-10. Applications.
-11. Application detail with score.
+Candidate: 6. Dashboard. 7. Profile. 8. CV management. 9. CV upload. 10. Applications. 11. Application detail with score.
 
-Recruiter:
-12. Dashboard.
-13. Company profile.
-14. Jobs.
-15. Create job.
-16. Edit job.
-17. Job management detail.
-18. Applicants.
-19. Applicant detail with CV and AI result.
+Recruiter: 12. Dashboard. 13. Company profile. 14. Jobs. 15. Create job. 16. Edit job. 17. Job management detail. 18. Applicants. 19. Applicant detail with CV and AI result.
 
-Admin:
-20. Dashboard.
-21. Users.
-22. Jobs moderation.
+Admin: 20. Dashboard. 21. Users. 22. Jobs moderation.
 
 ---
 
@@ -664,7 +708,9 @@ Admin:
 # 15. 12-week execution roadmap
 
 ## Week 1 — Requirements and scope freeze
+
 Tasks:
+
 - Problem statement.
 - Actors.
 - MVP list.
@@ -675,16 +721,20 @@ Tasks:
 - Backlog.
 
 Deliverables:
+
 - Requirement document.
 - Use case diagram.
 - Scope baseline.
 - Backlog.
 
 Exit criteria:
+
 - Core demo flow is unambiguous.
 
 ## Week 2 — System and database design
+
 Tasks:
+
 - ERD.
 - Schema.
 - API contract.
@@ -694,13 +744,16 @@ Tasks:
 - Ownership rules.
 
 Deliverables:
+
 - ERD v1.
 - API list.
 - Wireframes.
 - Architecture diagram.
 
 ## Week 3 — Project setup and Auth
+
 Tasks:
+
 - Next.js, NestJS, PostgreSQL, Prisma setup.
 - Initial migrations.
 - Admin seed.
@@ -709,10 +762,13 @@ Tasks:
 - Error handling.
 
 Exit criteria:
+
 - Candidate and Recruiter can authenticate and access correct areas.
 
 ## Week 4 — Profiles, Company, Job CRUD
+
 Tasks:
+
 - Candidate profile.
 - Recruiter profile.
 - Company CRUD.
@@ -721,10 +777,13 @@ Tasks:
 - Public job listing.
 
 Exit criteria:
+
 - Recruiter can publish a job and Candidate can view it.
 
 ## Week 5 — CV upload
+
 Tasks:
+
 - PDF upload.
 - Validation.
 - Storage abstraction.
@@ -733,10 +792,13 @@ Tasks:
 - Secure access.
 
 Exit criteria:
+
 - Candidate manages own CV without exposing it publicly.
 
 ## Week 6 — Application workflow
+
 Tasks:
+
 - Apply.
 - Duplicate prevention.
 - Candidate application list.
@@ -745,10 +807,13 @@ Tasks:
 - Status update.
 
 Exit criteria:
+
 - Candidate-to-Recruiter application flow works end to end.
 
 ## Week 7 — CV extraction and parsing
+
 Tasks:
+
 - Text extraction.
 - Parse status.
 - Skill dictionary.
@@ -757,10 +822,13 @@ Tasks:
 - Education extraction.
 
 Exit criteria:
+
 - A CV produces structured baseline features.
 
 ## Week 8 — JD structure and Matching Engine v1
+
 Tasks:
+
 - Required/preferred skills.
 - Score formula.
 - Matched/missing skills.
@@ -768,20 +836,26 @@ Tasks:
 - Algorithm versioning.
 
 Exit criteria:
+
 - Every analyzable application can produce a repeatable score.
 
 ## Week 9 — AI result UI
+
 Tasks:
+
 - Candidate result view.
 - Recruiter applicant view.
 - Score breakdown.
 - Error/empty/loading states.
 
 Exit criteria:
+
 - Result is understandable without reading logs or raw JSON.
 
 ## Week 10 — Testing and security
+
 Tasks:
+
 - Unit tests.
 - Integration tests.
 - Authorization tests.
@@ -789,12 +863,15 @@ Tasks:
 - Fix critical defects.
 
 Deliverables:
+
 - Test report.
 - Bug list.
 - Stable release candidate.
 
 ## Week 11 — Deployment and documentation
+
 Tasks:
+
 - Docker config.
 - `.env.example`.
 - Staging/demo deployment.
@@ -805,10 +882,13 @@ Tasks:
 - Demo guide.
 
 Exit criteria:
+
 - Project can run from a clean setup.
 
 ## Week 12 — Finalize internship submission
+
 Tasks:
+
 - Screenshots.
 - Internship report.
 - Slides.
@@ -818,6 +898,7 @@ Tasks:
 - Tag `internship-v1.0`.
 
 Deliverables:
+
 - Source.
 - Report.
 - Slides.
@@ -829,13 +910,16 @@ Deliverables:
 # 16. Testing strategy
 
 ## Unit tests
+
 Prioritize:
+
 - score formula;
 - skill normalization;
 - experience scoring;
 - authorization helpers.
 
 ## Integration tests
+
 - register/login;
 - job creation;
 - CV upload;
@@ -845,6 +929,7 @@ Prioritize:
 - analysis trigger.
 
 ## End-to-end smoke test
+
 1. Recruiter registers.
 2. Creates company.
 3. Publishes job.
@@ -857,6 +942,7 @@ Prioritize:
 10. Candidate sees new status.
 
 ## Demo dataset target
+
 - 3 recruiters.
 - 3 companies.
 - 10–20 jobs.
@@ -911,6 +997,7 @@ Phase 1 is accepted when:
 # 19. Required deliverables
 
 Source:
+
 - Frontend.
 - Backend.
 - AI module/service.
@@ -919,6 +1006,7 @@ Source:
 - Docker configuration when used.
 
 Documentation:
+
 - Requirements.
 - Use case diagram.
 - Activity/sequence diagrams.
@@ -932,6 +1020,7 @@ Documentation:
 - Internship report.
 
 Demo:
+
 - Dataset.
 - Sample CVs.
 - Sample jobs.
@@ -943,7 +1032,9 @@ Demo:
 # 20. Key risks and mitigation
 
 ## R1 — CV parsing is unreliable
+
 Mitigation:
+
 - Support text-based PDF first.
 - Do not promise OCR.
 - Use controlled skill dictionary.
@@ -951,24 +1042,32 @@ Mitigation:
 - Document unsupported cases.
 
 ## R2 — Scope explosion
+
 Mitigation:
+
 - Freeze MVP at the end of Week 2.
 - Move new ideas to Phase 2 backlog.
 
 ## R3 — “Where is the AI?” challenge
+
 Mitigation:
+
 - Clearly explain extraction, normalization, feature engineering, and scoring.
 - Position Phase 1 as a measurable AI/NLP baseline.
 
 ## R4 — Score lacks credibility
+
 Mitigation:
+
 - Show score breakdown.
 - Document formula.
 - Version the algorithm.
 - Never interpret it as probability of being hired.
 
 ## R5 — CV privacy
+
 Mitigation:
+
 - Private file access.
 - Authorization.
 - No public bucket.
@@ -1001,6 +1100,7 @@ The internship version should be a **clean, measurable baseline**.
 # 22. Final completion checklist
 
 ## Product
+
 - [ ] Auth.
 - [ ] Candidate profile.
 - [ ] Company.
@@ -1013,6 +1113,7 @@ The internship version should be a **clean, measurable baseline**.
 - [ ] Basic Admin.
 
 ## Engineering
+
 - [ ] Migrations.
 - [ ] Seed.
 - [ ] Validation.
@@ -1026,6 +1127,7 @@ The internship version should be a **clean, measurable baseline**.
 - [ ] Deployment.
 
 ## Documentation
+
 - [ ] Requirements.
 - [ ] Use cases.
 - [ ] ERD.

@@ -6,13 +6,17 @@ type DbClient = PrismaService | Prisma.TransactionClient;
 
 @Injectable()
 export class ApplicationCandidatesRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   findProfileByUserId(userId: string, db: DbClient = this.prisma) {
     return db.candidateProfile.findUnique({ where: { userId } });
   }
 
-  async lockOwnedResumeVersion(candidateProfileId: string, resumeVersionId: string, db: Prisma.TransactionClient): Promise<boolean> {
+  async lockOwnedResumeVersion(
+    candidateProfileId: string,
+    resumeVersionId: string,
+    db: Prisma.TransactionClient,
+  ): Promise<boolean> {
     const rows = await db.$queryRaw<Array<{ id: string }>>(
       Prisma.sql`
         SELECT rv.id

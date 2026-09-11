@@ -12,7 +12,7 @@ export interface CreateDiscordFilePartInput {
 
 @Injectable()
 export class DiscordFilePartsRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   create(input: CreateDiscordFilePartInput, db: DbClient = this.prisma) {
     return db.discordFilePart.create({
@@ -44,7 +44,10 @@ export class DiscordFilePartsRepository {
     });
   }
 
-  async existsForFileObject(fileObjectId: string, db: DbClient = this.prisma): Promise<boolean> {
+  async existsForFileObject(
+    fileObjectId: string,
+    db: DbClient = this.prisma,
+  ): Promise<boolean> {
     const part = await db.discordFilePart.findFirst({
       where: { fileObjectId },
       select: { id: true },

@@ -30,13 +30,29 @@ export interface BaselineSkillResultProjection {
   persistence: BaselineSkillResultPersistenceInput[];
 }
 
-export function mapBaselineSkillResults(requirements: readonly JobSkillRequirement[], skillScore: BaselineSkillMatchScore): BaselineSkillResultProjection {
-  const requirementById = new Map(requirements.map((requirement) => [requirement.jobVersionSkillId, requirement] as const));
+export function mapBaselineSkillResults(
+  requirements: readonly JobSkillRequirement[],
+  skillScore: BaselineSkillMatchScore,
+): BaselineSkillResultProjection {
+  const requirementById = new Map(
+    requirements.map(
+      (requirement) => [requirement.jobVersionSkillId, requirement] as const,
+    ),
+  );
   const items = skillScore.results.map((result) => {
     const requirement = requirementById.get(result.jobVersionSkillId);
-    if (!requirement || requirement.skillId !== result.skillId) throw new Error(`Missing job skill requirement for match result: ${result.jobVersionSkillId}`);
-    if (result.status === 'MATCHED' && !result.resumeSkillId) throw new Error(`Matched skill result has no resume skill: ${result.jobVersionSkillId}`);
-    if (result.status === 'MISSING' && result.resumeSkillId) throw new Error(`Missing skill result unexpectedly references resume skill: ${result.jobVersionSkillId}`);
+    if (!requirement || requirement.skillId !== result.skillId)
+      throw new Error(
+        `Missing job skill requirement for match result: ${result.jobVersionSkillId}`,
+      );
+    if (result.status === 'MATCHED' && !result.resumeSkillId)
+      throw new Error(
+        `Matched skill result has no resume skill: ${result.jobVersionSkillId}`,
+      );
+    if (result.status === 'MISSING' && result.resumeSkillId)
+      throw new Error(
+        `Missing skill result unexpectedly references resume skill: ${result.jobVersionSkillId}`,
+      );
 
     return {
       jobVersionSkillId: requirement.jobVersionSkillId,
@@ -57,6 +73,20 @@ export function mapBaselineSkillResults(requirements: readonly JobSkillRequireme
   return {
     matched: items.filter((item) => item.status === 'MATCHED'),
     missing: items.filter((item) => item.status === 'MISSING'),
-    persistence: items.map(({ jobVersionSkillId, resumeSkillId, status, similarityScore, evidenceText }) => ({ jobVersionSkillId, resumeSkillId, status, similarityScore, evidenceText })),
+    persistence: items.map(
+      ({
+        jobVersionSkillId,
+        resumeSkillId,
+        status,
+        similarityScore,
+        evidenceText,
+      }) => ({
+        jobVersionSkillId,
+        resumeSkillId,
+        status,
+        similarityScore,
+        evidenceText,
+      }),
+    ),
   };
 }

@@ -1,4 +1,9 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma as PrismaNamespace } from '../../generated/prisma/client';
 import { SkillCategoriesRepository } from './repositories/skill-categories.repository';
 import { SkillsRepository } from './repositories/skills.repository';
@@ -19,7 +24,7 @@ export class SkillsService {
   constructor(
     private readonly skillCategoriesRepository: SkillCategoriesRepository,
     private readonly skillsRepository: SkillsRepository,
-  ) { }
+  ) {}
 
   listCategories() {
     return this.skillCategoriesRepository.findAll();
@@ -50,7 +55,8 @@ export class SkillsService {
       throw new BadRequestException('Skill name cannot be empty');
     }
 
-    const skill = await this.skillsRepository.findByNormalizedName(normalizedName);
+    const skill =
+      await this.skillsRepository.findByNormalizedName(normalizedName);
 
     if (!skill || !skill.isActive) {
       throw new NotFoundException('Canonical skill not found');
@@ -59,7 +65,9 @@ export class SkillsService {
     return skill;
   }
 
-  async createCanonicalSkill(input: CreateCanonicalSkillInput): Promise<SkillWithCategory> {
+  async createCanonicalSkill(
+    input: CreateCanonicalSkillInput,
+  ): Promise<SkillWithCategory> {
     const name = input.name.trim();
     const normalizedName = normalizeSkillName(name);
 
@@ -68,7 +76,9 @@ export class SkillsService {
     }
 
     if (input.categoryId) {
-      const category = await this.skillCategoriesRepository.findById(input.categoryId);
+      const category = await this.skillCategoriesRepository.findById(
+        input.categoryId,
+      );
 
       if (!category) {
         throw new NotFoundException('Skill category not found');

@@ -34,25 +34,41 @@ describe('Job DTOs', () => {
     });
 
     it('rejects importance below 1', async () => {
-      const result = await errors(CreateJobSkillDto, { skillId, importance: 0 });
+      const result = await errors(CreateJobSkillDto, {
+        skillId,
+        importance: 0,
+      });
 
-      expect(result.some((error) => error.property === 'importance')).toBe(true);
+      expect(result.some((error) => error.property === 'importance')).toBe(
+        true,
+      );
     });
 
     it('rejects importance above 5', async () => {
-      const result = await errors(CreateJobSkillDto, { skillId, importance: 6 });
+      const result = await errors(CreateJobSkillDto, {
+        skillId,
+        importance: 6,
+      });
 
-      expect(result.some((error) => error.property === 'importance')).toBe(true);
+      expect(result.some((error) => error.property === 'importance')).toBe(
+        true,
+      );
     });
 
     it('rejects weight below zero', async () => {
-      const result = await errors(CreateJobSkillDto, { skillId, weight: '-0.1' });
+      const result = await errors(CreateJobSkillDto, {
+        skillId,
+        weight: '-0.1',
+      });
 
       expect(result.some((error) => error.property === 'weight')).toBe(true);
     });
 
     it('rejects weight above one', async () => {
-      const result = await errors(CreateJobSkillDto, { skillId, weight: '1.1' });
+      const result = await errors(CreateJobSkillDto, {
+        skillId,
+        weight: '1.1',
+      });
 
       expect(result.some((error) => error.property === 'weight')).toBe(true);
     });
@@ -71,7 +87,9 @@ describe('Job DTOs', () => {
         minExperienceMonths: -1,
       });
 
-      expect(result.some((error) => error.property === 'minExperienceMonths')).toBe(true);
+      expect(
+        result.some((error) => error.property === 'minExperienceMonths'),
+      ).toBe(true);
     });
   });
 
@@ -87,12 +105,14 @@ describe('Job DTOs', () => {
         salaryMin: '15000000',
         salaryMax: '30000000',
         salaryCurrency: 'VND',
-        skills: [{
-          skillId,
-          importance: 5,
-          isRequired: true,
-          weight: '1',
-        }],
+        skills: [
+          {
+            skillId,
+            importance: 5,
+            isRequired: true,
+            weight: '1',
+          },
+        ],
       });
 
       expect(result).toHaveLength(0);
@@ -143,7 +163,9 @@ describe('Job DTOs', () => {
         salaryCurrency: 'VN',
       });
 
-      expect(result.some((error) => error.property === 'salaryCurrency')).toBe(true);
+      expect(result.some((error) => error.property === 'salaryCurrency')).toBe(
+        true,
+      );
     });
 
     it('rejects empty title', async () => {
@@ -161,17 +183,21 @@ describe('Job DTOs', () => {
         description: '',
       });
 
-      expect(result.some((error) => error.property === 'description')).toBe(true);
+      expect(result.some((error) => error.property === 'description')).toBe(
+        true,
+      );
     });
 
     it('validates nested skill DTOs', async () => {
       const result = await errors(CreateJobDto, {
         title: 'Backend Developer',
         description: 'Description',
-        skills: [{
-          skillId: 'invalid',
-          importance: 10,
-        }],
+        skills: [
+          {
+            skillId: 'invalid',
+            importance: 10,
+          },
+        ],
       });
 
       expect(result.some((error) => error.property === 'skills')).toBe(true);
@@ -198,7 +224,9 @@ describe('Job DTOs', () => {
     });
 
     it('trims an updated title', async () => {
-      const dto = plainToInstance(UpdateJobDto, { title: '  Senior Backend Developer  ' });
+      const dto = plainToInstance(UpdateJobDto, {
+        title: '  Senior Backend Developer  ',
+      });
       const result = await validate(dto);
 
       expect(result).toHaveLength(0);

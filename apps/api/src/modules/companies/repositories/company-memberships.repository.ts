@@ -8,9 +8,7 @@ import type {
   CompanyMembershipStatus,
 } from '../types/company-membership.type';
 
-type DbClient =
-  | PrismaService
-  | Prisma.TransactionClient;
+type DbClient = PrismaService | Prisma.TransactionClient;
 
 export interface CreateCompanyMembershipInput {
   companyId: string;
@@ -24,10 +22,7 @@ export interface CreateCompanyMembershipInput {
 
 @Injectable()
 export class CompanyMembershipsRepository {
-  constructor(
-    private readonly prisma:
-      PrismaService,
-  ) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   findByCompanyAndUser(
     companyId: string,
@@ -81,10 +76,7 @@ export class CompanyMembershipsRepository {
     });
   }
 
-  findActiveByUserId(
-    userId: string,
-    db: DbClient = this.prisma,
-  ) {
+  findActiveByUserId(userId: string, db: DbClient = this.prisma) {
     return db.companyMembership.findMany({
       where: {
         userId,
@@ -106,26 +98,18 @@ export class CompanyMembershipsRepository {
     });
   }
 
-  create(
-    input: CreateCompanyMembershipInput,
-    db: DbClient = this.prisma,
-  ) {
+  create(input: CreateCompanyMembershipInput, db: DbClient = this.prisma) {
     return db.companyMembership.create({
       data: {
-        companyId:
-          input.companyId,
+        companyId: input.companyId,
 
-        userId:
-          input.userId,
+        userId: input.userId,
 
-        role:
-          input.role,
+        role: input.role,
 
-        status:
-          input.status,
+        status: input.status,
 
-        joinedAt:
-          input.joinedAt,
+        joinedAt: input.joinedAt,
       },
     });
   }

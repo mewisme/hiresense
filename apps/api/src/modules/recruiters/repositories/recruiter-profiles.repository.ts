@@ -3,9 +3,7 @@ import { Injectable } from '@nestjs/common';
 import type { Prisma } from '../../../generated/prisma/client';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
 
-type DbClient =
-  | PrismaService
-  | Prisma.TransactionClient;
+type DbClient = PrismaService | Prisma.TransactionClient;
 
 export interface CreateRecruiterProfileInput {
   userId: string;
@@ -22,15 +20,9 @@ export interface UpdateRecruiterProfileInput {
 
 @Injectable()
 export class RecruiterProfilesRepository {
-  constructor(
-    private readonly prisma:
-      PrismaService,
-  ) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-  findByUserId(
-    userId: string,
-    db: DbClient = this.prisma,
-  ) {
+  findByUserId(userId: string, db: DbClient = this.prisma) {
     return db.recruiterProfile.findUnique({
       where: {
         userId,
@@ -38,10 +30,7 @@ export class RecruiterProfilesRepository {
     });
   }
 
-  findById(
-    id: string,
-    db: DbClient = this.prisma,
-  ) {
+  findById(id: string, db: DbClient = this.prisma) {
     return db.recruiterProfile.findUnique({
       where: {
         id,
@@ -49,23 +38,16 @@ export class RecruiterProfilesRepository {
     });
   }
 
-  create(
-    input: CreateRecruiterProfileInput,
-    db: DbClient = this.prisma,
-  ) {
+  create(input: CreateRecruiterProfileInput, db: DbClient = this.prisma) {
     return db.recruiterProfile.create({
       data: {
-        userId:
-          input.userId,
+        userId: input.userId,
 
-        fullName:
-          input.fullName,
+        fullName: input.fullName,
 
-        phone:
-          input.phone,
+        phone: input.phone,
 
-        jobTitle:
-          input.jobTitle,
+        jobTitle: input.jobTitle,
       },
     });
   }

@@ -14,7 +14,11 @@ import { RecruitmentStagesRepository } from './repositories/recruitment-stages.r
 
 @Module({
   imports: [AuthModule, FilesModule],
-  controllers: [ApplicationsController, CandidateApplicationsController, RecruiterApplicationsController],
+  controllers: [
+    ApplicationsController,
+    CandidateApplicationsController,
+    RecruiterApplicationsController,
+  ],
   providers: [
     ApplicationsService,
     ApplicationsRepository,
@@ -24,6 +28,11 @@ import { RecruitmentStagesRepository } from './repositories/recruitment-stages.r
     ApplicationJobsRepository,
     ApplicationCompanyMembershipsRepository,
   ],
-  exports: [ApplicationsService, ApplicationsRepository, RecruitmentStagesRepository, ApplicationStageHistoryRepository],
+  exports: [
+    ApplicationsService,
+    ApplicationsRepository,
+    RecruitmentStagesRepository,
+    ApplicationStageHistoryRepository,
+  ],
 })
-export class ApplicationsModule { }
+export class ApplicationsModule {}

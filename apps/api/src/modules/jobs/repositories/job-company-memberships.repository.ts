@@ -6,9 +6,15 @@ type DbClient = PrismaService | Prisma.TransactionClient;
 
 @Injectable()
 export class JobCompanyMembershipsRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-  findByCompanyAndUser(companyId: string, userId: string, db: DbClient = this.prisma) {
-    return db.companyMembership.findUnique({ where: { companyId_userId: { companyId, userId } } });
+  findByCompanyAndUser(
+    companyId: string,
+    userId: string,
+    db: DbClient = this.prisma,
+  ) {
+    return db.companyMembership.findUnique({
+      where: { companyId_userId: { companyId, userId } },
+    });
   }
 }

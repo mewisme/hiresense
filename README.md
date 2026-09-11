@@ -7,7 +7,7 @@
 
 HireSense is a recruitment system that turns CVs and job descriptions into structured data and scores how well a candidate fits a job. It supports the full hiring flow — recruiters publish jobs, candidates upload CVs and apply, and the system parses each CV and computes an explainable match score (skills, experience, education) that recruiters use to review and rank applicants. AI supports the decision; the recruiter always makes it.
 
-> Đề tài: *Xây dựng hệ thống tuyển dụng và phân tích mức độ phù hợp giữa CV và mô tả công việc ứng dụng trí tuệ nhân tạo* — a graduation project developed in phases: internship MVP → full recruitment product → semantic matching platform (embeddings, ranking, recommendation, explainability).
+> Đề tài: _Xây dựng hệ thống tuyển dụng và phân tích mức độ phù hợp giữa CV và mô tả công việc ứng dụng trí tuệ nhân tạo_ — a graduation project developed in phases: internship MVP → full recruitment product → semantic matching platform (embeddings, ranking, recommendation, explainability).
 
 ## Highlights
 
@@ -18,13 +18,13 @@ HireSense is a recruitment system that turns CVs and job descriptions into struc
 
 ## Tech stack
 
-| Layer     | Technology                                                                  |
-| --------- | --------------------------------------------------------------------------- |
-| Web       | Next.js 16 (App Router), React 19, Tailwind CSS 4, TypeScript               |
-| API       | NestJS 11, Prisma 7, JWT auth (argon2 hashing), class-validator            |
-| AI service | FastAPI (Python 3.14, managed by uv), Pydantic                             |
-| Database  | PostgreSQL 18 + pgvector, UUIDv7 primary keys, UTC timestamps              |
-| Tooling   | pnpm workspaces, ESLint, Prettier, Jest, Docker Compose                    |
+| Layer      | Technology                                                      |
+| ---------- | --------------------------------------------------------------- |
+| Web        | Next.js 16 (App Router), React 19, Tailwind CSS 4, TypeScript   |
+| API        | NestJS 11, Prisma 7, JWT auth (argon2 hashing), class-validator |
+| AI service | FastAPI (Python 3.14, managed by uv), Pydantic                  |
+| Database   | PostgreSQL 18 + pgvector, UUIDv7 primary keys, UTC timestamps   |
+| Tooling    | pnpm workspaces, ESLint, Prettier, Jest, Docker Compose         |
 
 ## Repository structure
 
@@ -73,15 +73,15 @@ cp .env.example .env
 
 Then review the values — at minimum change the JWT secrets for anything beyond local development:
 
-| Variable              | Purpose                                | Default                                        |
-| --------------------- | -------------------------------------- | ---------------------------------------------- |
-| `DATABASE_URL`        | PostgreSQL connection string           | `postgresql://postgres:postgres@localhost:5432/hiresense` |
-| `PORT`                | API port                               | `4000`                                         |
-| `AI_SERVICE_URL`      | FastAPI base URL used by the API       | `http://localhost:8000`                        |
-| `JWT_ACCESS_SECRET`   | Access token signing secret            | `change-me`                                    |
-| `JWT_REFRESH_SECRET`  | Refresh token signing secret           | `change-me`                                    |
-| `NEXT_PUBLIC_API_URL` | API base URL used by the web app       | `http://localhost:4000`                        |
-| `AI_HOST` / `AI_PORT` | FastAPI bind address                   | `0.0.0.0` / `8000`                             |
+| Variable              | Purpose                          | Default                                                   |
+| --------------------- | -------------------------------- | --------------------------------------------------------- |
+| `DATABASE_URL`        | PostgreSQL connection string     | `postgresql://postgres:postgres@localhost:5432/hiresense` |
+| `PORT`                | API port                         | `4000`                                                    |
+| `AI_SERVICE_URL`      | FastAPI base URL used by the API | `http://localhost:8000`                                   |
+| `JWT_ACCESS_SECRET`   | Access token signing secret      | `change-me`                                               |
+| `JWT_REFRESH_SECRET`  | Refresh token signing secret     | `change-me`                                               |
+| `NEXT_PUBLIC_API_URL` | API base URL used by the web app | `http://localhost:4000`                                   |
+| `AI_HOST` / `AI_PORT` | FastAPI bind address             | `0.0.0.0` / `8000`                                        |
 
 ### 3. Start PostgreSQL
 

@@ -16,7 +16,13 @@ export class MatchingController {
     @Param('companyId', ParseUUIDPipe) companyId: string,
     @Param('applicationId', ParseUUIDPipe) applicationId: string,
   ) {
-    return toApplicationMatchRunResponse(await this.matchingService.runForRecruiter(companyId, applicationId, user.id));
+    return toApplicationMatchRunResponse(
+      await this.matchingService.runForRecruiter(
+        companyId,
+        applicationId,
+        user.id,
+      ),
+    );
   }
 
   @Get('current')
@@ -25,7 +31,13 @@ export class MatchingController {
     @Param('companyId', ParseUUIDPipe) companyId: string,
     @Param('applicationId', ParseUUIDPipe) applicationId: string,
   ) {
-    return toApplicationMatchRunResponse(await this.matchingService.getCurrentForRecruiter(companyId, applicationId, user.id));
+    return toApplicationMatchRunResponse(
+      await this.matchingService.getCurrentForRecruiter(
+        companyId,
+        applicationId,
+        user.id,
+      ),
+    );
   }
 
   @Get('runs/:matchRunId')
@@ -35,6 +47,13 @@ export class MatchingController {
     @Param('applicationId', ParseUUIDPipe) applicationId: string,
     @Param('matchRunId', ParseUUIDPipe) matchRunId: string,
   ) {
-    return toApplicationMatchRunResponse(await this.matchingService.getRunForRecruiter(companyId, applicationId, matchRunId, user.id));
+    return toApplicationMatchRunResponse(
+      await this.matchingService.getRunForRecruiter(
+        companyId,
+        applicationId,
+        matchRunId,
+        user.id,
+      ),
+    );
   }
 }

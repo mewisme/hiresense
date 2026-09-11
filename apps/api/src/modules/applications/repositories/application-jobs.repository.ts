@@ -11,16 +11,23 @@ export interface PublishedApplicationJob {
 
 @Injectable()
 export class ApplicationJobsRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-  findCompanyJobById(jobId: string, companyId: string, db: DbClient = this.prisma) {
+  findCompanyJobById(
+    jobId: string,
+    companyId: string,
+    db: DbClient = this.prisma,
+  ) {
     return db.job.findFirst({
       where: { id: jobId, companyId },
       select: { id: true },
     });
   }
 
-  async lockPublishedById(jobId: string, db: Prisma.TransactionClient): Promise<PublishedApplicationJob | null> {
+  async lockPublishedById(
+    jobId: string,
+    db: Prisma.TransactionClient,
+  ): Promise<PublishedApplicationJob | null> {
     const rows = await db.$queryRaw<PublishedApplicationJob[]>(
       Prisma.sql`
         SELECT j.id, j.current_published_version_id AS "currentPublishedVersionId"

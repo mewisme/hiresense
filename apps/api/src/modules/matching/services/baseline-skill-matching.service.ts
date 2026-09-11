@@ -34,8 +34,13 @@ export interface BaselineSkillMatchScore {
 
 @Injectable()
 export class BaselineSkillMatchingService {
-  score(requirements: readonly JobSkillRequirement[], resumeSkills: readonly ResumeSkillForMatching[]): BaselineSkillMatchScore {
-    const resumeBySkillId = new Map(resumeSkills.map((skill) => [skill.skillId, skill] as const));
+  score(
+    requirements: readonly JobSkillRequirement[],
+    resumeSkills: readonly ResumeSkillForMatching[],
+  ): BaselineSkillMatchScore {
+    const resumeBySkillId = new Map(
+      resumeSkills.map((skill) => [skill.skillId, skill] as const),
+    );
     let matchedWeight = new Prisma.Decimal(0);
     let totalWeight = new Prisma.Decimal(0);
     let requiredMatched = 0;
@@ -59,7 +64,7 @@ export class BaselineSkillMatchingService {
         jobVersionSkillId: requirement.jobVersionSkillId,
         skillId: requirement.skillId,
         resumeSkillId: resumeSkill?.resumeSkillId ?? null,
-        status: resumeSkill ? 'MATCHED' as const : 'MISSING' as const,
+        status: resumeSkill ? ('MATCHED' as const) : ('MISSING' as const),
         isRequired: requirement.isRequired,
         importance: requirement.importance,
         configuredWeight: new Prisma.Decimal(requirement.weight).toString(),
@@ -68,15 +73,27 @@ export class BaselineSkillMatchingService {
       };
     });
 
-    const score = totalWeight.isZero() ? 100 : Number(matchedWeight.div(totalWeight).mul(100).toDecimalPlaces(2).toFixed(2));
+    const score = totalWeight.isZero()
+      ? 100
+      : Number(
+          matchedWeight.div(totalWeight).mul(100).toDecimalPlaces(2).toFixed(2),
+        );
 
     return {
       formulaVersion: BASELINE_SKILL_MATCH_FORMULA_VERSION,
       score,
       matchedWeight: matchedWeight.toString(),
       totalWeight: totalWeight.toString(),
-      required: { matched: requiredMatched, missing: requiredMissing, total: requiredMatched + requiredMissing },
-      preferred: { matched: preferredMatched, missing: preferredMissing, total: preferredMatched + preferredMissing },
+      required: {
+        matched: requiredMatched,
+        missing: requiredMissing,
+        total: requiredMatched + requiredMissing,
+      },
+      preferred: {
+        matched: preferredMatched,
+        missing: preferredMissing,
+        total: preferredMatched + preferredMissing,
+      },
       results,
     };
   }

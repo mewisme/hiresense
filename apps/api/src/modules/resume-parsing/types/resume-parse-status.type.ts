@@ -1,4 +1,9 @@
-export const RESUME_PARSE_STATUSES = ['PENDING', 'PROCESSING', 'SUCCEEDED', 'FAILED'] as const;
+export const RESUME_PARSE_STATUSES = [
+  'PENDING',
+  'PROCESSING',
+  'SUCCEEDED',
+  'FAILED',
+] as const;
 export type ResumeParseStatus = (typeof RESUME_PARSE_STATUSES)[number];
 
 export function isResumeParseStatus(value: string): value is ResumeParseStatus {

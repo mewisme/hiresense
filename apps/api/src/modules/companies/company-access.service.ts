@@ -13,54 +13,35 @@ import {
 @Injectable()
 export class CompanyAccessService {
   constructor(
-    private readonly membershipsRepository:
-      CompanyMembershipsRepository,
-  ) { }
+    private readonly membershipsRepository: CompanyMembershipsRepository,
+  ) {}
 
   async requireActiveMembership(
     userId: string,
     companyId: string,
     allowedRoles?: readonly CompanyMembershipRole[],
   ) {
-    const membership =
-      await this.membershipsRepository
-        .findActiveWithCompany(
-          companyId,
-          userId,
-        );
+    const membership = await this.membershipsRepository.findActiveWithCompany(
+      companyId,
+      userId,
+    );
 
     if (!membership) {
-      throw new ForbiddenException(
-        'Active company membership required',
-      );
+      throw new ForbiddenException('Active company membership required');
     }
 
-    if (
-      !isCompanyMembershipRole(
-        membership.role,
-      )
-    ) {
-      throw new InternalServerErrorException(
-        'Unknown company membership role',
-      );
+    if (!isCompanyMembershipRole(membership.role)) {
+      throw new InternalServerErrorException('Unknown company membership role');
     }
 
-    if (
-      allowedRoles &&
-      !allowedRoles.includes(
-        membership.role,
-      )
-    ) {
-      throw new ForbiddenException(
-        'Insufficient company permission',
-      );
+    if (allowedRoles && !allowedRoles.includes(membership.role)) {
+      throw new ForbiddenException('Insufficient company permission');
     }
 
     return {
       ...membership,
 
-      role:
-        membership.role as CompanyMembershipRole,
+      role: membership.role as CompanyMembershipRole,
     };
   }
 }

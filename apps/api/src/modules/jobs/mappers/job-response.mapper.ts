@@ -49,7 +49,9 @@ export function toJobVersionResponse(version: JobVersion | null) {
   };
 }
 
-export function toJobVersionWithSkillsResponse(version: JobVersionWithSkills | null) {
+export function toJobVersionWithSkillsResponse(
+  version: JobVersionWithSkills | null,
+) {
   if (!version) return null;
 
   return {

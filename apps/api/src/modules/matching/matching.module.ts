@@ -17,7 +17,27 @@ import { JobSkillRequirementsService } from './services/job-skill-requirements.s
 @Module({
   imports: [AuthModule, ApplicationsModule, ResumeParsingModule],
   controllers: [MatchingController, CandidateMatchingController],
-  providers: [MatchingService, MatchingRepository, ApplicationMatchRunsRepository, JobSkillRequirementsService, BaselineSkillMatchingService, BaselineExperienceMatchingService, BaselineOverallMatchingService, ApplicationSkillMatchingService, ApplicationBaselineMatchingService],
-  exports: [MatchingService, MatchingRepository, ApplicationMatchRunsRepository, JobSkillRequirementsService, BaselineSkillMatchingService, BaselineExperienceMatchingService, BaselineOverallMatchingService, ApplicationSkillMatchingService, ApplicationBaselineMatchingService],
+  providers: [
+    MatchingService,
+    MatchingRepository,
+    ApplicationMatchRunsRepository,
+    JobSkillRequirementsService,
+    BaselineSkillMatchingService,
+    BaselineExperienceMatchingService,
+    BaselineOverallMatchingService,
+    ApplicationSkillMatchingService,
+    ApplicationBaselineMatchingService,
+  ],
+  exports: [
+    MatchingService,
+    MatchingRepository,
+    ApplicationMatchRunsRepository,
+    JobSkillRequirementsService,
+    BaselineSkillMatchingService,
+    BaselineExperienceMatchingService,
+    BaselineOverallMatchingService,
+    ApplicationSkillMatchingService,
+    ApplicationBaselineMatchingService,
+  ],
 })
 export class MatchingModule {}

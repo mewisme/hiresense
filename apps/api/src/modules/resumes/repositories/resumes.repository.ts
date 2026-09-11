@@ -12,17 +12,26 @@ export interface CreateResumeInput {
 
 @Injectable()
 export class ResumesRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   findById(id: string, db: DbClient = this.prisma) {
     return db.resume.findUnique({ where: { id } });
   }
 
-  findActiveOwnedById(id: string, candidateProfileId: string, db: DbClient = this.prisma) {
-    return db.resume.findFirst({ where: { id, candidateProfileId, deletedAt: null } });
+  findActiveOwnedById(
+    id: string,
+    candidateProfileId: string,
+    db: DbClient = this.prisma,
+  ) {
+    return db.resume.findFirst({
+      where: { id, candidateProfileId, deletedAt: null },
+    });
   }
 
-  findByCandidateProfileId(candidateProfileId: string, db: DbClient = this.prisma) {
+  findByCandidateProfileId(
+    candidateProfileId: string,
+    db: DbClient = this.prisma,
+  ) {
     return db.resume.findMany({
       where: { candidateProfileId, deletedAt: null },
       orderBy: [{ isDefault: 'desc' }, { updatedAt: 'desc' }],
@@ -36,7 +45,10 @@ export class ResumesRepository {
     });
   }
 
-  countActiveByCandidateProfileId(candidateProfileId: string, db: DbClient = this.prisma) {
+  countActiveByCandidateProfileId(
+    candidateProfileId: string,
+    db: DbClient = this.prisma,
+  ) {
     return db.resume.count({ where: { candidateProfileId, deletedAt: null } });
   }
 
@@ -50,7 +62,11 @@ export class ResumesRepository {
     });
   }
 
-  setCurrentVersion(id: string, currentVersionId: string, db: DbClient = this.prisma) {
+  setCurrentVersion(
+    id: string,
+    currentVersionId: string,
+    db: DbClient = this.prisma,
+  ) {
     return db.resume.update({ where: { id }, data: { currentVersionId } });
   }
 
@@ -66,10 +82,16 @@ export class ResumesRepository {
   }
 
   softDelete(id: string, db: DbClient = this.prisma) {
-    return db.resume.update({ where: { id }, data: { isDefault: false, deletedAt: new Date() } });
+    return db.resume.update({
+      where: { id },
+      data: { isDefault: false, deletedAt: new Date() },
+    });
   }
 
-  async lockCandidateProfile(candidateProfileId: string, db: Prisma.TransactionClient): Promise<boolean> {
+  async lockCandidateProfile(
+    candidateProfileId: string,
+    db: Prisma.TransactionClient,
+  ): Promise<boolean> {
     const rows = await db.$queryRaw<Array<{ id: string }>>(
       Prisma.sql`SELECT id FROM candidate_profiles WHERE id = CAST(${candidateProfileId} AS uuid) FOR UPDATE`,
     );
@@ -77,7 +99,11 @@ export class ResumesRepository {
     return rows.length > 0;
   }
 
-  async lockActiveOwnedById(id: string, candidateProfileId: string, db: Prisma.TransactionClient): Promise<boolean> {
+  async lockActiveOwnedById(
+    id: string,
+    candidateProfileId: string,
+    db: Prisma.TransactionClient,
+  ): Promise<boolean> {
     const rows = await db.$queryRaw<Array<{ id: string }>>(
       Prisma.sql`SELECT id FROM resumes WHERE id = CAST(${id} AS uuid) AND candidate_profile_id = CAST(${candidateProfileId} AS uuid) AND deleted_at IS NULL FOR UPDATE`,
     );

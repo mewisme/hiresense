@@ -7,19 +7,26 @@ type DbClient = PrismaService | Prisma.TransactionClient;
 
 @Injectable()
 export class RecruitmentStagesRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   findById(id: string, db: DbClient = this.prisma) {
     return db.recruitmentStage.findUnique({ where: { id } });
   }
 
-  findActiveSystemByCode(code: SystemRecruitmentStageCode, db: DbClient = this.prisma) {
+  findActiveSystemByCode(
+    code: SystemRecruitmentStageCode,
+    db: DbClient = this.prisma,
+  ) {
     return db.recruitmentStage.findFirst({
       where: { companyId: null, code, isActive: true },
     });
   }
 
-  findActiveForCompanyById(id: string, companyId: string, db: DbClient = this.prisma) {
+  findActiveForCompanyById(
+    id: string,
+    companyId: string,
+    db: DbClient = this.prisma,
+  ) {
     return db.recruitmentStage.findFirst({
       where: {
         id,

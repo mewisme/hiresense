@@ -1,6 +1,10 @@
 import { describe, expect, it } from '@jest/globals';
 import { Prisma } from '../../../generated/prisma/client';
-import { toJobResponse, toJobVersionResponse, toJobVersionWithSkillsResponse } from './job-response.mapper';
+import {
+  toJobResponse,
+  toJobVersionResponse,
+  toJobVersionWithSkillsResponse,
+} from './job-response.mapper';
 
 const now = new Date('2026-08-16T00:00:00.000Z');
 

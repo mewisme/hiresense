@@ -16,9 +16,7 @@ export type UserWithRoles = NonNullable<
 
 @Injectable()
 export class UsersService {
-  constructor(
-    private readonly usersRepository: UsersRepository,
-  ) { }
+  constructor(private readonly usersRepository: UsersRepository) {}
 
   findByEmail(email: string) {
     return this.usersRepository.findByEmail(email);
@@ -42,10 +40,7 @@ export class UsersService {
     },
     tx: Prisma.TransactionClient,
   ): Promise<UserWithRoles> {
-    const role = await this.usersRepository.findRoleByCode(
-      input.roleCode,
-      tx,
-    );
+    const role = await this.usersRepository.findRoleByCode(input.roleCode, tx);
 
     if (!role) {
       throw new InternalServerErrorException(
@@ -70,11 +65,7 @@ export class UsersService {
         tx,
       );
 
-      const createdUser =
-        await this.usersRepository.findById(
-          user.id,
-          tx,
-        );
+      const createdUser = await this.usersRepository.findById(user.id, tx);
 
       if (!createdUser) {
         throw new InternalServerErrorException(
@@ -85,13 +76,10 @@ export class UsersService {
       return createdUser;
     } catch (error) {
       if (
-        error instanceof
-        PrismaNamespace.PrismaClientKnownRequestError &&
+        error instanceof PrismaNamespace.PrismaClientKnownRequestError &&
         error.code === 'P2002'
       ) {
-        throw new ConflictException(
-          'Email is already registered',
-        );
+        throw new ConflictException('Email is already registered');
       }
 
       throw error;
@@ -102,9 +90,7 @@ export class UsersService {
     return {
       id: user.id,
       email: user.email,
-      roles: user.userRoles.map(
-        ({ role }) => role.code,
-      ),
+      roles: user.userRoles.map(({ role }) => role.code),
     };
   }
 }

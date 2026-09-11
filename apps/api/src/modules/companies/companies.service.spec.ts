@@ -1,9 +1,4 @@
-import {
-  describe,
-  expect,
-  it,
-  jest,
-} from '@jest/globals';
+import { describe, expect, it, jest } from '@jest/globals';
 
 import type { PrismaService } from '../../infrastructure/database/prisma.service';
 
@@ -21,39 +16,31 @@ describe('CompaniesService', () => {
     };
 
     const prisma = {
-      $transaction:
-        jest.fn(
-          async (
-            callback: (
-              transaction: unknown,
-            ) => Promise<unknown>,
-          ) => callback(tx),
-        ),
+      $transaction: jest.fn(
+        async (callback: (transaction: unknown) => Promise<unknown>) =>
+          callback(tx),
+      ),
     } as unknown as PrismaService;
 
     const companiesRepository = {
-      create:
-        jest.fn(),
+      create: jest.fn(),
     } as unknown as CompaniesRepository;
 
     const membershipsRepository = {
-      create:
-        jest.fn(),
+      create: jest.fn(),
     } as unknown as CompanyMembershipsRepository;
 
     const companyAccessService = {
-      requireActiveMembership:
-        jest.fn(),
+      requireActiveMembership: jest.fn(),
     } as unknown as CompanyAccessService;
 
     return {
-      service:
-        new CompaniesService(
-          prisma,
-          companiesRepository,
-          membershipsRepository,
-          companyAccessService,
-        ),
+      service: new CompaniesService(
+        prisma,
+        companiesRepository,
+        membershipsRepository,
+        companyAccessService,
+      ),
 
       prisma,
       companiesRepository,
@@ -62,131 +49,87 @@ describe('CompaniesService', () => {
     };
   }
 
-  it(
-    'should create company and OWNER membership in one transaction',
-    async () => {
-      const {
-        service,
-        companiesRepository,
-        membershipsRepository,
-      } = createService();
+  it('should create company and OWNER membership in one transaction', async () => {
+    const { service, companiesRepository, membershipsRepository } =
+      createService();
 
-      const company = {
-        id: 'company-id',
+    const company = {
+      id: 'company-id',
+      name: 'HireSense Labs',
+      slug: 'hiresense-labs',
+    };
+
+    (
+      companiesRepository.create as ReturnType<typeof jest.fn>
+    ).mockResolvedValue(company);
+
+    (
+      membershipsRepository.create as ReturnType<typeof jest.fn>
+    ).mockResolvedValue({
+      id: 'membership-id',
+    });
+
+    const result = await service.createCompany('user-id', {
+      name: 'HireSense Labs',
+    });
+
+    expect(result).toEqual(company);
+
+    expect(companiesRepository.create).toHaveBeenCalledWith(
+      expect.objectContaining({
         name: 'HireSense Labs',
+
         slug: 'hiresense-labs',
-      };
 
-      (
-        companiesRepository.create as
-        ReturnType<typeof jest.fn>
-      ).mockResolvedValue(
-        company,
-      );
+        createdByUserId: 'user-id',
+      }),
 
-      (
-        membershipsRepository.create as
-        ReturnType<typeof jest.fn>
-      ).mockResolvedValue({
-        id: 'membership-id',
-      });
+      expect.anything(),
+    );
 
-      const result =
-        await service.createCompany(
-          'user-id',
-          {
-            name:
-              'HireSense Labs',
-          },
-        );
+    expect(membershipsRepository.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        companyId: 'company-id',
 
-      expect(result).toEqual(
-        company,
-      );
+        userId: 'user-id',
 
-      expect(
-        companiesRepository.create,
-      ).toHaveBeenCalledWith(
-        expect.objectContaining({
-          name:
-            'HireSense Labs',
+        role: 'OWNER',
 
-          slug:
-            'hiresense-labs',
+        status: 'ACTIVE',
+      }),
 
-          createdByUserId:
-            'user-id',
-        }),
+      expect.anything(),
+    );
+  });
 
-        expect.anything(),
-      );
+  it('should use an explicitly supplied slug', async () => {
+    const { service, companiesRepository, membershipsRepository } =
+      createService();
 
-      expect(
-        membershipsRepository.create,
-      ).toHaveBeenCalledWith(
-        expect.objectContaining({
-          companyId:
-            'company-id',
+    (
+      companiesRepository.create as ReturnType<typeof jest.fn>
+    ).mockResolvedValue({
+      id: 'company-id',
+    });
 
-          userId:
-            'user-id',
+    (
+      membershipsRepository.create as ReturnType<typeof jest.fn>
+    ).mockResolvedValue({
+      id: 'membership-id',
+    });
 
-          role:
-            'OWNER',
+    await service.createCompany('user-id', {
+      name: 'HireSense Vietnam',
 
-          status:
-            'ACTIVE',
-        }),
+      slug: 'hiresense-vn',
+    });
 
-        expect.anything(),
-      );
-    },
-  );
+    expect(companiesRepository.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        slug: 'hiresense-vn',
+      }),
 
-  it(
-    'should use an explicitly supplied slug',
-    async () => {
-      const {
-        service,
-        companiesRepository,
-        membershipsRepository,
-      } = createService();
-
-      (
-        companiesRepository.create as
-        ReturnType<typeof jest.fn>
-      ).mockResolvedValue({
-        id: 'company-id',
-      });
-
-      (
-        membershipsRepository.create as
-        ReturnType<typeof jest.fn>
-      ).mockResolvedValue({
-        id: 'membership-id',
-      });
-
-      await service.createCompany(
-        'user-id',
-        {
-          name:
-            'HireSense Vietnam',
-
-          slug:
-            'hiresense-vn',
-        },
-      );
-
-      expect(
-        companiesRepository.create,
-      ).toHaveBeenCalledWith(
-        expect.objectContaining({
-          slug:
-            'hiresense-vn',
-        }),
-
-        expect.anything(),
-      );
-    },
-  );
+      expect.anything(),
+    );
+  });
 });

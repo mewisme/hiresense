@@ -15,6 +15,8 @@ export class CandidateMatchingController {
     @CurrentUser() user: AuthenticatedUser,
     @Param('applicationId', ParseUUIDPipe) applicationId: string,
   ) {
-    return toApplicationMatchRunResponse(await this.matchingService.getCurrentForCandidate(applicationId, user.id));
+    return toApplicationMatchRunResponse(
+      await this.matchingService.getCurrentForCandidate(applicationId, user.id),
+    );
   }
 }

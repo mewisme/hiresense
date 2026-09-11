@@ -16,9 +16,14 @@ export interface LockedResumeParsingSource {
 
 @Injectable()
 export class ResumeParsingSourceRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-  findCandidateOwnedResumeVersion(resumeId: string, resumeVersionId: string, candidateProfileId: string, db: DbClient = this.prisma) {
+  findCandidateOwnedResumeVersion(
+    resumeId: string,
+    resumeVersionId: string,
+    candidateProfileId: string,
+    db: DbClient = this.prisma,
+  ) {
     return db.resumeVersion.findFirst({
       where: {
         id: resumeVersionId,
@@ -28,7 +33,13 @@ export class ResumeParsingSourceRepository {
           deletedAt: null,
         },
       },
-      select: { id: true, resumeId: true, versionNo: true, fileObjectId: true, createdAt: true },
+      select: {
+        id: true,
+        resumeId: true,
+        versionNo: true,
+        fileObjectId: true,
+        createdAt: true,
+      },
     });
   }
 

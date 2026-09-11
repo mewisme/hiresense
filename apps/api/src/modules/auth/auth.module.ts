@@ -12,14 +12,9 @@ import { PasswordService } from './services/password.service';
 import { TokenService } from './services/token.service';
 
 @Module({
-  imports: [
-    JwtModule.register({}),
-    UsersModule,
-  ],
+  imports: [JwtModule.register({}), UsersModule],
 
-  controllers: [
-    AuthController,
-  ],
+  controllers: [AuthController],
 
   providers: [
     AuthService,
@@ -40,4 +35,4 @@ import { TokenService } from './services/token.service';
     AuthSessionsRepository,
   ],
 })
-export class AuthModule { }
+export class AuthModule {}

@@ -3,16 +3,42 @@ import { Prisma } from '../../../generated/prisma/client';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
 
 const applicationMatchRunResultInclude = {
-  pipelineVersion: { select: { id: true, code: true, pipelineType: true, semanticVersion: true, codeRevision: true } },
-  resumeParseRun: { select: { id: true, pipelineVersionId: true, status: true, detectedLanguage: true, startedAt: true, completedAt: true, createdAt: true } },
+  pipelineVersion: {
+    select: {
+      id: true,
+      code: true,
+      pipelineType: true,
+      semanticVersion: true,
+      codeRevision: true,
+    },
+  },
+  resumeParseRun: {
+    select: {
+      id: true,
+      pipelineVersionId: true,
+      status: true,
+      detectedLanguage: true,
+      startedAt: true,
+      completedAt: true,
+      createdAt: true,
+    },
+  },
   components: { orderBy: { componentCode: 'asc' as const } },
   skillResults: {
-    include: { jobVersionSkill: { include: { skill: true } }, resumeSkill: { include: { skill: true } } },
-    orderBy: [{ status: 'asc' as const }, { jobVersionSkillId: 'asc' as const }],
+    include: {
+      jobVersionSkill: { include: { skill: true } },
+      resumeSkill: { include: { skill: true } },
+    },
+    orderBy: [
+      { status: 'asc' as const },
+      { jobVersionSkillId: 'asc' as const },
+    ],
   },
 } satisfies Prisma.ApplicationMatchRunInclude;
 
-export type ApplicationMatchRunResult = Prisma.ApplicationMatchRunGetPayload<{ include: typeof applicationMatchRunResultInclude }>;
+export type ApplicationMatchRunResult = Prisma.ApplicationMatchRunGetPayload<{
+  include: typeof applicationMatchRunResultInclude;
+}>;
 
 export interface CreateApplicationMatchRunInput {
   applicationId: string;
@@ -53,17 +79,44 @@ export class ApplicationMatchRunsRepository {
     });
   }
 
-  async markProcessing(id: string, startedAt: Date = new Date()): Promise<boolean> {
-    const result = await this.prisma.applicationMatchRun.updateMany({ where: { id, status: 'PENDING' }, data: { status: 'PROCESSING', startedAt, completedAt: null, errorCode: null, errorMessage: null } });
+  async markProcessing(
+    id: string,
+    startedAt: Date = new Date(),
+  ): Promise<boolean> {
+    const result = await this.prisma.applicationMatchRun.updateMany({
+      where: { id, status: 'PENDING' },
+      data: {
+        status: 'PROCESSING',
+        startedAt,
+        completedAt: null,
+        errorCode: null,
+        errorMessage: null,
+      },
+    });
     return result.count === 1;
   }
 
-  async markFailed(id: string, errorCode: string, errorMessage: string, completedAt: Date = new Date()): Promise<boolean> {
-    const result = await this.prisma.applicationMatchRun.updateMany({ where: { id, status: { in: ['PENDING', 'PROCESSING'] } }, data: { status: 'FAILED', completedAt, errorCode, errorMessage } });
+  async markFailed(
+    id: string,
+    errorCode: string,
+    errorMessage: string,
+    completedAt: Date = new Date(),
+  ): Promise<boolean> {
+    const result = await this.prisma.applicationMatchRun.updateMany({
+      where: { id, status: { in: ['PENDING', 'PROCESSING'] } },
+      data: { status: 'FAILED', completedAt, errorCode, errorMessage },
+    });
     return result.count === 1;
   }
 
-  async persistSucceeded(id: string, applicationId: string, overallScore: number, components: PersistMatchScoreComponentInput[], skillResults: PersistMatchSkillResultInput[], completedAt: Date = new Date()): Promise<void> {
+  async persistSucceeded(
+    id: string,
+    applicationId: string,
+    overallScore: number,
+    components: PersistMatchScoreComponentInput[],
+    skillResults: PersistMatchSkillResultInput[],
+    completedAt: Date = new Date(),
+  ): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
       if (components.length > 0) {
         await tx.matchScoreComponent.createMany({
@@ -73,7 +126,9 @@ export class ApplicationMatchRunsRepository {
             rawScore: new Prisma.Decimal(component.rawScore),
             weight: new Prisma.Decimal(component.weight),
             weightedScore: new Prisma.Decimal(component.weightedScore),
-            ...(component.details !== undefined ? { details: component.details } : {}),
+            ...(component.details !== undefined
+              ? { details: component.details }
+              : {}),
           })),
         });
       }
@@ -85,7 +140,10 @@ export class ApplicationMatchRunsRepository {
             jobVersionSkillId: result.jobVersionSkillId,
             resumeSkillId: result.resumeSkillId,
             status: result.status,
-            similarityScore: result.similarityScore == null ? null : new Prisma.Decimal(result.similarityScore),
+            similarityScore:
+              result.similarityScore == null
+                ? null
+                : new Prisma.Decimal(result.similarityScore),
             evidenceText: result.evidenceText,
           })),
         });
@@ -93,12 +151,23 @@ export class ApplicationMatchRunsRepository {
 
       const completed = await tx.applicationMatchRun.updateMany({
         where: { id, applicationId, status: 'PROCESSING' },
-        data: { status: 'SUCCEEDED', overallScore: new Prisma.Decimal(overallScore), completedAt, errorCode: null, errorMessage: null },
+        data: {
+          status: 'SUCCEEDED',
+          overallScore: new Prisma.Decimal(overallScore),
+          completedAt,
+          errorCode: null,
+          errorMessage: null,
+        },
       });
-      if (completed.count !== 1) throw new Error('Application match run could not be completed');
+      if (completed.count !== 1)
+        throw new Error('Application match run could not be completed');
 
-      const updatedApplication = await tx.application.updateMany({ where: { id: applicationId }, data: { currentMatchRunId: id } });
-      if (updatedApplication.count !== 1) throw new Error('Application current match run could not be updated');
+      const updatedApplication = await tx.application.updateMany({
+        where: { id: applicationId },
+        data: { currentMatchRunId: id },
+      });
+      if (updatedApplication.count !== 1)
+        throw new Error('Application current match run could not be updated');
     });
   }
 
@@ -116,10 +185,14 @@ export class ApplicationMatchRunsRepository {
     });
   }
 
-  async findCurrentByApplicationId(applicationId: string): Promise<ApplicationMatchRunResult | null> {
+  async findCurrentByApplicationId(
+    applicationId: string,
+  ): Promise<ApplicationMatchRunResult | null> {
     const application = await this.prisma.application.findUnique({
       where: { id: applicationId },
-      select: { currentMatchRun: { include: applicationMatchRunResultInclude } },
+      select: {
+        currentMatchRun: { include: applicationMatchRunResultInclude },
+      },
     });
     return application?.currentMatchRun ?? null;
   }

@@ -1,5 +1,9 @@
 import { describe, expect, it, jest } from '@jest/globals';
-import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { JobCompanyMembershipsRepository } from './repositories/job-company-memberships.repository';
@@ -139,32 +143,91 @@ function skill(overrides: Partial<MockSkill> = {}): MockSkill {
 function createMocks() {
   const tx = {};
 
-  const transaction = jest.fn<(callback: (client: unknown) => Promise<unknown>) => Promise<unknown>>();
+  const transaction =
+    jest.fn<
+      (callback: (client: unknown) => Promise<unknown>) => Promise<unknown>
+    >();
   transaction.mockImplementation(async (callback) => callback(tx));
 
-  const findMembership = jest.fn<(companyId: string, userId: string, db?: unknown) => Promise<MockMembership | null>>();
-  const createJob = jest.fn<(input: unknown, db?: unknown) => Promise<MockJob>>();
-  const lockActiveOwnedById = jest.fn<(id: string, companyId: string, db: unknown) => Promise<boolean>>();
-  const findActiveOwnedById = jest.fn<(id: string, companyId: string, db?: unknown) => Promise<MockJob | null>>();
-  const publishJob = jest.fn<(id: string, versionId: string, publishedAt: Date, firstPublishedAt: Date, db?: unknown) => Promise<MockJob>>();
-  const pausePublished = jest.fn<(id: string, db?: unknown) => Promise<{ count: number }>>();
-  const closePublishedOrPaused = jest.fn<(id: string, closedAt: Date, db?: unknown) => Promise<{ count: number }>>();
-  const reopenPausedOrClosed = jest.fn<(id: string, db?: unknown) => Promise<{ count: number }>>();
-  const archiveDraftOrClosed = jest.fn<(id: string, db?: unknown) => Promise<{ count: number }>>();
-  const softDeleteDraftClosedOrArchived = jest.fn<(id: string, deletedAt: Date, db?: unknown) => Promise<{ count: number }>>();
+  const findMembership =
+    jest.fn<
+      (
+        companyId: string,
+        userId: string,
+        db?: unknown,
+      ) => Promise<MockMembership | null>
+    >();
+  const createJob =
+    jest.fn<(input: unknown, db?: unknown) => Promise<MockJob>>();
+  const lockActiveOwnedById =
+    jest.fn<(id: string, companyId: string, db: unknown) => Promise<boolean>>();
+  const findActiveOwnedById =
+    jest.fn<
+      (id: string, companyId: string, db?: unknown) => Promise<MockJob | null>
+    >();
+  const publishJob =
+    jest.fn<
+      (
+        id: string,
+        versionId: string,
+        publishedAt: Date,
+        firstPublishedAt: Date,
+        db?: unknown,
+      ) => Promise<MockJob>
+    >();
+  const pausePublished =
+    jest.fn<(id: string, db?: unknown) => Promise<{ count: number }>>();
+  const closePublishedOrPaused =
+    jest.fn<
+      (id: string, closedAt: Date, db?: unknown) => Promise<{ count: number }>
+    >();
+  const reopenPausedOrClosed =
+    jest.fn<(id: string, db?: unknown) => Promise<{ count: number }>>();
+  const archiveDraftOrClosed =
+    jest.fn<(id: string, db?: unknown) => Promise<{ count: number }>>();
+  const softDeleteDraftClosedOrArchived =
+    jest.fn<
+      (id: string, deletedAt: Date, db?: unknown) => Promise<{ count: number }>
+    >();
 
-  const createVersion = jest.fn<(input: unknown, db?: unknown) => Promise<MockJobVersion>>();
-  const findLatestByJobId = jest.fn<(jobId: string, db?: unknown) => Promise<MockJobVersion | null>>();
-  const findLatestDraftByJobId = jest.fn<(jobId: string, db?: unknown) => Promise<MockJobVersion | null>>();
-  const getNextVersionNo = jest.fn<(jobId: string, db?: unknown) => Promise<number>>();
-  const updateDraft = jest.fn<(id: string, input: unknown, db?: unknown) => Promise<{ count: number }>>();
-  const publishDraft = jest.fn<(id: string, publishedAt: Date, db?: unknown) => Promise<{ count: number }>>();
-  const findByIdWithSkills = jest.fn<(id: string, db?: unknown) => Promise<(MockJobVersion & { skills: MockSkill[] }) | null>>();
+  const createVersion =
+    jest.fn<(input: unknown, db?: unknown) => Promise<MockJobVersion>>();
+  const findLatestByJobId =
+    jest.fn<(jobId: string, db?: unknown) => Promise<MockJobVersion | null>>();
+  const findLatestDraftByJobId =
+    jest.fn<(jobId: string, db?: unknown) => Promise<MockJobVersion | null>>();
+  const getNextVersionNo =
+    jest.fn<(jobId: string, db?: unknown) => Promise<number>>();
+  const updateDraft =
+    jest.fn<
+      (id: string, input: unknown, db?: unknown) => Promise<{ count: number }>
+    >();
+  const publishDraft =
+    jest.fn<
+      (
+        id: string,
+        publishedAt: Date,
+        db?: unknown,
+      ) => Promise<{ count: number }>
+    >();
+  const findByIdWithSkills =
+    jest.fn<
+      (
+        id: string,
+        db?: unknown,
+      ) => Promise<(MockJobVersion & { skills: MockSkill[] }) | null>
+    >();
 
-  const findActiveSkillIds = jest.fn<(skillIds: string[], db?: unknown) => Promise<string[]>>();
-  const createManySkills = jest.fn<(inputs: unknown[], db?: unknown) => Promise<{ count: number }>>();
-  const findSkillsByVersionId = jest.fn<(jobVersionId: string, db?: unknown) => Promise<MockSkill[]>>();
-  const deleteSkillsByVersionId = jest.fn<(jobVersionId: string, db?: unknown) => Promise<{ count: number }>>();
+  const findActiveSkillIds =
+    jest.fn<(skillIds: string[], db?: unknown) => Promise<string[]>>();
+  const createManySkills =
+    jest.fn<(inputs: unknown[], db?: unknown) => Promise<{ count: number }>>();
+  const findSkillsByVersionId =
+    jest.fn<(jobVersionId: string, db?: unknown) => Promise<MockSkill[]>>();
+  const deleteSkillsByVersionId =
+    jest.fn<
+      (jobVersionId: string, db?: unknown) => Promise<{ count: number }>
+    >();
 
   findMembership.mockImplementation(async () => membership());
   createJob.mockImplementation(async () => job());
@@ -172,7 +235,9 @@ function createMocks() {
   findActiveOwnedById.mockImplementation(async () => job());
   createVersion.mockImplementation(async () => version());
   findActiveSkillIds.mockImplementation(async (ids) => ids);
-  createManySkills.mockImplementation(async (inputs) => ({ count: inputs.length }));
+  createManySkills.mockImplementation(async (inputs) => ({
+    count: inputs.length,
+  }));
   findSkillsByVersionId.mockImplementation(async () => [skill()]);
   deleteSkillsByVersionId.mockImplementation(async () => ({ count: 1 }));
   updateDraft.mockImplementation(async () => ({ count: 1 }));
@@ -181,7 +246,9 @@ function createMocks() {
   closePublishedOrPaused.mockImplementation(async () => ({ count: 1 }));
   reopenPausedOrClosed.mockImplementation(async () => ({ count: 1 }));
   archiveDraftOrClosed.mockImplementation(async () => ({ count: 1 }));
-  softDeleteDraftClosedOrArchived.mockImplementation(async () => ({ count: 1 }));
+  softDeleteDraftClosedOrArchived.mockImplementation(async () => ({
+    count: 1,
+  }));
 
   const prisma = { $transaction: transaction } as unknown as PrismaService;
 
@@ -218,7 +285,13 @@ function createMocks() {
     findByCompanyAndUser: findMembership,
   } as unknown as JobCompanyMembershipsRepository;
 
-  const service = new JobsService(prisma, jobsRepository, jobVersionsRepository, jobVersionSkillsRepository, membershipsRepository);
+  const service = new JobsService(
+    prisma,
+    jobsRepository,
+    jobVersionsRepository,
+    jobVersionSkillsRepository,
+    membershipsRepository,
+  );
 
   return {
     tx,
@@ -270,40 +343,53 @@ describe('JobsService', () => {
         salaryMin: '15000000',
         salaryMax: '30000000',
         salaryCurrency: 'VND',
-        skills: [{
-          skillId,
-          importance: 5,
-          isRequired: true,
-          weight: '1',
-          minExperienceMonths: 12,
-        }],
+        skills: [
+          {
+            skillId,
+            importance: 5,
+            isRequired: true,
+            weight: '1',
+            minExperienceMonths: 12,
+          },
+        ],
       });
 
       expect(mocks.transaction).toHaveBeenCalledTimes(1);
       expect(mocks.findMembership).toHaveBeenCalledWith(companyId, userId, tx);
       expect(mocks.findActiveSkillIds).toHaveBeenCalledWith([skillId], tx);
 
-      expect(mocks.createJob).toHaveBeenCalledWith(expect.objectContaining({
-        companyId,
-        createdByUserId: userId,
-        status: 'DRAFT',
-      }), tx);
+      expect(mocks.createJob).toHaveBeenCalledWith(
+        expect.objectContaining({
+          companyId,
+          createdByUserId: userId,
+          status: 'DRAFT',
+        }),
+        tx,
+      );
 
-      expect(mocks.createVersion).toHaveBeenCalledWith(expect.objectContaining({
-        jobId,
-        versionNo: 1,
-        title: 'Backend Developer',
-        description: 'Develop backend services.',
-        createdByUserId: userId,
-      }), tx);
+      expect(mocks.createVersion).toHaveBeenCalledWith(
+        expect.objectContaining({
+          jobId,
+          versionNo: 1,
+          title: 'Backend Developer',
+          description: 'Develop backend services.',
+          createdByUserId: userId,
+        }),
+        tx,
+      );
 
-      expect(mocks.createManySkills).toHaveBeenCalledWith([expect.objectContaining({
-        jobVersionId: version().id,
-        skillId,
-        importance: 5,
-        isRequired: true,
-        minExperienceMonths: 12,
-      })], tx);
+      expect(mocks.createManySkills).toHaveBeenCalledWith(
+        [
+          expect.objectContaining({
+            jobVersionId: version().id,
+            skillId,
+            importance: 5,
+            isRequired: true,
+            minExperienceMonths: 12,
+          }),
+        ],
+        tx,
+      );
 
       expect(result.job.status).toBe('DRAFT');
       expect(result.version.versionNo).toBe(1);
@@ -312,12 +398,16 @@ describe('JobsService', () => {
     it('rejects a user without an ACTIVE manage membership', async () => {
       const { service, mocks } = createMocks();
 
-      mocks.findMembership.mockImplementation(async () => membership({ status: 'SUSPENDED' }));
+      mocks.findMembership.mockImplementation(async () =>
+        membership({ status: 'SUSPENDED' }),
+      );
 
-      await expect(service.create(companyId, userId, {
-        title: 'Backend Developer',
-        description: 'Description',
-      })).rejects.toBeInstanceOf(ForbiddenException);
+      await expect(
+        service.create(companyId, userId, {
+          title: 'Backend Developer',
+          description: 'Description',
+        }),
+      ).rejects.toBeInstanceOf(ForbiddenException);
 
       expect(mocks.createJob).not.toHaveBeenCalled();
       expect(mocks.createVersion).not.toHaveBeenCalled();
@@ -326,12 +416,16 @@ describe('JobsService', () => {
     it('rejects REVIEWER from creating jobs', async () => {
       const { service, mocks } = createMocks();
 
-      mocks.findMembership.mockImplementation(async () => membership({ role: 'REVIEWER' }));
+      mocks.findMembership.mockImplementation(async () =>
+        membership({ role: 'REVIEWER' }),
+      );
 
-      await expect(service.create(companyId, userId, {
-        title: 'Backend Developer',
-        description: 'Description',
-      })).rejects.toBeInstanceOf(ForbiddenException);
+      await expect(
+        service.create(companyId, userId, {
+          title: 'Backend Developer',
+          description: 'Description',
+        }),
+      ).rejects.toBeInstanceOf(ForbiddenException);
 
       expect(mocks.createJob).not.toHaveBeenCalled();
     });
@@ -339,11 +433,13 @@ describe('JobsService', () => {
     it('rejects duplicate skills', async () => {
       const { service, mocks } = createMocks();
 
-      await expect(service.create(companyId, userId, {
-        title: 'Backend Developer',
-        description: 'Description',
-        skills: [{ skillId }, { skillId }],
-      })).rejects.toThrow('Duplicate skills are not allowed');
+      await expect(
+        service.create(companyId, userId, {
+          title: 'Backend Developer',
+          description: 'Description',
+          skills: [{ skillId }, { skillId }],
+        }),
+      ).rejects.toThrow('Duplicate skills are not allowed');
 
       expect(mocks.transaction).not.toHaveBeenCalled();
       expect(mocks.createJob).not.toHaveBeenCalled();
@@ -354,11 +450,13 @@ describe('JobsService', () => {
 
       mocks.findActiveSkillIds.mockImplementation(async () => []);
 
-      await expect(service.create(companyId, userId, {
-        title: 'Backend Developer',
-        description: 'Description',
-        skills: [{ skillId }],
-      })).rejects.toThrow('One or more job skills do not exist or are inactive');
+      await expect(
+        service.create(companyId, userId, {
+          title: 'Backend Developer',
+          description: 'Description',
+          skills: [{ skillId }],
+        }),
+      ).rejects.toThrow('One or more job skills do not exist or are inactive');
 
       expect(mocks.createJob).not.toHaveBeenCalled();
     });
@@ -366,12 +464,14 @@ describe('JobsService', () => {
     it('rejects invalid experience range', async () => {
       const { service, mocks } = createMocks();
 
-      await expect(service.create(companyId, userId, {
-        title: 'Backend Developer',
-        description: 'Description',
-        experienceMinMonths: 36,
-        experienceMaxMonths: 12,
-      })).rejects.toBeInstanceOf(BadRequestException);
+      await expect(
+        service.create(companyId, userId, {
+          title: 'Backend Developer',
+          description: 'Description',
+          experienceMinMonths: 36,
+          experienceMaxMonths: 12,
+        }),
+      ).rejects.toBeInstanceOf(BadRequestException);
 
       expect(mocks.transaction).not.toHaveBeenCalled();
     });
@@ -379,13 +479,15 @@ describe('JobsService', () => {
     it('rejects invalid salary range', async () => {
       const { service, mocks } = createMocks();
 
-      await expect(service.create(companyId, userId, {
-        title: 'Backend Developer',
-        description: 'Description',
-        salaryMin: '30000000',
-        salaryMax: '15000000',
-        salaryCurrency: 'VND',
-      })).rejects.toBeInstanceOf(BadRequestException);
+      await expect(
+        service.create(companyId, userId, {
+          title: 'Backend Developer',
+          description: 'Description',
+          salaryMin: '30000000',
+          salaryMax: '15000000',
+          salaryCurrency: 'VND',
+        }),
+      ).rejects.toBeInstanceOf(BadRequestException);
 
       expect(mocks.transaction).not.toHaveBeenCalled();
     });
@@ -393,11 +495,15 @@ describe('JobsService', () => {
     it('requires salaryCurrency when salary is present', async () => {
       const { service, mocks } = createMocks();
 
-      await expect(service.create(companyId, userId, {
-        title: 'Backend Developer',
-        description: 'Description',
-        salaryMin: '15000000',
-      })).rejects.toThrow('salaryCurrency is required when salary range is provided');
+      await expect(
+        service.create(companyId, userId, {
+          title: 'Backend Developer',
+          description: 'Description',
+          salaryMin: '15000000',
+        }),
+      ).rejects.toThrow(
+        'salaryCurrency is required when salary range is provided',
+      );
 
       expect(mocks.transaction).not.toHaveBeenCalled();
     });
@@ -420,10 +526,18 @@ describe('JobsService', () => {
         title: 'Senior Backend Developer',
       });
 
-      expect(mocks.lockActiveOwnedById).toHaveBeenCalledWith(jobId, companyId, tx);
-      expect(mocks.updateDraft).toHaveBeenCalledWith(draft.id, expect.objectContaining({
-        title: 'Senior Backend Developer',
-      }), tx);
+      expect(mocks.lockActiveOwnedById).toHaveBeenCalledWith(
+        jobId,
+        companyId,
+        tx,
+      );
+      expect(mocks.updateDraft).toHaveBeenCalledWith(
+        draft.id,
+        expect.objectContaining({
+          title: 'Senior Backend Developer',
+        }),
+        tx,
+      );
       expect(mocks.createVersion).not.toHaveBeenCalled();
       expect(result.createdNewVersion).toBe(false);
       expect(result.version.title).toBe('Senior Backend Developer');
@@ -442,28 +556,39 @@ describe('JobsService', () => {
         title: 'Senior Backend Developer',
       });
 
-      mocks.findActiveOwnedById.mockImplementation(async () => job({
-        status: 'PUBLISHED',
-        currentPublishedVersionId: published.id,
-      }));
+      mocks.findActiveOwnedById.mockImplementation(async () =>
+        job({
+          status: 'PUBLISHED',
+          currentPublishedVersionId: published.id,
+        }),
+      );
       mocks.findLatestByJobId.mockImplementation(async () => published);
       mocks.getNextVersionNo.mockImplementation(async () => 2);
       mocks.createVersion.mockImplementation(async () => v2);
-      mocks.findByIdWithSkills.mockImplementation(async () => ({ ...v2, skills: [skill({ jobVersionId: v2.id })] }));
+      mocks.findByIdWithSkills.mockImplementation(async () => ({
+        ...v2,
+        skills: [skill({ jobVersionId: v2.id })],
+      }));
 
       const result = await service.update(companyId, jobId, userId, {
         title: 'Senior Backend Developer',
       });
 
       expect(mocks.getNextVersionNo).toHaveBeenCalledWith(jobId, tx);
-      expect(mocks.createVersion).toHaveBeenCalledWith(expect.objectContaining({
-        jobId,
-        versionNo: 2,
-        title: 'Senior Backend Developer',
-        createdByUserId: userId,
-      }), tx);
+      expect(mocks.createVersion).toHaveBeenCalledWith(
+        expect.objectContaining({
+          jobId,
+          versionNo: 2,
+          title: 'Senior Backend Developer',
+          createdByUserId: userId,
+        }),
+        tx,
+      );
 
-      expect(mocks.findSkillsByVersionId).toHaveBeenCalledWith(published.id, tx);
+      expect(mocks.findSkillsByVersionId).toHaveBeenCalledWith(
+        published.id,
+        tx,
+      );
       expect(mocks.createManySkills).toHaveBeenCalled();
       expect(mocks.updateDraft).not.toHaveBeenCalled();
       expect(result.createdNewVersion).toBe(true);
@@ -476,31 +601,43 @@ describe('JobsService', () => {
 
       mocks.findActiveOwnedById.mockImplementation(async () => job());
       mocks.findLatestByJobId.mockImplementation(async () => draft);
-      mocks.findByIdWithSkills.mockImplementation(async () => ({ ...draft, skills: [] }));
+      mocks.findByIdWithSkills.mockImplementation(async () => ({
+        ...draft,
+        skills: [],
+      }));
 
       await service.update(companyId, jobId, userId, {
-        skills: [{
-          skillId,
-          importance: 4,
-          isRequired: false,
-          weight: '0.5',
-        }],
+        skills: [
+          {
+            skillId,
+            importance: 4,
+            isRequired: false,
+            weight: '0.5',
+          },
+        ],
       });
 
       expect(mocks.findActiveSkillIds).toHaveBeenCalledWith([skillId], tx);
       expect(mocks.deleteSkillsByVersionId).toHaveBeenCalledWith(draft.id, tx);
-      expect(mocks.createManySkills).toHaveBeenCalledWith([expect.objectContaining({
-        jobVersionId: draft.id,
-        skillId,
-        importance: 4,
-        isRequired: false,
-      })], tx);
+      expect(mocks.createManySkills).toHaveBeenCalledWith(
+        [
+          expect.objectContaining({
+            jobVersionId: draft.id,
+            skillId,
+            importance: 4,
+            isRequired: false,
+          }),
+        ],
+        tx,
+      );
     });
 
     it('rejects an empty PATCH payload', async () => {
       const { service, mocks } = createMocks();
 
-      await expect(service.update(companyId, jobId, userId, {})).rejects.toThrow('At least one job field must be provided');
+      await expect(
+        service.update(companyId, jobId, userId, {}),
+      ).rejects.toThrow('At least one job field must be provided');
 
       expect(mocks.transaction).not.toHaveBeenCalled();
     });
@@ -508,11 +645,15 @@ describe('JobsService', () => {
     it('rejects editing an archived job', async () => {
       const { service, mocks } = createMocks();
 
-      mocks.findActiveOwnedById.mockImplementation(async () => job({ status: 'ARCHIVED' }));
+      mocks.findActiveOwnedById.mockImplementation(async () =>
+        job({ status: 'ARCHIVED' }),
+      );
 
-      await expect(service.update(companyId, jobId, userId, {
-        title: 'Updated',
-      })).rejects.toThrow('Archived job cannot be edited');
+      await expect(
+        service.update(companyId, jobId, userId, {
+          title: 'Updated',
+        }),
+      ).rejects.toThrow('Archived job cannot be edited');
 
       expect(mocks.findLatestByJobId).not.toHaveBeenCalled();
     });
@@ -522,9 +663,11 @@ describe('JobsService', () => {
 
       mocks.lockActiveOwnedById.mockImplementation(async () => false);
 
-      await expect(service.update(companyId, jobId, userId, {
-        title: 'Updated',
-      })).rejects.toBeInstanceOf(NotFoundException);
+      await expect(
+        service.update(companyId, jobId, userId, {
+          title: 'Updated',
+        }),
+      ).rejects.toBeInstanceOf(NotFoundException);
 
       expect(mocks.findLatestByJobId).not.toHaveBeenCalled();
     });
@@ -538,13 +681,16 @@ describe('JobsService', () => {
       mocks.findActiveOwnedById.mockImplementation(async () => job());
       mocks.findLatestDraftByJobId.mockImplementation(async () => draft);
       mocks.findLatestByJobId.mockImplementation(async () => draft);
-      mocks.publishJob.mockImplementation(async (_id, versionId, publishedAt, firstPublishedAt) => job({
-        status: 'PUBLISHED',
-        currentPublishedVersionId: versionId,
-        firstPublishedAt,
-        closedAt: null,
-        updatedAt: publishedAt,
-      }));
+      mocks.publishJob.mockImplementation(
+        async (_id, versionId, publishedAt, firstPublishedAt) =>
+          job({
+            status: 'PUBLISHED',
+            currentPublishedVersionId: versionId,
+            firstPublishedAt,
+            closedAt: null,
+            updatedAt: publishedAt,
+          }),
+      );
       mocks.findByIdWithSkills.mockImplementation(async () => ({
         ...draft,
         versionStatus: 'PUBLISHED',
@@ -554,7 +700,11 @@ describe('JobsService', () => {
 
       const result = await service.publish(companyId, jobId, userId);
 
-      expect(mocks.publishDraft).toHaveBeenCalledWith(draft.id, expect.any(Date), tx);
+      expect(mocks.publishDraft).toHaveBeenCalledWith(
+        draft.id,
+        expect.any(Date),
+        tx,
+      );
       expect(mocks.publishJob).toHaveBeenCalledWith(
         jobId,
         draft.id,
@@ -574,18 +724,23 @@ describe('JobsService', () => {
         versionNo: 2,
       });
 
-      mocks.findActiveOwnedById.mockImplementation(async () => job({
-        status: 'PUBLISHED',
-        currentPublishedVersionId: version().id,
-        firstPublishedAt,
-      }));
+      mocks.findActiveOwnedById.mockImplementation(async () =>
+        job({
+          status: 'PUBLISHED',
+          currentPublishedVersionId: version().id,
+          firstPublishedAt,
+        }),
+      );
       mocks.findLatestDraftByJobId.mockImplementation(async () => draftV2);
       mocks.findLatestByJobId.mockImplementation(async () => draftV2);
-      mocks.publishJob.mockImplementation(async (_id, versionId, _publishedAt, firstPublished) => job({
-        status: 'PUBLISHED',
-        currentPublishedVersionId: versionId,
-        firstPublishedAt: firstPublished,
-      }));
+      mocks.publishJob.mockImplementation(
+        async (_id, versionId, _publishedAt, firstPublished) =>
+          job({
+            status: 'PUBLISHED',
+            currentPublishedVersionId: versionId,
+            firstPublishedAt: firstPublished,
+          }),
+      );
       mocks.findByIdWithSkills.mockImplementation(async () => ({
         ...draftV2,
         versionStatus: 'PUBLISHED',
@@ -607,10 +762,14 @@ describe('JobsService', () => {
     it('rejects publishing when there is no draft', async () => {
       const { service, mocks } = createMocks();
 
-      mocks.findActiveOwnedById.mockImplementation(async () => job({ status: 'PUBLISHED' }));
+      mocks.findActiveOwnedById.mockImplementation(async () =>
+        job({ status: 'PUBLISHED' }),
+      );
       mocks.findLatestDraftByJobId.mockImplementation(async () => null);
 
-      await expect(service.publish(companyId, jobId, userId)).rejects.toThrow('Job has no draft version to publish');
+      await expect(service.publish(companyId, jobId, userId)).rejects.toThrow(
+        'Job has no draft version to publish',
+      );
 
       expect(mocks.publishDraft).not.toHaveBeenCalled();
       expect(mocks.publishJob).not.toHaveBeenCalled();
@@ -619,9 +778,13 @@ describe('JobsService', () => {
     it('rejects publishing a CLOSED job before reopen', async () => {
       const { service, mocks } = createMocks();
 
-      mocks.findActiveOwnedById.mockImplementation(async () => job({ status: 'CLOSED' }));
+      mocks.findActiveOwnedById.mockImplementation(async () =>
+        job({ status: 'CLOSED' }),
+      );
 
-      await expect(service.publish(companyId, jobId, userId)).rejects.toThrow('Closed job must be reopened before publishing');
+      await expect(service.publish(companyId, jobId, userId)).rejects.toThrow(
+        'Closed job must be reopened before publishing',
+      );
 
       expect(mocks.findLatestDraftByJobId).not.toHaveBeenCalled();
     });
@@ -629,9 +792,13 @@ describe('JobsService', () => {
     it('rejects publishing an ARCHIVED job', async () => {
       const { service, mocks } = createMocks();
 
-      mocks.findActiveOwnedById.mockImplementation(async () => job({ status: 'ARCHIVED' }));
+      mocks.findActiveOwnedById.mockImplementation(async () =>
+        job({ status: 'ARCHIVED' }),
+      );
 
-      await expect(service.publish(companyId, jobId, userId)).rejects.toThrow('Archived job cannot be published');
+      await expect(service.publish(companyId, jobId, userId)).rejects.toThrow(
+        'Archived job cannot be published',
+      );
 
       expect(mocks.publishDraft).not.toHaveBeenCalled();
     });
@@ -642,21 +809,32 @@ describe('JobsService', () => {
       const { service, mocks } = createMocks();
 
       mocks.findActiveOwnedById
-        .mockImplementationOnce(async () => job({ status: 'PUBLISHED', currentPublishedVersionId: version().id }))
-        .mockImplementationOnce(async () => job({ status: 'PAUSED', currentPublishedVersionId: version().id }));
+        .mockImplementationOnce(async () =>
+          job({ status: 'PUBLISHED', currentPublishedVersionId: version().id }),
+        )
+        .mockImplementationOnce(async () =>
+          job({ status: 'PAUSED', currentPublishedVersionId: version().id }),
+        );
 
       const result = await service.pause(companyId, jobId, userId);
 
-      expect(mocks.pausePublished).toHaveBeenCalledWith(jobId, expect.anything());
+      expect(mocks.pausePublished).toHaveBeenCalledWith(
+        jobId,
+        expect.anything(),
+      );
       expect(result.status).toBe('PAUSED');
     });
 
     it('rejects pausing a DRAFT job', async () => {
       const { service, mocks } = createMocks();
 
-      mocks.findActiveOwnedById.mockImplementation(async () => job({ status: 'DRAFT' }));
+      mocks.findActiveOwnedById.mockImplementation(async () =>
+        job({ status: 'DRAFT' }),
+      );
 
-      await expect(service.pause(companyId, jobId, userId)).rejects.toThrow('Only a published job can be paused');
+      await expect(service.pause(companyId, jobId, userId)).rejects.toThrow(
+        'Only a published job can be paused',
+      );
 
       expect(mocks.pausePublished).not.toHaveBeenCalled();
     });
@@ -666,14 +844,20 @@ describe('JobsService', () => {
 
       mocks.findActiveOwnedById
         .mockImplementationOnce(async () => job({ status: 'PUBLISHED' }))
-        .mockImplementationOnce(async () => job({
-          status: 'CLOSED',
-          closedAt: new Date('2026-08-16T02:00:00.000Z'),
-        }));
+        .mockImplementationOnce(async () =>
+          job({
+            status: 'CLOSED',
+            closedAt: new Date('2026-08-16T02:00:00.000Z'),
+          }),
+        );
 
       const result = await service.close(companyId, jobId, userId);
 
-      expect(mocks.closePublishedOrPaused).toHaveBeenCalledWith(jobId, expect.any(Date), expect.anything());
+      expect(mocks.closePublishedOrPaused).toHaveBeenCalledWith(
+        jobId,
+        expect.any(Date),
+        expect.anything(),
+      );
       expect(result.status).toBe('CLOSED');
     });
 
@@ -682,7 +866,9 @@ describe('JobsService', () => {
 
       mocks.findActiveOwnedById
         .mockImplementationOnce(async () => job({ status: 'PAUSED' }))
-        .mockImplementationOnce(async () => job({ status: 'CLOSED', closedAt: new Date() }));
+        .mockImplementationOnce(async () =>
+          job({ status: 'CLOSED', closedAt: new Date() }),
+        );
 
       const result = await service.close(companyId, jobId, userId);
 
@@ -693,20 +879,27 @@ describe('JobsService', () => {
       const { service, mocks } = createMocks();
 
       mocks.findActiveOwnedById
-        .mockImplementationOnce(async () => job({
-          status: 'CLOSED',
-          currentPublishedVersionId: version().id,
-          closedAt: new Date(),
-        }))
-        .mockImplementationOnce(async () => job({
-          status: 'PUBLISHED',
-          currentPublishedVersionId: version().id,
-          closedAt: null,
-        }));
+        .mockImplementationOnce(async () =>
+          job({
+            status: 'CLOSED',
+            currentPublishedVersionId: version().id,
+            closedAt: new Date(),
+          }),
+        )
+        .mockImplementationOnce(async () =>
+          job({
+            status: 'PUBLISHED',
+            currentPublishedVersionId: version().id,
+            closedAt: null,
+          }),
+        );
 
       const result = await service.reopen(companyId, jobId, userId);
 
-      expect(mocks.reopenPausedOrClosed).toHaveBeenCalledWith(jobId, expect.anything());
+      expect(mocks.reopenPausedOrClosed).toHaveBeenCalledWith(
+        jobId,
+        expect.anything(),
+      );
       expect(result.status).toBe('PUBLISHED');
       expect(result.closedAt).toBeNull();
     });
@@ -714,12 +907,16 @@ describe('JobsService', () => {
     it('rejects reopening when no published version exists', async () => {
       const { service, mocks } = createMocks();
 
-      mocks.findActiveOwnedById.mockImplementation(async () => job({
-        status: 'CLOSED',
-        currentPublishedVersionId: null,
-      }));
+      mocks.findActiveOwnedById.mockImplementation(async () =>
+        job({
+          status: 'CLOSED',
+          currentPublishedVersionId: null,
+        }),
+      );
 
-      await expect(service.reopen(companyId, jobId, userId)).rejects.toThrow('Job has no published version to reopen');
+      await expect(service.reopen(companyId, jobId, userId)).rejects.toThrow(
+        'Job has no published version to reopen',
+      );
 
       expect(mocks.reopenPausedOrClosed).not.toHaveBeenCalled();
     });
@@ -733,7 +930,10 @@ describe('JobsService', () => {
 
       const result = await service.archive(companyId, jobId, userId);
 
-      expect(mocks.archiveDraftOrClosed).toHaveBeenCalledWith(jobId, expect.anything());
+      expect(mocks.archiveDraftOrClosed).toHaveBeenCalledWith(
+        jobId,
+        expect.anything(),
+      );
       expect(result.status).toBe('ARCHIVED');
     });
 
@@ -752,9 +952,13 @@ describe('JobsService', () => {
     it('rejects archiving a PUBLISHED job', async () => {
       const { service, mocks } = createMocks();
 
-      mocks.findActiveOwnedById.mockImplementation(async () => job({ status: 'PUBLISHED' }));
+      mocks.findActiveOwnedById.mockImplementation(async () =>
+        job({ status: 'PUBLISHED' }),
+      );
 
-      await expect(service.archive(companyId, jobId, userId)).rejects.toThrow('Only a draft or closed job can be archived');
+      await expect(service.archive(companyId, jobId, userId)).rejects.toThrow(
+        'Only a draft or closed job can be archived',
+      );
 
       expect(mocks.archiveDraftOrClosed).not.toHaveBeenCalled();
     });
@@ -762,11 +966,17 @@ describe('JobsService', () => {
     it('soft deletes a DRAFT job without deleting versions', async () => {
       const { service, mocks } = createMocks();
 
-      mocks.findActiveOwnedById.mockImplementation(async () => job({ status: 'DRAFT' }));
+      mocks.findActiveOwnedById.mockImplementation(async () =>
+        job({ status: 'DRAFT' }),
+      );
 
       const result = await service.delete(companyId, jobId, userId);
 
-      expect(mocks.softDeleteDraftClosedOrArchived).toHaveBeenCalledWith(jobId, expect.any(Date), expect.anything());
+      expect(mocks.softDeleteDraftClosedOrArchived).toHaveBeenCalledWith(
+        jobId,
+        expect.any(Date),
+        expect.anything(),
+      );
       expect(result.id).toBe(jobId);
       expect(result.status).toBe('ARCHIVED');
       expect(result.deletedAt).toBeInstanceOf(Date);
@@ -776,9 +986,13 @@ describe('JobsService', () => {
     it('rejects deleting a PUBLISHED job before close', async () => {
       const { service, mocks } = createMocks();
 
-      mocks.findActiveOwnedById.mockImplementation(async () => job({ status: 'PUBLISHED' }));
+      mocks.findActiveOwnedById.mockImplementation(async () =>
+        job({ status: 'PUBLISHED' }),
+      );
 
-      await expect(service.delete(companyId, jobId, userId)).rejects.toThrow('Published or paused job must be closed before deletion');
+      await expect(service.delete(companyId, jobId, userId)).rejects.toThrow(
+        'Published or paused job must be closed before deletion',
+      );
 
       expect(mocks.softDeleteDraftClosedOrArchived).not.toHaveBeenCalled();
     });
@@ -786,9 +1000,13 @@ describe('JobsService', () => {
     it('rejects deleting a PAUSED job before close', async () => {
       const { service, mocks } = createMocks();
 
-      mocks.findActiveOwnedById.mockImplementation(async () => job({ status: 'PAUSED' }));
+      mocks.findActiveOwnedById.mockImplementation(async () =>
+        job({ status: 'PAUSED' }),
+      );
 
-      await expect(service.delete(companyId, jobId, userId)).rejects.toThrow('Published or paused job must be closed before deletion');
+      await expect(service.delete(companyId, jobId, userId)).rejects.toThrow(
+        'Published or paused job must be closed before deletion',
+      );
 
       expect(mocks.softDeleteDraftClosedOrArchived).not.toHaveBeenCalled();
     });

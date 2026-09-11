@@ -18,7 +18,7 @@ export class FileStorageService {
   constructor(
     private readonly storageService: StorageService,
     private readonly fileObjectsRepository: FileObjectsRepository,
-  ) { }
+  ) {}
 
   async store(input: StoreFileInput) {
     const storageProvider = this.storageService.defaultProviderCode;
@@ -42,10 +42,20 @@ export class FileStorageService {
         sizeBytes: input.sizeBytes,
       });
 
-      if (stored.provider !== storageProvider) throw new Error(`Storage provider mismatch: expected ${storageProvider}, received ${stored.provider}`);
-      if (stored.bucket !== input.bucket) throw new Error(`Storage bucket mismatch: expected ${input.bucket}, received ${stored.bucket}`);
-      if (stored.objectKey !== input.objectKey) throw new Error('Storage object key mismatch');
-      if (stored.sizeBytes !== input.sizeBytes) throw new Error(`Storage size mismatch: expected ${input.sizeBytes.toString()}, received ${stored.sizeBytes.toString()}`);
+      if (stored.provider !== storageProvider)
+        throw new Error(
+          `Storage provider mismatch: expected ${storageProvider}, received ${stored.provider}`,
+        );
+      if (stored.bucket !== input.bucket)
+        throw new Error(
+          `Storage bucket mismatch: expected ${input.bucket}, received ${stored.bucket}`,
+        );
+      if (stored.objectKey !== input.objectKey)
+        throw new Error('Storage object key mismatch');
+      if (stored.sizeBytes !== input.sizeBytes)
+        throw new Error(
+          `Storage size mismatch: expected ${input.sizeBytes.toString()}, received ${stored.sizeBytes.toString()}`,
+        );
 
       return await this.fileObjectsRepository.markActive(fileObject.id, {
         sha256: stored.sha256,
@@ -58,7 +68,8 @@ export class FileStorageService {
   }
 
   async open(fileObjectId: string) {
-    const fileObject = await this.fileObjectsRepository.findActiveById(fileObjectId);
+    const fileObject =
+      await this.fileObjectsRepository.findActiveById(fileObjectId);
     if (!fileObject) throw new NotFoundException('File object not found');
 
     const storedObject = await this.storageService.get({
@@ -87,7 +98,11 @@ export class FileStorageService {
     await this.fileObjectsRepository.markDeleted(fileObject.id);
   }
 
-  private async compensateFailedStore(fileObjectId: string, provider: string, input: StoreFileInput): Promise<void> {
+  private async compensateFailedStore(
+    fileObjectId: string,
+    provider: string,
+    input: StoreFileInput,
+  ): Promise<void> {
     try {
       await this.storageService.delete({
         fileObjectId,

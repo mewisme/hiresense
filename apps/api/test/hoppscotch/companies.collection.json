@@ -58,12 +58,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/companies",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "companies"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["companies"]
             },
             "description": "Expected HTTP 201. Copy the returned company id into the companyId collection variable."
           },
@@ -82,13 +78,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/companies/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "companies",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["companies", "me"]
             },
             "description": "Expected HTTP 200 and active memberships with companies."
           },
@@ -107,13 +98,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/companies/{{companyId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "companies",
-                "{{companyId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["companies", "{{companyId}}"]
             },
             "description": "Expected HTTP 200 when the authenticated user has an ACTIVE membership."
           },
@@ -131,13 +117,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/companies/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "companies",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["companies", "me"]
             },
             "description": "Expected HTTP 401."
           },
@@ -156,13 +137,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/companies/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "companies",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["companies", "me"]
             },
             "description": "Expected HTTP 403 because CANDIDATE does not satisfy RECRUITER or ADMIN RBAC."
           },
@@ -195,12 +171,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/companies",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "companies"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["companies"]
             },
             "description": "Run after Create Company. Expected HTTP 409."
           },
@@ -233,12 +205,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/companies",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "companies"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["companies"]
             },
             "description": "Expected HTTP 400."
           },
@@ -257,13 +225,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/companies/{{otherCompanyId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "companies",
-                "{{otherCompanyId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["companies", "{{otherCompanyId}}"]
             },
             "description": "Set otherCompanyId to a company owned by another recruiter. Expected HTTP 403."
           },

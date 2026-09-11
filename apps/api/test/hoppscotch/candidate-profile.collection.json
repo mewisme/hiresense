@@ -46,13 +46,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/candidates/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "candidates",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["candidates", "me"]
             },
             "description": "Expected HTTP 201 for a candidate without an existing profile."
           },
@@ -71,13 +66,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/candidates/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "candidates",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["candidates", "me"]
             },
             "description": "Expected HTTP 200 and the authenticated candidate profile."
           },
@@ -110,13 +100,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/candidates/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "candidates",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["candidates", "me"]
             },
             "description": "Expected HTTP 200 and updated candidate profile."
           },
@@ -149,13 +134,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/candidates/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "candidates",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["candidates", "me"]
             },
             "description": "Expected HTTP 200. Nullable fields are explicitly cleared."
           },
@@ -173,13 +153,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/candidates/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "candidates",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["candidates", "me"]
             },
             "description": "Expected HTTP 401."
           },
@@ -212,13 +187,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/candidates/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "candidates",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["candidates", "me"]
             },
             "description": "Run after Create. Expected HTTP 409."
           },
@@ -251,13 +221,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/candidates/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "candidates",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["candidates", "me"]
             },
             "description": "Expected HTTP 400."
           },
@@ -290,13 +255,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/candidates/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "candidates",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["candidates", "me"]
             },
             "description": "Expected HTTP 400 because fullName is required and cannot be null."
           },
@@ -329,13 +289,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/candidates/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "candidates",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["candidates", "me"]
             },
             "description": "Expected HTTP 400 because forbidNonWhitelisted is enabled."
           },

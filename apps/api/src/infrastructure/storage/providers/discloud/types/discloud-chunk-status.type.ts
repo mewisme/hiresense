@@ -6,13 +6,10 @@ export const DISCLOUD_CHUNK_STATUSES = [
   'DELETED',
 ] as const;
 
-export type DiscloudChunkStatus =
-  (typeof DISCLOUD_CHUNK_STATUSES)[number];
+export type DiscloudChunkStatus = (typeof DISCLOUD_CHUNK_STATUSES)[number];
 
 export function isDiscloudChunkStatus(
   value: string,
 ): value is DiscloudChunkStatus {
-  return (
-    DISCLOUD_CHUNK_STATUSES as readonly string[]
-  ).includes(value);
+  return (DISCLOUD_CHUNK_STATUSES as readonly string[]).includes(value);
 }

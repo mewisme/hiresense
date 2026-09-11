@@ -1,4 +1,4 @@
-import { AppRole } from "./role.type";
+import { AppRole } from './role.type';
 
 export interface AuthenticatedUser {
   id: string;

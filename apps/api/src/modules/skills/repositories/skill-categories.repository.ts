@@ -6,7 +6,7 @@ type DbClient = PrismaService | Prisma.TransactionClient;
 
 @Injectable()
 export class SkillCategoriesRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   findById(id: string, db: DbClient = this.prisma) {
     return db.skillCategory.findUnique({

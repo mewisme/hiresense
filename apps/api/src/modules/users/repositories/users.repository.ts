@@ -6,7 +6,7 @@ type DbClient = PrismaService | Prisma.TransactionClient;
 
 @Injectable()
 export class UsersRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   findByEmail(email: string, db: DbClient = this.prisma) {
     return db.user.findUnique({
@@ -15,10 +15,10 @@ export class UsersRepository {
         userRoles: {
           include: {
             role: true,
-          }
-        }
-      }
-    })
+          },
+        },
+      },
+    });
   }
 
   findById(id: string, db: DbClient = this.prisma) {
@@ -28,16 +28,16 @@ export class UsersRepository {
         userRoles: {
           include: {
             role: true,
-          }
-        }
-      }
-    })
+          },
+        },
+      },
+    });
   }
 
   findRoleByCode(code: string, db: DbClient = this.prisma) {
     return db.role.findUnique({
       where: { code },
-    })
+    });
   }
 
   create(
@@ -45,15 +45,15 @@ export class UsersRepository {
       email: string;
       passwordHash: string;
     },
-    db: DbClient = this.prisma
+    db: DbClient = this.prisma,
   ) {
     return db.user.create({
       data: {
         email: data.email,
         passwordHash: data.passwordHash,
         status: 'ACTIVE',
-      }
-    })
+      },
+    });
   }
 
   assignRole(
@@ -61,13 +61,13 @@ export class UsersRepository {
       userId: string;
       roleId: string;
     },
-    db: DbClient = this.prisma
+    db: DbClient = this.prisma,
   ) {
     return db.userRole.create({
       data: {
         userId: data.userId,
         roleId: data.roleId,
-      }
-    })
+      },
+    });
   }
 }

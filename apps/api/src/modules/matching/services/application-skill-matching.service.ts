@@ -1,7 +1,14 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ResumeParseRunsRepository } from '../../resume-parsing/repositories/resume-parse-runs.repository';
 import { MatchingRepository } from '../repositories/matching.repository';
-import { BaselineSkillMatchingService, type BaselineSkillMatchScore } from './baseline-skill-matching.service';
+import {
+  BaselineSkillMatchingService,
+  type BaselineSkillMatchScore,
+} from './baseline-skill-matching.service';
 import { JobSkillRequirementsService } from './job-skill-requirements.service';
 
 export interface ApplicationSkillMatchPreview {
@@ -22,20 +29,31 @@ export class ApplicationSkillMatchingService {
   ) {}
 
   async preview(applicationId: string): Promise<ApplicationSkillMatchPreview> {
-    const application = await this.matchingRepository.findApplicationSource(applicationId);
+    const application =
+      await this.matchingRepository.findApplicationSource(applicationId);
     if (!application) throw new NotFoundException('Application not found');
 
     const [requirements, parseRun] = await Promise.all([
       this.jobSkillRequirementsService.getSnapshot(application.jobVersionId),
-      this.resumeParseRunsRepository.findLatestSucceededByResumeVersionId(application.resumeVersionId),
+      this.resumeParseRunsRepository.findLatestSucceededByResumeVersionId(
+        application.resumeVersionId,
+      ),
     ]);
 
-    if (!requirements) throw new NotFoundException('Application job version not found');
-    if (!parseRun) throw new BadRequestException('Application resume has no successful parse result');
+    if (!requirements)
+      throw new NotFoundException('Application job version not found');
+    if (!parseRun)
+      throw new BadRequestException(
+        'Application resume has no successful parse result',
+      );
 
     const skillScore = this.baselineSkillMatchingService.score(
       requirements.skills,
-      parseRun.skills.map((skill) => ({ resumeSkillId: skill.id, skillId: skill.skillId, evidenceText: skill.evidenceText })),
+      parseRun.skills.map((skill) => ({
+        resumeSkillId: skill.id,
+        skillId: skill.skillId,
+        evidenceText: skill.evidenceText,
+      })),
     );
 
     return {

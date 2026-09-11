@@ -14,7 +14,7 @@ export interface CreateJobInput {
 
 @Injectable()
 export class JobsRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   findById(id: string, db: DbClient = this.prisma) {
     return db.job.findUnique({ where: { id } });
@@ -24,12 +24,22 @@ export class JobsRepository {
     return db.job.findFirst({ where: { id, deletedAt: null } });
   }
 
-  findActiveOwnedById(id: string, companyId: string, db: DbClient = this.prisma) {
+  findActiveOwnedById(
+    id: string,
+    companyId: string,
+    db: DbClient = this.prisma,
+  ) {
     return db.job.findFirst({ where: { id, companyId, deletedAt: null } });
   }
 
-  findByCompanyAndSlug(companyId: string, slug: string, db: DbClient = this.prisma) {
-    return db.job.findUnique({ where: { companyId_slug: { companyId, slug } } });
+  findByCompanyAndSlug(
+    companyId: string,
+    slug: string,
+    db: DbClient = this.prisma,
+  ) {
+    return db.job.findUnique({
+      where: { companyId_slug: { companyId, slug } },
+    });
   }
 
   findByCompanyId(companyId: string, db: DbClient = this.prisma) {
@@ -81,7 +91,13 @@ export class JobsRepository {
     return db.job.update({ where: { id }, data: { status } });
   }
 
-  publish(id: string, versionId: string, publishedAt: Date, firstPublishedAt: Date, db: DbClient = this.prisma) {
+  publish(
+    id: string,
+    versionId: string,
+    publishedAt: Date,
+    firstPublishedAt: Date,
+    db: DbClient = this.prisma,
+  ) {
     return db.job.update({
       where: { id },
       data: {
@@ -100,7 +116,11 @@ export class JobsRepository {
     });
   }
 
-  closePublishedOrPaused(id: string, closedAt: Date, db: DbClient = this.prisma) {
+  closePublishedOrPaused(
+    id: string,
+    closedAt: Date,
+    db: DbClient = this.prisma,
+  ) {
     return db.job.updateMany({
       where: { id, status: { in: ['PUBLISHED', 'PAUSED'] }, deletedAt: null },
       data: { status: 'CLOSED', closedAt },
@@ -126,14 +146,26 @@ export class JobsRepository {
     });
   }
 
-  softDeleteDraftClosedOrArchived(id: string, deletedAt: Date, db: DbClient = this.prisma) {
+  softDeleteDraftClosedOrArchived(
+    id: string,
+    deletedAt: Date,
+    db: DbClient = this.prisma,
+  ) {
     return db.job.updateMany({
-      where: { id, status: { in: ['DRAFT', 'CLOSED', 'ARCHIVED'] }, deletedAt: null },
+      where: {
+        id,
+        status: { in: ['DRAFT', 'CLOSED', 'ARCHIVED'] },
+        deletedAt: null,
+      },
       data: { status: 'ARCHIVED', deletedAt },
     });
   }
 
-  async lockActiveOwnedById(id: string, companyId: string, db: Prisma.TransactionClient): Promise<boolean> {
+  async lockActiveOwnedById(
+    id: string,
+    companyId: string,
+    db: Prisma.TransactionClient,
+  ): Promise<boolean> {
     const rows = await db.$queryRaw<Array<{ id: string }>>(
       Prisma.sql`SELECT id FROM jobs WHERE id = CAST(${id} AS uuid) AND company_id = CAST(${companyId} AS uuid) AND deleted_at IS NULL FOR UPDATE`,
     );

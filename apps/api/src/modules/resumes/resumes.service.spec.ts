@@ -84,7 +84,9 @@ function resume(overrides: Partial<MockResume> = {}): MockResume {
   };
 }
 
-function resumeVersion(overrides: Partial<MockResumeVersion> = {}): MockResumeVersion {
+function resumeVersion(
+  overrides: Partial<MockResumeVersion> = {},
+): MockResumeVersion {
   return {
     id: 'version-1',
     resumeId: 'resume-1',
@@ -99,7 +101,10 @@ function resumeVersion(overrides: Partial<MockResumeVersion> = {}): MockResumeVe
 function createMocks() {
   const tx = {};
 
-  const transaction = jest.fn<(callback: (client: unknown) => Promise<unknown>) => Promise<unknown>>();
+  const transaction =
+    jest.fn<
+      (callback: (client: unknown) => Promise<unknown>) => Promise<unknown>
+    >();
   transaction.mockImplementation(async (callback) => callback(tx));
 
   const storeFile = jest.fn<(input: unknown) => Promise<MockFileObject>>();
@@ -107,22 +112,55 @@ function createMocks() {
   storeFile.mockImplementation(async () => activeFileObject());
   deleteFile.mockImplementation(async () => undefined);
 
-  const lockCandidateProfile = jest.fn<(candidateProfileId: string, db: unknown) => Promise<boolean>>();
-  const lockActiveOwnedById = jest.fn<(id: string, candidateProfileId: string, db: unknown) => Promise<boolean>>();
-  const countActiveByCandidateProfileId = jest.fn<(candidateProfileId: string, db?: unknown) => Promise<number>>();
-  const createResume = jest.fn<(input: unknown, db?: unknown) => Promise<MockResume>>();
-  const setCurrentVersion = jest.fn<(id: string, currentVersionId: string, db?: unknown) => Promise<MockResume>>();
-  const findActiveOwnedById = jest.fn<(id: string, candidateProfileId: string, db?: unknown) => Promise<MockResume | null>>();
-  const findMostRecentActive = jest.fn<(candidateProfileId: string, db?: unknown) => Promise<MockResume | null>>();
-  const clearDefaults = jest.fn<(candidateProfileId: string, db?: unknown) => Promise<{ count: number }>>();
-  const setDefault = jest.fn<(id: string, db?: unknown) => Promise<MockResume>>();
-  const softDelete = jest.fn<(id: string, db?: unknown) => Promise<MockResume>>();
+  const lockCandidateProfile =
+    jest.fn<(candidateProfileId: string, db: unknown) => Promise<boolean>>();
+  const lockActiveOwnedById =
+    jest.fn<
+      (id: string, candidateProfileId: string, db: unknown) => Promise<boolean>
+    >();
+  const countActiveByCandidateProfileId =
+    jest.fn<(candidateProfileId: string, db?: unknown) => Promise<number>>();
+  const createResume =
+    jest.fn<(input: unknown, db?: unknown) => Promise<MockResume>>();
+  const setCurrentVersion =
+    jest.fn<
+      (
+        id: string,
+        currentVersionId: string,
+        db?: unknown,
+      ) => Promise<MockResume>
+    >();
+  const findActiveOwnedById =
+    jest.fn<
+      (
+        id: string,
+        candidateProfileId: string,
+        db?: unknown,
+      ) => Promise<MockResume | null>
+    >();
+  const findMostRecentActive =
+    jest.fn<
+      (candidateProfileId: string, db?: unknown) => Promise<MockResume | null>
+    >();
+  const clearDefaults =
+    jest.fn<
+      (candidateProfileId: string, db?: unknown) => Promise<{ count: number }>
+    >();
+  const setDefault =
+    jest.fn<(id: string, db?: unknown) => Promise<MockResume>>();
+  const softDelete =
+    jest.fn<(id: string, db?: unknown) => Promise<MockResume>>();
 
-  const createVersion = jest.fn<(input: unknown, db?: unknown) => Promise<MockResumeVersion>>();
-  const getNextVersionNo = jest.fn<(resumeId: string, db?: unknown) => Promise<number>>();
+  const createVersion =
+    jest.fn<(input: unknown, db?: unknown) => Promise<MockResumeVersion>>();
+  const getNextVersionNo =
+    jest.fn<(resumeId: string, db?: unknown) => Promise<number>>();
 
   const prisma = { $transaction: transaction } as unknown as PrismaService;
-  const fileStorageService = { store: storeFile, delete: deleteFile } as unknown as FileStorageService;
+  const fileStorageService = {
+    store: storeFile,
+    delete: deleteFile,
+  } as unknown as FileStorageService;
 
   const resumesRepository = {
     lockCandidateProfile,
@@ -142,7 +180,12 @@ function createMocks() {
     getNextVersionNo,
   } as unknown as ResumeVersionsRepository;
 
-  const service = new ResumesService(prisma, fileStorageService, resumesRepository, resumeVersionsRepository);
+  const service = new ResumesService(
+    prisma,
+    fileStorageService,
+    resumesRepository,
+    resumeVersionsRepository,
+  );
 
   return {
     tx,
@@ -173,7 +216,9 @@ describe('ResumesService', () => {
 
     mocks.lockCandidateProfile.mockImplementation(async () => true);
     mocks.countActiveByCandidateProfileId.mockImplementation(async () => 0);
-    mocks.createResume.mockImplementation(async () => resume({ currentVersionId: null }));
+    mocks.createResume.mockImplementation(async () =>
+      resume({ currentVersionId: null }),
+    );
     mocks.createVersion.mockImplementation(async () => resumeVersion());
     mocks.setCurrentVersion.mockImplementation(async () => resume());
 
@@ -184,18 +229,28 @@ describe('ResumesService', () => {
       file: fileInput(),
     });
 
-    expect(mocks.createResume).toHaveBeenCalledWith({
-      candidateProfileId: 'candidate-1',
-      name: 'Backend CV',
-      isDefault: true,
-    }, tx);
-    expect(mocks.createVersion).toHaveBeenCalledWith({
-      resumeId: 'resume-1',
-      versionNo: 1,
-      fileObjectId: 'file-1',
-      createdByUserId: 'user-1',
-    }, tx);
-    expect(mocks.setCurrentVersion).toHaveBeenCalledWith('resume-1', 'version-1', tx);
+    expect(mocks.createResume).toHaveBeenCalledWith(
+      {
+        candidateProfileId: 'candidate-1',
+        name: 'Backend CV',
+        isDefault: true,
+      },
+      tx,
+    );
+    expect(mocks.createVersion).toHaveBeenCalledWith(
+      {
+        resumeId: 'resume-1',
+        versionNo: 1,
+        fileObjectId: 'file-1',
+        createdByUserId: 'user-1',
+      },
+      tx,
+    );
+    expect(mocks.setCurrentVersion).toHaveBeenCalledWith(
+      'resume-1',
+      'version-1',
+      tx,
+    );
     expect(result.resume.currentVersionId).toBe('version-1');
     expect(result.resume.isDefault).toBe(true);
     expect(result.version.versionNo).toBe(1);
@@ -207,22 +262,28 @@ describe('ResumesService', () => {
 
     mocks.lockCandidateProfile.mockImplementation(async () => true);
     mocks.countActiveByCandidateProfileId.mockImplementation(async () => 2);
-    mocks.createResume.mockImplementation(async () => resume({
-      id: 'resume-2',
-      name: 'Frontend CV',
-      isDefault: false,
-      currentVersionId: null,
-    }));
-    mocks.createVersion.mockImplementation(async () => resumeVersion({
-      id: 'version-2',
-      resumeId: 'resume-2',
-    }));
-    mocks.setCurrentVersion.mockImplementation(async () => resume({
-      id: 'resume-2',
-      name: 'Frontend CV',
-      isDefault: false,
-      currentVersionId: 'version-2',
-    }));
+    mocks.createResume.mockImplementation(async () =>
+      resume({
+        id: 'resume-2',
+        name: 'Frontend CV',
+        isDefault: false,
+        currentVersionId: null,
+      }),
+    );
+    mocks.createVersion.mockImplementation(async () =>
+      resumeVersion({
+        id: 'version-2',
+        resumeId: 'resume-2',
+      }),
+    );
+    mocks.setCurrentVersion.mockImplementation(async () =>
+      resume({
+        id: 'resume-2',
+        name: 'Frontend CV',
+        isDefault: false,
+        currentVersionId: 'version-2',
+      }),
+    );
 
     const result = await service.create({
       candidateProfileId: 'candidate-1',
@@ -231,11 +292,14 @@ describe('ResumesService', () => {
       file: fileInput(),
     });
 
-    expect(mocks.createResume).toHaveBeenCalledWith(expect.objectContaining({
-      candidateProfileId: 'candidate-1',
-      name: 'Frontend CV',
-      isDefault: false,
-    }), expect.anything());
+    expect(mocks.createResume).toHaveBeenCalledWith(
+      expect.objectContaining({
+        candidateProfileId: 'candidate-1',
+        name: 'Frontend CV',
+        isDefault: false,
+      }),
+      expect.anything(),
+    );
     expect(result.resume.isDefault).toBe(false);
   });
 
@@ -244,13 +308,17 @@ describe('ResumesService', () => {
 
     mocks.lockActiveOwnedById.mockImplementation(async () => true);
     mocks.getNextVersionNo.mockImplementation(async () => 3);
-    mocks.createVersion.mockImplementation(async () => resumeVersion({
-      id: 'version-3',
-      versionNo: 3,
-    }));
-    mocks.setCurrentVersion.mockImplementation(async () => resume({
-      currentVersionId: 'version-3',
-    }));
+    mocks.createVersion.mockImplementation(async () =>
+      resumeVersion({
+        id: 'version-3',
+        versionNo: 3,
+      }),
+    );
+    mocks.setCurrentVersion.mockImplementation(async () =>
+      resume({
+        currentVersionId: 'version-3',
+      }),
+    );
 
     const result = await service.addVersion({
       resumeId: 'resume-1',
@@ -259,15 +327,26 @@ describe('ResumesService', () => {
       file: fileInput(),
     });
 
-    expect(mocks.lockActiveOwnedById).toHaveBeenCalledWith('resume-1', 'candidate-1', tx);
+    expect(mocks.lockActiveOwnedById).toHaveBeenCalledWith(
+      'resume-1',
+      'candidate-1',
+      tx,
+    );
     expect(mocks.getNextVersionNo).toHaveBeenCalledWith('resume-1', tx);
-    expect(mocks.createVersion).toHaveBeenCalledWith({
-      resumeId: 'resume-1',
-      versionNo: 3,
-      fileObjectId: 'file-1',
-      createdByUserId: 'user-1',
-    }, tx);
-    expect(mocks.setCurrentVersion).toHaveBeenCalledWith('resume-1', 'version-3', tx);
+    expect(mocks.createVersion).toHaveBeenCalledWith(
+      {
+        resumeId: 'resume-1',
+        versionNo: 3,
+        fileObjectId: 'file-1',
+        createdByUserId: 'user-1',
+      },
+      tx,
+    );
+    expect(mocks.setCurrentVersion).toHaveBeenCalledWith(
+      'resume-1',
+      'version-3',
+      tx,
+    );
     expect(result.version.versionNo).toBe(3);
     expect(result.resume.currentVersionId).toBe('version-3');
   });
@@ -277,12 +356,14 @@ describe('ResumesService', () => {
 
     mocks.lockActiveOwnedById.mockImplementation(async () => false);
 
-    await expect(service.addVersion({
-      resumeId: 'resume-other',
-      candidateProfileId: 'candidate-1',
-      createdByUserId: 'user-1',
-      file: fileInput(),
-    })).rejects.toBeInstanceOf(NotFoundException);
+    await expect(
+      service.addVersion({
+        resumeId: 'resume-other',
+        candidateProfileId: 'candidate-1',
+        createdByUserId: 'user-1',
+        file: fileInput(),
+      }),
+    ).rejects.toBeInstanceOf(NotFoundException);
 
     expect(mocks.deleteFile).toHaveBeenCalledTimes(1);
     expect(mocks.deleteFile).toHaveBeenCalledWith('file-1');
@@ -299,12 +380,14 @@ describe('ResumesService', () => {
       throw new Error('database failed');
     });
 
-    await expect(service.create({
-      candidateProfileId: 'candidate-1',
-      createdByUserId: 'user-1',
-      name: 'Backend CV',
-      file: fileInput(),
-    })).rejects.toThrow('database failed');
+    await expect(
+      service.create({
+        candidateProfileId: 'candidate-1',
+        createdByUserId: 'user-1',
+        name: 'Backend CV',
+        file: fileInput(),
+      }),
+    ).rejects.toThrow('database failed');
 
     expect(mocks.deleteFile).toHaveBeenCalledTimes(1);
     expect(mocks.deleteFile).toHaveBeenCalledWith('file-1');
@@ -322,12 +405,14 @@ describe('ResumesService', () => {
       throw new Error('cleanup failed');
     });
 
-    await expect(service.create({
-      candidateProfileId: 'candidate-1',
-      createdByUserId: 'user-1',
-      name: 'Backend CV',
-      file: fileInput(),
-    })).rejects.toThrow('database failed');
+    await expect(
+      service.create({
+        candidateProfileId: 'candidate-1',
+        createdByUserId: 'user-1',
+        name: 'Backend CV',
+        file: fileInput(),
+      }),
+    ).rejects.toThrow('database failed');
 
     expect(mocks.deleteFile).toHaveBeenCalledWith('file-1');
   });
@@ -344,12 +429,19 @@ describe('ResumesService', () => {
     mocks.lockCandidateProfile.mockImplementation(async () => true);
     mocks.findActiveOwnedById.mockImplementation(async () => target);
     mocks.clearDefaults.mockImplementation(async () => ({ count: 1 }));
-    mocks.setDefault.mockImplementation(async () => ({ ...target, isDefault: true }));
+    mocks.setDefault.mockImplementation(async () => ({
+      ...target,
+      isDefault: true,
+    }));
 
     const result = await service.setDefault('resume-2', 'candidate-1');
 
     expect(mocks.lockCandidateProfile).toHaveBeenCalledWith('candidate-1', tx);
-    expect(mocks.findActiveOwnedById).toHaveBeenCalledWith('resume-2', 'candidate-1', tx);
+    expect(mocks.findActiveOwnedById).toHaveBeenCalledWith(
+      'resume-2',
+      'candidate-1',
+      tx,
+    );
     expect(mocks.clearDefaults).toHaveBeenCalledWith('candidate-1', tx);
     expect(mocks.setDefault).toHaveBeenCalledWith('resume-2', tx);
     expect(result.isDefault).toBe(true);
@@ -368,7 +460,9 @@ describe('ResumesService', () => {
     mocks.lockCandidateProfile.mockImplementation(async () => true);
     mocks.findActiveOwnedById.mockImplementation(async () => null);
 
-    await expect(service.setDefault('resume-other', 'candidate-1')).rejects.toBeInstanceOf(NotFoundException);
+    await expect(
+      service.setDefault('resume-other', 'candidate-1'),
+    ).rejects.toBeInstanceOf(NotFoundException);
 
     expect(mocks.clearDefaults).not.toHaveBeenCalled();
     expect(mocks.setDefault).not.toHaveBeenCalled();
@@ -402,7 +496,11 @@ describe('ResumesService', () => {
     const result = await service.delete('resume-1', 'candidate-1');
 
     expect(mocks.lockCandidateProfile).toHaveBeenCalledWith('candidate-1', tx);
-    expect(mocks.findActiveOwnedById).toHaveBeenCalledWith('resume-1', 'candidate-1', tx);
+    expect(mocks.findActiveOwnedById).toHaveBeenCalledWith(
+      'resume-1',
+      'candidate-1',
+      tx,
+    );
     expect(mocks.softDelete).toHaveBeenCalledWith('resume-1', tx);
     expect(mocks.findMostRecentActive).toHaveBeenCalledWith('candidate-1', tx);
     expect(mocks.setDefault).toHaveBeenCalledWith('resume-2', tx);
@@ -460,7 +558,9 @@ describe('ResumesService', () => {
     mocks.lockCandidateProfile.mockImplementation(async () => true);
     mocks.findActiveOwnedById.mockImplementation(async () => null);
 
-    await expect(service.delete('resume-other', 'candidate-1')).rejects.toBeInstanceOf(NotFoundException);
+    await expect(
+      service.delete('resume-other', 'candidate-1'),
+    ).rejects.toBeInstanceOf(NotFoundException);
 
     expect(mocks.softDelete).not.toHaveBeenCalled();
   });

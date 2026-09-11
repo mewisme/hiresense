@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 
 export class CreateSkillDto {
-  @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsString()
   @IsNotEmpty()
   @MaxLength(200)
@@ -18,7 +18,7 @@ export class CreateSkillDto {
   @IsUUID('all')
   categoryId?: string;
 
-  @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsOptional()
   @IsString()
   @IsNotEmpty()

@@ -4,12 +4,15 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user.type';
 import { ApplicationsService } from './applications.service';
 import { toApplicationResponse } from './mappers/application-response.mapper';
-import { toCandidateApplicationDetailResponse, toCandidateApplicationListItemResponse } from './mappers/candidate-application-response.mapper';
+import {
+  toCandidateApplicationDetailResponse,
+  toCandidateApplicationListItemResponse,
+} from './mappers/candidate-application-response.mapper';
 
 @Controller('candidates/me/applications')
 @Auth('CANDIDATE')
 export class CandidateApplicationsController {
-  constructor(private readonly applicationsService: ApplicationsService) { }
+  constructor(private readonly applicationsService: ApplicationsService) {}
 
   @Get()
   async listMine(@CurrentUser() user: AuthenticatedUser) {
@@ -22,8 +25,14 @@ export class CandidateApplicationsController {
     @CurrentUser() user: AuthenticatedUser,
     @Param('applicationId', ParseUUIDPipe) applicationId: string,
   ) {
-    const result = await this.applicationsService.getMine(applicationId, user.id);
-    return toCandidateApplicationDetailResponse(result.application, result.history);
+    const result = await this.applicationsService.getMine(
+      applicationId,
+      user.id,
+    );
+    return toCandidateApplicationDetailResponse(
+      result.application,
+      result.history,
+    );
   }
 
   @Post(':applicationId/withdraw')
@@ -31,7 +40,10 @@ export class CandidateApplicationsController {
     @CurrentUser() user: AuthenticatedUser,
     @Param('applicationId', ParseUUIDPipe) applicationId: string,
   ) {
-    const result = await this.applicationsService.withdraw(applicationId, user.id);
+    const result = await this.applicationsService.withdraw(
+      applicationId,
+      user.id,
+    );
     return toApplicationResponse(result.application, result.currentStage);
   }
 }

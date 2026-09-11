@@ -1,4 +1,11 @@
-import { Controller, Get, NotFoundException, Param, ParseUUIDPipe, Post } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  ParseUUIDPipe,
+  Post,
+} from '@nestjs/common';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user.type';
@@ -12,7 +19,7 @@ export class ResumeParsingController {
   constructor(
     private readonly candidatesService: CandidatesService,
     private readonly resumeParsingService: ResumeParsingService,
-  ) { }
+  ) {}
 
   @Post(':resumeId/versions/:versionId/parse-runs')
   async parse(
@@ -21,7 +28,11 @@ export class ResumeParsingController {
     @Param('versionId', ParseUUIDPipe) versionId: string,
   ) {
     const candidate = await this.requireCandidate(user.id);
-    const result = await this.resumeParsingService.parseForCandidate(resumeId, versionId, candidate.id);
+    const result = await this.resumeParsingService.parseForCandidate(
+      resumeId,
+      versionId,
+      candidate.id,
+    );
     return toResumeParseStatusResponse(result.parseRun, result.reused);
   }
 
@@ -32,7 +43,11 @@ export class ResumeParsingController {
     @Param('versionId', ParseUUIDPipe) versionId: string,
   ) {
     const candidate = await this.requireCandidate(user.id);
-    const parseRun = await this.resumeParsingService.getLatestForCandidate(resumeId, versionId, candidate.id);
+    const parseRun = await this.resumeParsingService.getLatestForCandidate(
+      resumeId,
+      versionId,
+      candidate.id,
+    );
     return parseRun ? toResumeParseStatusResponse(parseRun) : null;
   }
 

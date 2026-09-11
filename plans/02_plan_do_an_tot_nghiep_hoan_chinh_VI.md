@@ -1,6 +1,7 @@
 # KẾ HOẠCH CHI TIẾT — ĐỒ ÁN TỐT NGHIỆP HOÀN CHỈNH
 
 ## Đề tài
+
 **Xây dựng hệ thống tuyển dụng và phân tích mức độ phù hợp giữa CV và mô tả công việc ứng dụng trí tuệ nhân tạo**
 
 ---
@@ -24,6 +25,7 @@ Kế hoạch mặc định theo **16 tuần**. Có thể co giãn theo lịch tr
 Xây dựng một nền tảng tuyển dụng hỗ trợ hai chiều:
 
 ## Recruiter-side
+
 - Đăng và quản lý tin tuyển dụng.
 - Tiếp nhận CV.
 - Phân tích CV tự động.
@@ -34,6 +36,7 @@ Xây dựng một nền tảng tuyển dụng hỗ trợ hai chiều:
 - Dashboard thống kê.
 
 ## Candidate-side
+
 - Quản lý hồ sơ và CV.
 - Tìm kiếm công việc.
 - Xem mức độ phù hợp.
@@ -42,6 +45,7 @@ Xây dựng một nền tảng tuyển dụng hỗ trợ hai chiều:
 - Nhận feedback phù hợp ở mức an toàn, không tạo ấn tượng AI quyết định tuyển dụng.
 
 ## AI-side
+
 - CV parsing.
 - JD parsing.
 - Skill normalization.
@@ -123,6 +127,7 @@ Trả lời được các câu hỏi:
 ## 4.1. Candidate
 
 ### Account & Profile
+
 - Register/login/logout.
 - Forgot/reset password.
 - Optional email verification.
@@ -133,6 +138,7 @@ Trả lời được các câu hỏi:
 - Education history.
 
 ### Resume
+
 - Multiple CVs.
 - PDF upload.
 - Parse status.
@@ -142,6 +148,7 @@ Trả lời được các câu hỏi:
 - Resume version history optional.
 
 ### Job discovery
+
 - Keyword search.
 - Skill-based filtering.
 - Location.
@@ -152,6 +159,7 @@ Trả lời được các câu hỏi:
 - Sort newest / relevance / match score.
 
 ### Application
+
 - Apply.
 - Withdraw according to policy.
 - Track pipeline.
@@ -160,6 +168,7 @@ Trả lời được các câu hỏi:
 - Receive notifications.
 
 ### Recommendation
+
 - Recommended jobs.
 - Match percentage.
 - Reasons for recommendation.
@@ -171,12 +180,14 @@ Trả lời được các câu hỏi:
 ## 4.2. Recruiter
 
 ### Company
+
 - Company profile.
 - Recruiter membership.
 - Basic member roles optional.
 - Company job history.
 
 ### Job
+
 - Draft.
 - Publish.
 - Pause.
@@ -188,6 +199,7 @@ Trả lời được các câu hỏi:
 - Matching configuration optional.
 
 ### Applicant management
+
 - Applicant list.
 - Search/filter.
 - Sort by score.
@@ -200,6 +212,7 @@ Trả lời được các câu hỏi:
 - Interview scheduling.
 
 ### AI assistance
+
 - CV summary.
 - Score breakdown.
 - Matched skills.
@@ -211,6 +224,7 @@ Trả lời được các câu hỏi:
 - Confidence/quality indicator when appropriate.
 
 ### Analytics
+
 - Applicants per job.
 - Application status funnel.
 - Average match score.
@@ -249,6 +263,7 @@ Trả lời được các câu hỏi:
 - `WITHDRAWN`
 
 Mỗi thay đổi:
+
 - lưu người thay đổi;
 - timestamp;
 - note optional;
@@ -305,7 +320,9 @@ Không xóa lịch sử trạng thái.
 # 7. Phân ranh service
 
 ## 7.1. Next.js
+
 Chịu trách nhiệm:
+
 - UI.
 - form.
 - session presentation.
@@ -314,7 +331,9 @@ Chịu trách nhiệm:
 - không chứa business rule quan trọng.
 
 ## 7.2. NestJS
+
 Chịu trách nhiệm:
+
 - auth.
 - RBAC.
 - domain business logic.
@@ -328,7 +347,9 @@ Chịu trách nhiệm:
 - API security.
 
 ## 7.3. FastAPI AI Service
+
 Chịu trách nhiệm:
+
 - CV text processing.
 - structured extraction.
 - embedding.
@@ -340,14 +361,18 @@ Chịu trách nhiệm:
 - evaluation helpers.
 
 ## 7.4. PostgreSQL
+
 Chịu trách nhiệm:
+
 - transactional state.
 - user/job/application data.
 - AI result metadata.
 - vector storage nếu dùng pgvector.
 
 ## 7.5. Queue/Redis
+
 Dùng cho:
+
 - CV parsing background.
 - embedding generation.
 - batch ranking.
@@ -414,7 +439,9 @@ Score + Explanation + Evidence
 # 9. CV parsing V2
 
 ## 9.1. Section detection
+
 Cố gắng nhận biết:
+
 - Summary.
 - Skills.
 - Work Experience.
@@ -459,7 +486,9 @@ Cố gắng nhận biết:
 ```
 
 ## 9.3. Confidence
+
 Không nhất thiết mọi field đều có confidence nếu khó calibrate, nhưng parser nên có:
+
 - parse status;
 - warnings;
 - unsupported layout flag;
@@ -492,6 +521,7 @@ Aliases: NodeJS, Node
 Không nên normalize quá mạnh gây sai nghĩa.
 
 Có thể chia category:
+
 - programming language;
 - frontend;
 - backend;
@@ -513,9 +543,11 @@ Nhận ra similarity dù CV và JD không dùng cùng từ.
 Ví dụ:
 
 JD:
+
 > Experience building RESTful backend services.
 
 CV:
+
 > Developed APIs using NestJS and Express.
 
 Keyword baseline có thể bỏ sót.
@@ -526,6 +558,7 @@ Embedding có thể nhận ra semantic similarity.
 Không nên chỉ embedding toàn bộ CV thành một vector.
 
 Đề xuất thử nghiệm:
+
 - CV summary vector.
 - experience bullets.
 - project bullets.
@@ -536,9 +569,11 @@ Không nên chỉ embedding toàn bộ CV thành một vector.
 Sau đó aggregate similarity.
 
 ## 11.3. Similarity
+
 Có thể dùng cosine similarity.
 
 Lưu:
+
 - model name/version;
 - embedding version;
 - similarity score;
@@ -553,37 +588,47 @@ Lưu:
 `FinalScore = 0.35 Skill + 0.20 Experience + 0.10 Education + 0.30 Semantic + 0.05 Other`
 
 Trọng số **không phải cố định vĩnh viễn**. Phải được:
+
 - document;
 - thử nghiệm;
 - đánh giá;
 - version.
 
 ## 12.1. Skill score
+
 Tính riêng:
+
 - required skill coverage;
 - preferred skill coverage;
 - skill evidence quality.
 
 ## 12.2. Experience score
+
 Xem:
+
 - total experience;
 - relevant experience;
 - role similarity;
 - recency optional.
 
 ## 12.3. Education score
+
 Chỉ dùng nếu JD thật sự yêu cầu.
 
 Không nên cho education weight cao mặc định với mọi job.
 
 ## 12.4. Semantic score
+
 Từ:
+
 - CV experience vs JD responsibilities;
 - projects vs JD requirements;
 - summary vs role context.
 
 ## 12.5. Other
+
 Có thể:
+
 - certifications;
 - language requirements;
 - domain experience.
@@ -622,9 +667,7 @@ Ví dụ:
     "Strong overlap in React and Node.js",
     "2.5 years of relevant full-stack experience"
   ],
-  "gaps": [
-    "Docker is required but not clearly evidenced"
-  ],
+  "gaps": ["Docker is required but not clearly evidenced"],
   "evidence": [
     {
       "type": "experience",
@@ -637,6 +680,7 @@ Ví dụ:
 ```
 
 Nếu dùng LLM để viết explanation:
+
 - score phải được tính trước bằng deterministic/hybrid engine;
 - LLM chỉ diễn giải;
 - output phải dựa trên structured evidence;
@@ -647,10 +691,13 @@ Nếu dùng LLM để viết explanation:
 # 14. Candidate Ranking
 
 ## 14.1. Input
+
 Một job + N applications.
 
 ## 14.2. Output
+
 Danh sách:
+
 - rank;
 - candidate;
 - overall score;
@@ -659,15 +706,18 @@ Danh sách:
 - key gaps.
 
 ## 14.3. Ranking rules
+
 - Chỉ xếp hạng application có analysis thành công.
 - Tie handling rõ ràng.
 - Không dùng thuộc tính nhạy cảm.
 - Recruiter có thể sort theo score nhưng phải thấy score breakdown.
 
 ## 14.4. Evaluation
+
 So sánh ranking của hệ thống với ranking của người đánh giá.
 
 Metric có thể dùng:
+
 - Spearman rank correlation.
 - Kendall tau.
 - NDCG@K.
@@ -680,10 +730,13 @@ Không cần dùng tất cả; chọn metric phù hợp với dataset.
 # 15. Job Recommendation
 
 ## 15.1. Mục tiêu
+
 Từ profile/CV candidate, gợi ý job đang mở.
 
 ## 15.2. Candidate representation
+
 Có thể dùng:
+
 - skills;
 - experience;
 - title/role;
@@ -692,18 +745,22 @@ Có thể dùng:
 - embedding.
 
 ## 15.3. Job candidate set
+
 Filter hard constraints trước:
+
 - job status.
 - location/workplace nếu cần.
 - employment type.
 - eligibility nếu có.
 
 Sau đó rank bằng:
+
 - semantic score;
 - skill overlap;
 - experience fit.
 
 ## 15.4. Output
+
 - Job.
 - Match score.
 - Top reasons.
@@ -724,9 +781,11 @@ Cho recruiter optional feedback:
 - shortlist outcome.
 
 Cho candidate:
+
 - job recommendation useful/not useful optional.
 
 Mục đích:
+
 - thu thập evaluation signal;
 - không tự động online-learning nếu chưa kiểm soát.
 
@@ -737,6 +796,7 @@ Mục đích:
 Ngoài bảng V1, thêm/hoàn thiện:
 
 ## Core
+
 - `users`
 - `roles`
 - `candidate_profiles`
@@ -745,12 +805,14 @@ Ngoài bảng V1, thêm/hoàn thiện:
 - `company_members`
 
 ## Jobs
+
 - `jobs`
 - `job_skills`
 - `job_requirements`
 - `job_embeddings`
 
 ## Candidate/CV
+
 - `resumes`
 - `resume_sections`
 - `resume_skills`
@@ -760,12 +822,14 @@ Ngoài bảng V1, thêm/hoàn thiện:
 - `resume_embeddings`
 
 ## Applications
+
 - `applications`
 - `application_status_history`
 - `application_notes`
 - `interviews`
 
 ## AI
+
 - `ai_analyses`
 - `ai_score_components`
 - `ai_evidences`
@@ -774,10 +838,12 @@ Ngoài bảng V1, thêm/hoàn thiện:
 - `analysis_feedback`
 
 ## Recommendation
+
 - `job_recommendations`
 - `recommendation_feedback`
 
 ## System
+
 - `notifications`
 - `audit_logs`
 - `system_events` optional.
@@ -787,31 +853,38 @@ Ngoài bảng V1, thêm/hoàn thiện:
 # 18. API mở rộng
 
 ## Candidate recommendation
+
 - `GET /candidate/recommendations`
 - `POST /candidate/recommendations/:id/feedback`
 
 ## Recruiter ranking
+
 - `GET /recruiter/jobs/:jobId/ranking`
 - `GET /recruiter/jobs/:jobId/ranking/export` optional
 
 ## AI explanation
+
 - `GET /applications/:id/analysis/explanation`
 - `POST /applications/:id/analysis/retry`
 
 ## Interviews
+
 - `POST /recruiter/applications/:id/interviews`
 - `PATCH /recruiter/interviews/:id`
 - `GET /candidate/interviews`
 
 ## Notifications
+
 - `GET /notifications`
 - `PATCH /notifications/:id/read`
 
 ## Analytics
+
 - `GET /recruiter/analytics/overview`
 - `GET /recruiter/jobs/:jobId/analytics`
 
 ## Feedback
+
 - `POST /recruiter/applications/:id/ai-feedback`
 
 ---
@@ -829,11 +902,13 @@ AI tasks nên có trạng thái:
 Job payload nên chứa ID, không chứa toàn bộ dữ liệu nhạy cảm nếu không cần.
 
 Retry:
+
 - giới hạn retry.
 - exponential backoff nếu phù hợp.
 - dead-letter handling đơn giản hoặc failed job table.
 
 UI:
+
 - hiển thị “Processing”.
 - cho retry khi fail.
 - không block application submission chỉ vì AI đang chạy.
@@ -843,17 +918,20 @@ UI:
 # 20. Security nâng cao
 
 ## Authentication
+
 - Access + refresh token.
 - Rotation/revocation nếu triển khai.
 - Password reset token có expiry.
 
 ## Authorization
+
 - RBAC.
 - Resource ownership.
 - Company membership validation.
 - Admin separation.
 
 ## File security
+
 - Private storage.
 - Signed URL có expiry nếu dùng object storage.
 - MIME check.
@@ -862,6 +940,7 @@ UI:
 - optional malware scan nếu có hạ tầng.
 
 ## API
+
 - validation.
 - rate limiting.
 - CORS config.
@@ -870,7 +949,9 @@ UI:
 - no sensitive stack trace production.
 
 ## Audit
+
 Ghi:
+
 - login security events;
 - application status changes;
 - job changes;
@@ -893,6 +974,7 @@ Phải xác định:
 - Không đưa raw CV vào public logging/tracing.
 
 Nếu dùng external LLM/API:
+
 - document dữ liệu nào được gửi.
 - không gửi thừa.
 - ưu tiên redaction hoặc structured data.
@@ -903,6 +985,7 @@ Nếu dùng external LLM/API:
 # 22. Observability
 
 ## Logs
+
 - request ID.
 - user ID ở dạng an toàn nếu cần.
 - service.
@@ -912,7 +995,9 @@ Nếu dùng external LLM/API:
 - model version.
 
 ## Metrics
+
 Ít nhất:
+
 - API error rate.
 - AI parse success rate.
 - AI matching success rate.
@@ -921,6 +1006,7 @@ Nếu dùng external LLM/API:
 - queue depth nếu có queue.
 
 ## Health checks
+
 - API.
 - database.
 - AI service.
@@ -932,6 +1018,7 @@ Nếu dùng external LLM/API:
 # 23. Testing strategy hoàn chỉnh
 
 ## Unit
+
 - scoring.
 - feature normalization.
 - parser utilities.
@@ -940,12 +1027,14 @@ Nếu dùng external LLM/API:
 - recommendation filters.
 
 ## Integration
+
 - API + DB.
 - object storage.
 - queue.
 - AI service contract.
 
 ## E2E
+
 - Candidate full journey.
 - Recruiter full journey.
 - AI failure/retry.
@@ -954,6 +1043,7 @@ Nếu dùng external LLM/API:
 - interview flow.
 
 ## Security tests
+
 - IDOR/resource ownership.
 - role bypass.
 - invalid JWT.
@@ -961,6 +1051,7 @@ Nếu dùng external LLM/API:
 - upload validation.
 
 ## AI evaluation tests
+
 - golden CV/JD pairs.
 - expected skills.
 - expected labels/ranking.
@@ -973,6 +1064,7 @@ Nếu dùng external LLM/API:
 ## 24.1. Dataset tối thiểu đề xuất
 
 Tạo/thu thập:
+
 - 50–100 JD.
 - 100–200 CV hoặc candidate profiles giả lập/ẩn danh.
 - 200–500 CV–JD pairs nếu có thể.
@@ -980,15 +1072,18 @@ Tạo/thu thập:
   - poor fit;
   - moderate fit;
   - good fit;
-  hoặc score 1–5.
+    hoặc score 1–5.
 
 Nếu dữ liệu khó:
+
 - dùng dữ liệu synthetic có kiểm soát;
 - mô tả rõ cách tạo;
 - tránh tuyên bố generalization quá mức.
 
 ## 24.2. Annotation guideline
+
 Người đánh giá dựa trên:
+
 - required skills.
 - relevant experience.
 - education nếu bắt buộc.
@@ -996,10 +1091,11 @@ Người đánh giá dựa trên:
 - không dùng thuộc tính nhạy cảm.
 
 ## 24.3. Split
+
 - train/tuning nếu có.
 - validation.
 - test.
-Nếu không train model, vẫn phải có evaluation set tách biệt.
+  Nếu không train model, vẫn phải có evaluation set tách biệt.
 
 ---
 
@@ -1008,21 +1104,26 @@ Nếu không train model, vẫn phải có evaluation set tách biệt.
 Ít nhất so sánh:
 
 ## Baseline A
+
 Keyword/rule-based V1.
 
 ## Model B
+
 Semantic-only.
 
 ## Model C
+
 Hybrid.
 
 Đánh giá:
+
 - classification agreement nếu có labels.
 - ranking correlation.
 - top-K quality.
 - qualitative error analysis.
 
 Bảng báo cáo nên có:
+
 - dataset size.
 - metric.
 - baseline.
@@ -1050,6 +1151,7 @@ Phân loại lỗi:
 - LLM explanation hallucination nếu có.
 
 Mỗi nhóm lỗi:
+
 - ví dụ;
 - nguyên nhân;
 - hướng xử lý;
@@ -1060,6 +1162,7 @@ Mỗi nhóm lỗi:
 # 27. UX/UI nâng cao
 
 ## Candidate
+
 - score card.
 - breakdown.
 - recommendation cards.
@@ -1068,6 +1171,7 @@ Mỗi nhóm lỗi:
 - clear disclaimer.
 
 ## Recruiter
+
 - ranking table.
 - filters.
 - score distribution.
@@ -1077,8 +1181,10 @@ Mỗi nhóm lỗi:
 - analytics cards/charts.
 
 ## AI status
+
 Không dùng chỉ “AI score 87%”.
 Phải hiển thị:
+
 - score;
 - component;
 - explanation;
@@ -1090,6 +1196,7 @@ Phải hiển thị:
 # 28. Dashboard metrics
 
 ## Recruiter overview
+
 - active jobs.
 - total applications.
 - new applications.
@@ -1099,6 +1206,7 @@ Phải hiển thị:
 - hires.
 
 ## Per-job
+
 - application count.
 - average score.
 - score distribution.
@@ -1124,6 +1232,7 @@ Pipeline tối thiểu:
 8. Deploy staging.
 
 Branch strategy đơn giản:
+
 - `main`
 - feature branches
 - release tags.
@@ -1140,6 +1249,7 @@ Không cần quy trình enterprise quá phức tạp.
 - Production-like nếu có.
 
 Mỗi environment:
+
 - env vars riêng.
 - database riêng.
 - storage riêng nếu có.
@@ -1152,6 +1262,7 @@ Mỗi environment:
 ## Tuần 1 — Audit V1 và freeze scope V2
 
 ### Việc cần làm
+
 - Review toàn bộ MVP.
 - Liệt kê technical debt.
 - Thu thập feedback giai đoạn thực tập.
@@ -1160,12 +1271,14 @@ Mỗi environment:
 - Chốt success metrics.
 
 ### Deliverables
+
 - V1 audit report.
 - V2 scope.
 - Research questions.
 - Prioritized backlog.
 
 ### DoD
+
 - Không còn feature “mơ hồ bắt buộc”.
 
 ---
@@ -1173,6 +1286,7 @@ Mỗi environment:
 ## Tuần 2 — Refactor architecture + data model V2
 
 ### Việc cần làm
+
 - Update ERD.
 - Add AI tables.
 - Add embeddings schema.
@@ -1182,6 +1296,7 @@ Mỗi environment:
 - Viết API contracts.
 
 ### Deliverables
+
 - ERD V2.
 - Architecture V2.
 - API spec V2.
@@ -1192,6 +1307,7 @@ Mỗi environment:
 ## Tuần 3 — AI service foundation
 
 ### Việc cần làm
+
 - FastAPI.
 - health endpoint.
 - request/response schema.
@@ -1202,6 +1318,7 @@ Mỗi environment:
 - NestJS integration.
 
 ### DoD
+
 - API gọi AI service được.
 - Có timeout/error handling.
 
@@ -1210,6 +1327,7 @@ Mỗi environment:
 ## Tuần 4 — CV Parser V2
 
 ### Việc cần làm
+
 - section detection.
 - experience structure.
 - education structure.
@@ -1219,6 +1337,7 @@ Mỗi environment:
 - test corpus.
 
 ### Deliverables
+
 - Parser V2.
 - Parser evaluation report.
 
@@ -1227,6 +1346,7 @@ Mỗi environment:
 ## Tuần 5 — JD Parser + Skill Taxonomy
 
 ### Việc cần làm
+
 - structured job requirements.
 - taxonomy.
 - aliases.
@@ -1235,6 +1355,7 @@ Mỗi environment:
 - recruiter structured job UI.
 
 ### DoD
+
 - Job có structured requirements đủ dùng cho hybrid engine.
 
 ---
@@ -1242,6 +1363,7 @@ Mỗi environment:
 ## Tuần 6 — Embedding + semantic similarity
 
 ### Việc cần làm
+
 - Chọn embedding model/API.
 - Implement embedding adapter.
 - Cache/store vectors.
@@ -1250,6 +1372,7 @@ Mỗi environment:
 - Measure latency.
 
 ### Deliverables
+
 - Semantic prototype.
 - Comparison examples baseline vs semantic.
 
@@ -1258,6 +1381,7 @@ Mỗi environment:
 ## Tuần 7 — Hybrid Matching Engine V2
 
 ### Việc cần làm
+
 - Component scores.
 - Weight configuration.
 - Evidence collection.
@@ -1266,6 +1390,7 @@ Mỗi environment:
 - Score persistence.
 
 ### DoD
+
 - Một application có result V2 đầy đủ.
 - Có baseline comparison.
 
@@ -1274,6 +1399,7 @@ Mỗi environment:
 ## Tuần 8 — Explainability
 
 ### Việc cần làm
+
 - Generate strengths/gaps từ evidence.
 - Evidence snippets.
 - Optional LLM explanation.
@@ -1282,6 +1408,7 @@ Mỗi environment:
 - Disclaimer.
 
 ### Deliverables
+
 - Explainable analysis view.
 - Explanation test cases.
 
@@ -1290,6 +1417,7 @@ Mỗi environment:
 ## Tuần 9 — Candidate Ranking
 
 ### Việc cần làm
+
 - batch analyze job candidates.
 - ranking query.
 - sort/filter.
@@ -1298,6 +1426,7 @@ Mỗi environment:
 - candidate compare optional.
 
 ### DoD
+
 - Job có nhiều applicant và ranking ổn định/reproducible.
 
 ---
@@ -1305,6 +1434,7 @@ Mỗi environment:
 ## Tuần 10 — Job Recommendation
 
 ### Việc cần làm
+
 - Candidate representation.
 - Candidate-job retrieval.
 - Ranking.
@@ -1314,6 +1444,7 @@ Mỗi environment:
 - feedback optional.
 
 ### Deliverables
+
 - Recommendation feature end-to-end.
 
 ---
@@ -1321,6 +1452,7 @@ Mỗi environment:
 ## Tuần 11 — Recruiter workflow hoàn thiện
 
 ### Việc cần làm
+
 - application pipeline.
 - shortlist.
 - interview.
@@ -1330,6 +1462,7 @@ Mỗi environment:
 - candidate timeline.
 
 ### DoD
+
 - Workflow từ APPLIED đến HIRED/REJECTED rõ ràng.
 
 ---
@@ -1337,6 +1470,7 @@ Mỗi environment:
 ## Tuần 12 — Dashboard + Observability
 
 ### Việc cần làm
+
 - recruiter dashboard.
 - per-job analytics.
 - AI health metrics.
@@ -1345,6 +1479,7 @@ Mỗi environment:
 - failed job UI/admin.
 
 ### Deliverables
+
 - Dashboard.
 - Operational monitoring baseline.
 
@@ -1353,6 +1488,7 @@ Mỗi environment:
 ## Tuần 13 — Dataset + Experimental Evaluation
 
 ### Việc cần làm
+
 - finalize evaluation dataset.
 - annotation.
 - run baseline.
@@ -1362,6 +1498,7 @@ Mỗi environment:
 - export results.
 
 ### Deliverables
+
 - Experiment result tables.
 - Raw evaluation outputs.
 - Metric scripts/notebooks if used.
@@ -1371,6 +1508,7 @@ Mỗi environment:
 ## Tuần 14 — Error analysis + Security hardening
 
 ### Việc cần làm
+
 - inspect false positives.
 - inspect false negatives.
 - adjust normalization/weights only using development data.
@@ -1380,6 +1518,7 @@ Mỗi environment:
 - fix critical bugs.
 
 ### Deliverables
+
 - Error analysis report.
 - Security checklist.
 - Stable RC.
@@ -1389,6 +1528,7 @@ Mỗi environment:
 ## Tuần 15 — Deployment + Thesis completion
 
 ### Việc cần làm
+
 - staging/final deployment.
 - CI.
 - backup/restore basic check.
@@ -1399,6 +1539,7 @@ Mỗi environment:
 - setup docs.
 
 ### Deliverables
+
 - Release candidate.
 - Thesis draft complete.
 - Deployment guide.
@@ -1408,6 +1549,7 @@ Mỗi environment:
 ## Tuần 16 — Final validation + Defense preparation
 
 ### Việc cần làm
+
 - freeze code.
 - tag release `graduation-v2.0`.
 - final regression.
@@ -1418,6 +1560,7 @@ Mỗi environment:
 - prepare offline fallback demo/video/screenshots if deployment fails.
 
 ### Deliverables
+
 - Final source.
 - Final report/thesis.
 - Slides.
@@ -1431,6 +1574,7 @@ Mỗi environment:
 # 32. Required vs Optional feature matrix
 
 ## Must-have
+
 - V1 features stable.
 - CV Parser V2.
 - JD structured parsing.
@@ -1447,6 +1591,7 @@ Mỗi environment:
 - Thesis documentation.
 
 ## Should-have
+
 - Async processing.
 - Notifications.
 - Interview flow.
@@ -1455,6 +1600,7 @@ Mỗi environment:
 - Feedback collection.
 
 ## Nice-to-have
+
 - Candidate compare.
 - Email automation.
 - Realtime notification.
@@ -1512,7 +1658,9 @@ AI component đạt khi:
 # 35. Kịch bản demo cuối cùng
 
 ## Phần A — Recruiter tạo JD
+
 Tạo Full Stack Developer:
+
 - React.
 - Node.js.
 - PostgreSQL.
@@ -1521,7 +1669,9 @@ Tạo Full Stack Developer:
 - REST APIs.
 
 ## Phần B — Candidate upload CV
+
 CV dùng cách diễn đạt khác:
+
 - Next.js.
 - NestJS/Express.
 - “built backend APIs”.
@@ -1529,7 +1679,9 @@ CV dùng cách diễn đạt khác:
 - không ghi chính xác “RESTful services”.
 
 ## Phần C — So sánh baseline vs V2
+
 Hiển thị:
+
 - keyword baseline.
 - semantic similarity.
 - hybrid result.
@@ -1537,26 +1689,33 @@ Hiển thị:
 Giải thích trường hợp semantic bắt được ý nghĩa mà baseline bỏ sót.
 
 ## Phần D — Explainability
+
 Hiển thị:
+
 - component score.
 - strengths.
 - gaps.
 - evidence.
 
 ## Phần E — Ranking
+
 Mở job có 5–10 ứng viên.
 Hiển thị ranking và filter.
 
 ## Phần F — Recommendation
+
 Login candidate.
 Hiển thị 3–5 job phù hợp + lý do.
 
 ## Phần G — Workflow
+
 Recruiter shortlist -> interview -> status change.
 Candidate nhận notification / xem timeline.
 
 ## Phần H — Research result
+
 Show chart/table:
+
 - baseline metric.
 - semantic metric.
 - hybrid metric.
@@ -1570,6 +1729,7 @@ Show chart/table:
 # 36. Cấu trúc báo cáo/khóa luận đề xuất
 
 ## Chương 1 — Tổng quan
+
 - Bối cảnh.
 - Vấn đề.
 - Mục tiêu.
@@ -1578,6 +1738,7 @@ Show chart/table:
 - Cấu trúc báo cáo.
 
 ## Chương 2 — Cơ sở lý thuyết
+
 - Recruitment systems.
 - CV/JD matching.
 - NLP.
@@ -1589,6 +1750,7 @@ Show chart/table:
 - Related work.
 
 ## Chương 3 — Phân tích và thiết kế
+
 - Actors.
 - Use cases.
 - Requirements.
@@ -1598,6 +1760,7 @@ Show chart/table:
 - Main sequences.
 
 ## Chương 4 — Phương pháp AI
+
 - Baseline.
 - CV parsing.
 - JD parsing.
@@ -1609,6 +1772,7 @@ Show chart/table:
 - Recommendation.
 
 ## Chương 5 — Cài đặt
+
 - Frontend.
 - Backend.
 - AI service.
@@ -1618,6 +1782,7 @@ Show chart/table:
 - Deployment.
 
 ## Chương 6 — Thực nghiệm và đánh giá
+
 - Dataset.
 - Annotation.
 - Metrics.
@@ -1627,6 +1792,7 @@ Show chart/table:
 - Limitations.
 
 ## Chương 7 — Kết luận
+
 - Kết quả.
 - Đóng góp.
 - Hạn chế.
@@ -1637,6 +1803,7 @@ Show chart/table:
 # 37. Các sơ đồ cần chuẩn bị
 
 Tối thiểu:
+
 - System context diagram.
 - Use case diagram.
 - Component/architecture diagram.
@@ -1654,44 +1821,52 @@ Tối thiểu:
 # 38. Rủi ro và mitigation
 
 ## R1 — Embedding không cải thiện đủ
+
 - Có baseline rõ.
 - Test nhiều chunk strategy.
 - Hybrid thay vì semantic-only.
 - Báo cáo kết quả trung thực.
 
 ## R2 — Dataset nhỏ
+
 - Dùng synthetic + manual annotation.
 - Không overclaim.
 - Tập trung comparative evaluation.
 
 ## R3 — LLM hallucination
+
 - LLM không tính score.
 - structured evidence.
 - output validation.
 - deterministic fallback.
 
 ## R4 — AI latency
+
 - async queue.
 - cache embedding.
 - reuse vectors.
 - batch processing.
 
 ## R5 — Vector DB làm phức tạp
+
 - ưu tiên pgvector nếu PostgreSQL đã dùng.
 - không thêm hệ thống mới nếu không cần.
 
 ## R6 — Scope quá lớn
+
 - Must/Should/Nice.
 - đóng scope trước tuần 3.
 - bảo vệ research features trước cosmetic features.
 
 ## R7 — Bias
+
 - loại protected attributes.
 - human-in-the-loop.
 - document limitations.
 - kiểm tra score distribution nếu dataset cho phép.
 
 ## R8 — Demo lỗi
+
 - seed cố định.
 - precompute analyses.
 - staging health check.
@@ -1721,11 +1896,13 @@ Một feature chỉ “Done” khi:
 Đồ án hoàn chỉnh được coi là hoàn thành khi:
 
 **Sản phẩm**
+
 - Hệ thống tuyển dụng end-to-end hoàn chỉnh.
 - Candidate và Recruiter workflow chạy ổn định.
 - Ranking và recommendation hoạt động.
 
 **AI**
+
 - Baseline V1 tồn tại để so sánh.
 - Semantic/hybrid V2 hoạt động.
 - Explainability có evidence.
@@ -1733,6 +1910,7 @@ Một feature chỉ “Done” khi:
 - Error analysis có chiều sâu.
 
 **Engineering**
+
 - Security/RBAC đúng.
 - Private CV storage.
 - Async/retry nếu cần.
@@ -1741,6 +1919,7 @@ Một feature chỉ “Done” khi:
 - Deployment.
 
 **Học thuật**
+
 - Research questions được trả lời.
 - Dataset và methodology được mô tả.
 - Metrics được giải thích.
@@ -1753,6 +1932,7 @@ Một feature chỉ “Done” khi:
 # 41. Checklist cuối cùng
 
 ## Core product
+
 - [ ] Candidate profile.
 - [ ] Resume management.
 - [ ] Job search.
@@ -1764,6 +1944,7 @@ Một feature chỉ “Done” khi:
 - [ ] Admin.
 
 ## AI
+
 - [ ] CV Parser V2.
 - [ ] JD Parser.
 - [ ] Skill taxonomy.
@@ -1777,6 +1958,7 @@ Một feature chỉ “Done” khi:
 - [ ] AI job retry.
 
 ## Research
+
 - [ ] Dataset.
 - [ ] Annotation guide.
 - [ ] Baseline experiment.
@@ -1787,6 +1969,7 @@ Một feature chỉ “Done” khi:
 - [ ] Limitations.
 
 ## Engineering
+
 - [ ] RBAC.
 - [ ] Resource ownership.
 - [ ] Private storage.
@@ -1800,6 +1983,7 @@ Một feature chỉ “Done” khi:
 - [ ] Backup/config documentation.
 
 ## Documentation
+
 - [ ] Requirements.
 - [ ] Use cases.
 - [ ] ERD.

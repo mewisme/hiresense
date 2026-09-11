@@ -3,7 +3,9 @@ import { calculateSha256 } from './file-hash.util';
 
 describe('calculateSha256', () => {
   it('should calculate SHA-256 as lowercase hex', () => {
-    expect(calculateSha256(Buffer.from('HireSense', 'utf8'))).toMatch(/^[a-f0-9]{64}$/);
+    expect(calculateSha256(Buffer.from('HireSense', 'utf8'))).toMatch(
+      /^[a-f0-9]{64}$/,
+    );
   });
 
   it('should be deterministic', () => {

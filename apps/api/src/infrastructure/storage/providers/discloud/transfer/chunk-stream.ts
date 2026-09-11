@@ -1,6 +1,9 @@
 import type { Readable } from 'node:stream';
 
-export async function* chunkStream(stream: Readable, chunkSize: number): AsyncGenerator<Buffer> {
+export async function* chunkStream(
+  stream: Readable,
+  chunkSize: number,
+): AsyncGenerator<Buffer> {
   if (!Number.isInteger(chunkSize) || chunkSize <= 0) {
     throw new Error('chunkSize must be a positive integer');
   }
@@ -10,7 +13,8 @@ export async function* chunkStream(stream: Readable, chunkSize: number): AsyncGe
   for await (const value of stream) {
     const incoming = Buffer.isBuffer(value) ? value : Buffer.from(value);
 
-    pending = pending.length === 0 ? incoming : Buffer.concat([pending, incoming]);
+    pending =
+      pending.length === 0 ? incoming : Buffer.concat([pending, incoming]);
 
     while (pending.length >= chunkSize) {
       yield pending.subarray(0, chunkSize);

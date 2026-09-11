@@ -36,12 +36,8 @@
         ],
         "url": {
           "raw": "{{baseUrl}}/resumes",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "resumes"
-          ]
+          "host": ["{{baseUrl}}"],
+          "path": ["resumes"]
         }
       }
     },
@@ -58,13 +54,8 @@
         ],
         "url": {
           "raw": "{{baseUrl}}/resumes/{{resumeId}}",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "resumes",
-            "{{resumeId}}"
-          ]
+          "host": ["{{baseUrl}}"],
+          "path": ["resumes", "{{resumeId}}"]
         }
       }
     },
@@ -81,14 +72,8 @@
         ],
         "url": {
           "raw": "{{baseUrl}}/resumes/{{resumeId}}/download",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "resumes",
-            "{{resumeId}}",
-            "download"
-          ]
+          "host": ["{{baseUrl}}"],
+          "path": ["resumes", "{{resumeId}}", "download"]
         }
       }
     },
@@ -105,9 +90,7 @@
         ],
         "url": {
           "raw": "{{baseUrl}}/resumes/{{resumeId}}/versions/{{versionId}}/download",
-          "host": [
-            "{{baseUrl}}"
-          ],
+          "host": ["{{baseUrl}}"],
           "path": [
             "resumes",
             "{{resumeId}}",
@@ -131,14 +114,8 @@
         ],
         "url": {
           "raw": "{{baseUrl}}/resumes/{{resumeId}}/default",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "resumes",
-            "{{resumeId}}",
-            "default"
-          ]
+          "host": ["{{baseUrl}}"],
+          "path": ["resumes", "{{resumeId}}", "default"]
         }
       }
     },
@@ -155,13 +132,8 @@
         ],
         "url": {
           "raw": "{{baseUrl}}/resumes/{{resumeId}}",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "resumes",
-            "{{resumeId}}"
-          ]
+          "host": ["{{baseUrl}}"],
+          "path": ["resumes", "{{resumeId}}"]
         }
       }
     }

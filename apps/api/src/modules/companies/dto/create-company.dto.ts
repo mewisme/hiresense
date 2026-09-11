@@ -15,20 +15,14 @@ import { IsValidCompanySizeRange } from '../validators/company-size-range.valida
 
 @IsValidCompanySizeRange()
 export class CreateCompanyDto {
-  @Transform(({ value }) =>
-    typeof value === 'string'
-      ? value.trim()
-      : value,
-  )
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsString()
   @IsNotEmpty()
   @MaxLength(200)
   name!: string;
 
   @Transform(({ value }) =>
-    typeof value === 'string'
-      ? normalizeCompanySlug(value)
-      : value,
+    typeof value === 'string' ? normalizeCompanySlug(value) : value,
   )
   @IsOptional()
   @IsString()
@@ -37,28 +31,17 @@ export class CreateCompanyDto {
   @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
   slug?: string;
 
-  @Transform(({ value }) =>
-    typeof value === 'string'
-      ? value.trim()
-      : value,
-  )
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsOptional()
   @IsString()
   @IsNotEmpty()
   @MaxLength(5000)
   description?: string;
 
-  @Transform(({ value }) =>
-    typeof value === 'string'
-      ? value.trim()
-      : value,
-  )
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsOptional()
   @IsUrl({
-    protocols: [
-      'http',
-      'https',
-    ],
+    protocols: ['http', 'https'],
     require_protocol: true,
   })
   @MaxLength(2048)

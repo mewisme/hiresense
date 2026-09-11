@@ -52,12 +52,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/skill-categories",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "skill-categories"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["skill-categories"]
             },
             "description": "Expected HTTP 200. Copy one category id, for example DATABASE, into categoryId."
           },
@@ -76,12 +72,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/skills",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "skills"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["skills"]
             },
             "description": "Expected HTTP 200 and only active skills."
           },
@@ -100,12 +92,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/skills?categoryId={{categoryId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "skills"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["skills"],
               "query": [
                 {
                   "key": "categoryId",
@@ -144,12 +132,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/skills",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "skills"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["skills"]
             },
             "description": "Expected HTTP 201. Copy response.id into skillId."
           },
@@ -168,13 +152,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/skills/{{skillId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "skills",
-                "{{skillId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["skills", "{{skillId}}"]
             },
             "description": "Expected HTTP 200."
           },
@@ -192,12 +171,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/skills",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "skills"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["skills"]
             },
             "description": "Expected HTTP 401."
           },
@@ -230,12 +205,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/skills",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "skills"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["skills"]
             },
             "description": "Expected HTTP 403."
           },
@@ -268,12 +239,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/skills",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "skills"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["skills"]
             },
             "description": "Expected HTTP 403."
           },
@@ -306,12 +273,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/skills",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "skills"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["skills"]
             },
             "description": "Run after Admin Create Skill. Expected HTTP 409 because normalized_name is identical."
           },
@@ -344,12 +307,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/skills",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "skills"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["skills"]
             },
             "description": "Expected HTTP 400."
           },
@@ -382,12 +341,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/skills",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "skills"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["skills"]
             },
             "description": "Expected HTTP 404 when UUID is valid but the category does not exist."
           },
@@ -420,12 +375,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/skills",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "skills"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["skills"]
             },
             "description": "Expected HTTP 400 because isActive is controlled by the backend."
           },

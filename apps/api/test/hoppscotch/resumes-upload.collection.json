@@ -47,12 +47,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}/resumes",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "resumes"
-          ]
+          "host": ["{{baseUrl}}"],
+          "path": ["resumes"]
         }
       }
     },
@@ -79,14 +75,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}/resumes/{{resumeId}}/versions",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "resumes",
-            "{{resumeId}}",
-            "versions"
-          ]
+          "host": ["{{baseUrl}}"],
+          "path": ["resumes", "{{resumeId}}", "versions"]
         }
       }
     }

@@ -3,9 +3,7 @@ import { Injectable } from '@nestjs/common';
 import type { Prisma } from '../../../generated/prisma/client';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
 
-type DbClient =
-  | PrismaService
-  | Prisma.TransactionClient;
+type DbClient = PrismaService | Prisma.TransactionClient;
 
 export interface CreateCompanyInput {
   name: string;
@@ -22,15 +20,9 @@ export interface CreateCompanyInput {
 
 @Injectable()
 export class CompaniesRepository {
-  constructor(
-    private readonly prisma:
-      PrismaService,
-  ) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-  findById(
-    id: string,
-    db: DbClient = this.prisma,
-  ) {
+  findById(id: string, db: DbClient = this.prisma) {
     return db.company.findUnique({
       where: {
         id,
@@ -38,10 +30,7 @@ export class CompaniesRepository {
     });
   }
 
-  findBySlug(
-    slug: string,
-    db: DbClient = this.prisma,
-  ) {
+  findBySlug(slug: string, db: DbClient = this.prisma) {
     return db.company.findUnique({
       where: {
         slug,
@@ -49,35 +38,24 @@ export class CompaniesRepository {
     });
   }
 
-  create(
-    input: CreateCompanyInput,
-    db: DbClient = this.prisma,
-  ) {
+  create(input: CreateCompanyInput, db: DbClient = this.prisma) {
     return db.company.create({
       data: {
-        name:
-          input.name,
+        name: input.name,
 
-        slug:
-          input.slug,
+        slug: input.slug,
 
-        description:
-          input.description,
+        description: input.description,
 
-        websiteUrl:
-          input.websiteUrl,
+        websiteUrl: input.websiteUrl,
 
-        companySizeMin:
-          input.companySizeMin,
+        companySizeMin: input.companySizeMin,
 
-        companySizeMax:
-          input.companySizeMax,
+        companySizeMax: input.companySizeMax,
 
-        createdByUserId:
-          input.createdByUserId,
+        createdByUserId: input.createdByUserId,
 
-        status:
-          'ACTIVE',
+        status: 'ACTIVE',
       },
     });
   }

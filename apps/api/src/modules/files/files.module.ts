@@ -8,4 +8,4 @@ import { FileObjectsRepository } from './repositories/file-objects.repository';
   providers: [FileObjectsRepository, FileStorageService],
   exports: [FileObjectsRepository, FileStorageService],
 })
-export class FilesModule { }
+export class FilesModule {}

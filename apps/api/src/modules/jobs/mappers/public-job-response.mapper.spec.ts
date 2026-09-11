@@ -121,21 +121,23 @@ describe('public-job-response.mapper', () => {
     it('maps the exact published version snapshot', () => {
       const result = toPublicJobResponse(publicJob(), publicVersion());
 
-      expect(result.version).toEqual(expect.objectContaining({
-        id: versionId,
-        versionNo: 1,
-        title: 'Backend Developer',
-        summary: 'Backend position',
-        description: 'Develop backend services.',
-        responsibilities: 'Build APIs and write tests.',
-        benefits: 'Flexible working.',
-        employmentType: 'FULL_TIME',
-        workplaceType: 'HYBRID',
-        experienceMinMonths: 12,
-        experienceMaxMonths: 36,
-        salaryCurrency: 'VND',
-        publishedAt: now,
-      }));
+      expect(result.version).toEqual(
+        expect.objectContaining({
+          id: versionId,
+          versionNo: 1,
+          title: 'Backend Developer',
+          summary: 'Backend position',
+          description: 'Develop backend services.',
+          responsibilities: 'Build APIs and write tests.',
+          benefits: 'Flexible working.',
+          employmentType: 'FULL_TIME',
+          workplaceType: 'HYBRID',
+          experienceMinMonths: 12,
+          experienceMaxMonths: 36,
+          salaryCurrency: 'VND',
+          publishedAt: now,
+        }),
+      );
     });
 
     it('converts salary Decimal values to strings', () => {

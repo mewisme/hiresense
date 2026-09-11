@@ -70,7 +70,10 @@ function createConfigService(): ConfigService {
   } as unknown as ConfigService;
 }
 
-function uploadingChunk(content: string | Buffer = 'abc', overrides: Partial<MockChunk> = {}): MockChunk {
+function uploadingChunk(
+  content: string | Buffer = 'abc',
+  overrides: Partial<MockChunk> = {},
+): MockChunk {
   const buffer = Buffer.isBuffer(content) ? content : Buffer.from(content);
 
   return {
@@ -89,7 +92,10 @@ function uploadingChunk(content: string | Buffer = 'abc', overrides: Partial<Moc
   };
 }
 
-function activeChunk(content: string | Buffer = 'abc', overrides: Partial<MockChunk> = {}): MockChunk {
+function activeChunk(
+  content: string | Buffer = 'abc',
+  overrides: Partial<MockChunk> = {},
+): MockChunk {
   return uploadingChunk(content, {
     status: 'ACTIVE',
     messageId: 'message-1',
@@ -100,25 +106,44 @@ function activeChunk(content: string | Buffer = 'abc', overrides: Partial<MockCh
 }
 
 function createUploadMocks() {
-  const uploadChunk = jest.fn<(filename: string, content: Buffer) => Promise<MockDiscordUploadResult>>();
-  const getAttachmentUrl = jest.fn<(messageId: string, attachmentId: string) => Promise<string>>();
+  const uploadChunk =
+    jest.fn<
+      (filename: string, content: Buffer) => Promise<MockDiscordUploadResult>
+    >();
+  const getAttachmentUrl =
+    jest.fn<(messageId: string, attachmentId: string) => Promise<string>>();
   const deleteMessage = jest.fn<(messageId: string) => Promise<void>>();
 
-  const findByHash = jest.fn<(channelId: string, chunkSha256: string) => Promise<MockChunk | null>>();
-  const createUploading = jest.fn<(input: CreateChunkInput) => Promise<MockChunk>>();
-  const markActive = jest.fn<(chunkId: string, input: MarkChunkActiveInput) => Promise<MockChunk>>();
+  const findByHash =
+    jest.fn<
+      (channelId: string, chunkSha256: string) => Promise<MockChunk | null>
+    >();
+  const createUploading =
+    jest.fn<(input: CreateChunkInput) => Promise<MockChunk>>();
+  const markActive =
+    jest.fn<
+      (chunkId: string, input: MarkChunkActiveInput) => Promise<MockChunk>
+    >();
   const markFailed = jest.fn<(chunkId: string) => Promise<MockChunk>>();
   const markMissing = jest.fn<(chunkId: string) => Promise<MockChunk>>();
   const markDeleted = jest.fn<(chunkId: string) => Promise<MockChunk>>();
-  const reclaim = jest.fn<(chunkId: string, sizeBytes: bigint) => Promise<MockChunk>>();
+  const reclaim =
+    jest.fn<(chunkId: string, sizeBytes: bigint) => Promise<MockChunk>>();
 
-  const existsForFileObject = jest.fn<(fileObjectId: string) => Promise<boolean>>();
+  const existsForFileObject =
+    jest.fn<(fileObjectId: string) => Promise<boolean>>();
   const createPart = jest.fn<(input: CreatePartInput) => Promise<unknown>>();
-  const findByFileObjectId = jest.fn<(fileObjectId: string) => Promise<MockFilePart[]>>();
+  const findByFileObjectId =
+    jest.fn<(fileObjectId: string) => Promise<MockFilePart[]>>();
   const countByChunkId = jest.fn<(chunkId: string) => Promise<number>>();
-  const deleteByFileObjectId = jest.fn<(fileObjectId: string) => Promise<unknown>>();
+  const deleteByFileObjectId =
+    jest.fn<(fileObjectId: string) => Promise<unknown>>();
 
-  const discordClient = { uploadChunk, getAttachmentUrl, deleteMessage } as unknown as DiscordClient;
+  const discordClient = {
+    uploadChunk,
+    getAttachmentUrl,
+    deleteMessage,
+  } as unknown as DiscordClient;
 
   const chunksRepository = {
     findByHash,
@@ -138,7 +163,12 @@ function createUploadMocks() {
     deleteByFileObjectId,
   } as unknown as DiscordFilePartsRepository;
 
-  const provider = new DisCloudStorageProvider(createConfigService(), discordClient, chunksRepository, partsRepository);
+  const provider = new DisCloudStorageProvider(
+    createConfigService(),
+    discordClient,
+    chunksRepository,
+    partsRepository,
+  );
 
   return {
     provider,
@@ -252,14 +282,16 @@ describe('DisCloudStorageProvider', () => {
 
     mocks.existsForFileObject.mockImplementation(async () => true);
 
-    await expect(provider.put({
-      fileObjectId: '0198c8e8-8abc-7000-8000-000000000003',
-      bucket: 'resumes',
-      objectKey: 'users/user-1/resumes/existing.pdf',
-      content: Readable.from([Buffer.from('abc')]),
-      contentType: 'application/pdf',
-      sizeBytes: 3n,
-    })).rejects.toThrow('already has persisted parts');
+    await expect(
+      provider.put({
+        fileObjectId: '0198c8e8-8abc-7000-8000-000000000003',
+        bucket: 'resumes',
+        objectKey: 'users/user-1/resumes/existing.pdf',
+        content: Readable.from([Buffer.from('abc')]),
+        contentType: 'application/pdf',
+        sizeBytes: 3n,
+      }),
+    ).rejects.toThrow('already has persisted parts');
 
     expect(mocks.findByHash).not.toHaveBeenCalled();
     expect(mocks.uploadChunk).not.toHaveBeenCalled();
@@ -268,14 +300,16 @@ describe('DisCloudStorageProvider', () => {
   it('rejects an empty object', async () => {
     const { provider, mocks } = createUploadMocks();
 
-    await expect(provider.put({
-      fileObjectId: '0198c8e8-8abc-7000-8000-000000000004',
-      bucket: 'resumes',
-      objectKey: 'users/user-1/resumes/empty.pdf',
-      content: Readable.from([]),
-      contentType: 'application/pdf',
-      sizeBytes: 0n,
-    })).rejects.toThrow('cannot store an empty object');
+    await expect(
+      provider.put({
+        fileObjectId: '0198c8e8-8abc-7000-8000-000000000004',
+        bucket: 'resumes',
+        objectKey: 'users/user-1/resumes/empty.pdf',
+        content: Readable.from([]),
+        contentType: 'application/pdf',
+        sizeBytes: 0n,
+      }),
+    ).rejects.toThrow('cannot store an empty object');
 
     expect(mocks.existsForFileObject).not.toHaveBeenCalled();
     expect(mocks.uploadChunk).not.toHaveBeenCalled();
@@ -295,14 +329,16 @@ describe('DisCloudStorageProvider', () => {
     mocks.markActive.mockImplementation(async () => activeChunk());
     mocks.createPart.mockImplementation(async () => undefined);
 
-    await expect(provider.put({
-      fileObjectId: '0198c8e8-8abc-7000-8000-000000000005',
-      bucket: 'resumes',
-      objectKey: 'users/user-1/resumes/size-mismatch.pdf',
-      content: Readable.from([Buffer.from('abc')]),
-      contentType: 'application/pdf',
-      sizeBytes: 100n,
-    })).rejects.toThrow('Storage input size mismatch');
+    await expect(
+      provider.put({
+        fileObjectId: '0198c8e8-8abc-7000-8000-000000000005',
+        bucket: 'resumes',
+        objectKey: 'users/user-1/resumes/size-mismatch.pdf',
+        content: Readable.from([Buffer.from('abc')]),
+        contentType: 'application/pdf',
+        sizeBytes: 100n,
+      }),
+    ).rejects.toThrow('Storage input size mismatch');
   });
 
   it('marks a chunk FAILED when Discord upload fails', async () => {
@@ -320,14 +356,16 @@ describe('DisCloudStorageProvider', () => {
       status: 'FAILED',
     }));
 
-    await expect(provider.put({
-      fileObjectId: '0198c8e8-8abc-7000-8000-000000000006',
-      bucket: 'resumes',
-      objectKey: 'users/user-1/resumes/fail.pdf',
-      content: Readable.from([Buffer.from('abc')]),
-      contentType: 'application/pdf',
-      sizeBytes: 3n,
-    })).rejects.toThrow('Discord upload failed');
+    await expect(
+      provider.put({
+        fileObjectId: '0198c8e8-8abc-7000-8000-000000000006',
+        bucket: 'resumes',
+        objectKey: 'users/user-1/resumes/fail.pdf',
+        content: Readable.from([Buffer.from('abc')]),
+        contentType: 'application/pdf',
+        sizeBytes: 3n,
+      }),
+    ).rejects.toThrow('Discord upload failed');
 
     expect(mocks.markFailed).toHaveBeenCalledTimes(1);
     expect(mocks.markFailed).toHaveBeenCalledWith('chunk-1');
@@ -416,8 +454,10 @@ describe('DisCloudStorageProvider', () => {
     fetchMock.mockImplementation(async (input) => {
       const url = String(input);
 
-      if (url === 'https://cdn.test/first') return new Response(Uint8Array.from(first), { status: 200 });
-      if (url === 'https://cdn.test/second') return new Response(Uint8Array.from(second), { status: 200 });
+      if (url === 'https://cdn.test/first')
+        return new Response(Uint8Array.from(first), { status: 200 });
+      if (url === 'https://cdn.test/second')
+        return new Response(Uint8Array.from(second), { status: 200 });
 
       return new Response('not found', { status: 404 });
     });
@@ -440,9 +480,17 @@ describe('DisCloudStorageProvider', () => {
     expect(stored.contentType).toBe('application/pdf');
     expect(stored.sizeBytes).toBe(6n);
 
-    expect(mocks.getAttachmentUrl).toHaveBeenNthCalledWith(1, 'message-1', 'attachment-1');
+    expect(mocks.getAttachmentUrl).toHaveBeenNthCalledWith(
+      1,
+      'message-1',
+      'attachment-1',
+    );
 
-    expect(mocks.getAttachmentUrl).toHaveBeenNthCalledWith(2, 'message-2', 'attachment-2');
+    expect(mocks.getAttachmentUrl).toHaveBeenNthCalledWith(
+      2,
+      'message-2',
+      'attachment-2',
+    );
   });
 
   it('rejects a downloaded chunk whose bytes do not match its SHA-256', async () => {
@@ -459,10 +507,14 @@ describe('DisCloudStorageProvider', () => {
       },
     ]);
 
-    mocks.getAttachmentUrl.mockImplementation(async () => 'https://cdn.test/chunk');
+    mocks.getAttachmentUrl.mockImplementation(
+      async () => 'https://cdn.test/chunk',
+    );
 
     jest.spyOn(globalThis, 'fetch').mockImplementation(async () => {
-      return new Response(Uint8Array.from(Buffer.from('corrupted')), { status: 200 });
+      return new Response(Uint8Array.from(Buffer.from('corrupted')), {
+        status: 200,
+      });
     });
 
     const stored = await provider.get({
@@ -473,9 +525,11 @@ describe('DisCloudStorageProvider', () => {
       contentType: 'application/pdf',
     });
 
-    await expect((async () => {
-      for await (const value of stored.stream) void value;
-    })()).rejects.toThrow('Discord chunk integrity check failed');
+    await expect(
+      (async () => {
+        for await (const value of stored.stream) void value;
+      })(),
+    ).rejects.toThrow('Discord chunk integrity check failed');
   });
 
   it('returns false from exists when no parts exist', async () => {
@@ -603,7 +657,8 @@ describe('DisCloudStorageProvider', () => {
     );
 
     const physicalDeleteOrder = mocks.deleteMessage.mock.invocationCallOrder[0];
-    const partDeleteOrder = mocks.deleteByFileObjectId.mock.invocationCallOrder[0];
+    const partDeleteOrder =
+      mocks.deleteByFileObjectId.mock.invocationCallOrder[0];
 
     expect(physicalDeleteOrder).toBeDefined();
     expect(partDeleteOrder).toBeDefined();

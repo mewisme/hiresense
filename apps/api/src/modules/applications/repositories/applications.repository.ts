@@ -23,25 +23,36 @@ export interface RecruiterApplicationsQuery {
 
 @Injectable()
 export class ApplicationsRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   findById(id: string, db: DbClient = this.prisma) {
     return db.application.findUnique({ where: { id } });
   }
 
-  findByJobAndCandidate(jobId: string, candidateProfileId: string, db: DbClient = this.prisma) {
+  findByJobAndCandidate(
+    jobId: string,
+    candidateProfileId: string,
+    db: DbClient = this.prisma,
+  ) {
     return db.application.findUnique({
       where: { jobId_candidateProfileId: { jobId, candidateProfileId } },
     });
   }
 
-  findCandidateOwnedById(id: string, candidateProfileId: string, db: DbClient = this.prisma) {
+  findCandidateOwnedById(
+    id: string,
+    candidateProfileId: string,
+    db: DbClient = this.prisma,
+  ) {
     return db.application.findFirst({
       where: { id, candidateProfileId },
     });
   }
 
-  findByCandidateProfileId(candidateProfileId: string, db: DbClient = this.prisma) {
+  findByCandidateProfileId(
+    candidateProfileId: string,
+    db: DbClient = this.prisma,
+  ) {
     return db.application.findMany({
       where: { candidateProfileId },
       include: {
@@ -53,7 +64,11 @@ export class ApplicationsRepository {
     });
   }
 
-  findCandidateOwnedByIdWithDetail(id: string, candidateProfileId: string, db: DbClient = this.prisma) {
+  findCandidateOwnedByIdWithDetail(
+    id: string,
+    candidateProfileId: string,
+    db: DbClient = this.prisma,
+  ) {
     return db.application.findFirst({
       where: { id, candidateProfileId },
       include: {
@@ -86,14 +101,23 @@ export class ApplicationsRepository {
     });
   }
 
-  findCandidateOwnedByIdWithStage(id: string, candidateProfileId: string, db: DbClient = this.prisma) {
+  findCandidateOwnedByIdWithStage(
+    id: string,
+    candidateProfileId: string,
+    db: DbClient = this.prisma,
+  ) {
     return db.application.findFirst({
       where: { id, candidateProfileId },
       include: { currentStage: true },
     });
   }
 
-  findRecruiterApplications(jobId: string, companyId: string, query: RecruiterApplicationsQuery, db: DbClient = this.prisma) {
+  findRecruiterApplications(
+    jobId: string,
+    companyId: string,
+    query: RecruiterApplicationsQuery,
+    db: DbClient = this.prisma,
+  ) {
     return db.application.findMany({
       where: {
         jobId,
@@ -112,7 +136,12 @@ export class ApplicationsRepository {
     });
   }
 
-  countRecruiterApplications(jobId: string, companyId: string, query: RecruiterApplicationsQuery, db: DbClient = this.prisma) {
+  countRecruiterApplications(
+    jobId: string,
+    companyId: string,
+    query: RecruiterApplicationsQuery,
+    db: DbClient = this.prisma,
+  ) {
     return db.application.count({
       where: {
         jobId,
@@ -122,7 +151,11 @@ export class ApplicationsRepository {
     });
   }
 
-  findRecruiterOwnedByIdWithDetail(id: string, companyId: string, db: DbClient = this.prisma) {
+  findRecruiterOwnedByIdWithDetail(
+    id: string,
+    companyId: string,
+    db: DbClient = this.prisma,
+  ) {
     return db.application.findFirst({
       where: {
         id,
@@ -145,7 +178,11 @@ export class ApplicationsRepository {
     });
   }
 
-  findRecruiterOwnedByIdWithStage(id: string, companyId: string, db: DbClient = this.prisma) {
+  findRecruiterOwnedByIdWithStage(
+    id: string,
+    companyId: string,
+    db: DbClient = this.prisma,
+  ) {
     return db.application.findFirst({
       where: {
         id,
@@ -157,7 +194,11 @@ export class ApplicationsRepository {
     });
   }
 
-  findRecruiterResumeTarget(id: string, companyId: string, db: DbClient = this.prisma) {
+  findRecruiterResumeTarget(
+    id: string,
+    companyId: string,
+    db: DbClient = this.prisma,
+  ) {
     return db.application.findFirst({
       where: {
         id,
@@ -197,14 +238,23 @@ export class ApplicationsRepository {
     });
   }
 
-  updateCurrentStage(id: string, currentStageId: string, db: DbClient = this.prisma) {
+  updateCurrentStage(
+    id: string,
+    currentStageId: string,
+    db: DbClient = this.prisma,
+  ) {
     return db.application.update({
       where: { id },
       data: { currentStageId },
     });
   }
 
-  withdraw(id: string, currentStageId: string, withdrawnAt: Date, db: DbClient = this.prisma) {
+  withdraw(
+    id: string,
+    currentStageId: string,
+    withdrawnAt: Date,
+    db: DbClient = this.prisma,
+  ) {
     return db.application.update({
       where: { id },
       data: { currentStageId, withdrawnAt },
@@ -219,7 +269,11 @@ export class ApplicationsRepository {
     return rows.length > 0;
   }
 
-  async lockCandidateOwnedById(id: string, candidateProfileId: string, db: Prisma.TransactionClient): Promise<boolean> {
+  async lockCandidateOwnedById(
+    id: string,
+    candidateProfileId: string,
+    db: Prisma.TransactionClient,
+  ): Promise<boolean> {
     const rows = await db.$queryRaw<Array<{ id: string }>>(
       Prisma.sql`
         SELECT id
@@ -232,7 +286,11 @@ export class ApplicationsRepository {
     return rows.length > 0;
   }
 
-  async lockRecruiterOwnedById(id: string, companyId: string, db: Prisma.TransactionClient): Promise<boolean> {
+  async lockRecruiterOwnedById(
+    id: string,
+    companyId: string,
+    db: Prisma.TransactionClient,
+  ): Promise<boolean> {
     const rows = await db.$queryRaw<Array<{ id: string }>>(
       Prisma.sql`
         SELECT a.id

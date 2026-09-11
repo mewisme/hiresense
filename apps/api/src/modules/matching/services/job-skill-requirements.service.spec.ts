@@ -39,7 +39,11 @@ function snapshot(): MockRequirementSnapshot {
         isRequired: true,
         weight: new Prisma.Decimal('1'),
         minExperienceMonths: 24,
-        skill: { id: '0198c8e8-0000-7000-8000-000000000031', name: 'NestJS', normalizedName: 'nestjs' },
+        skill: {
+          id: '0198c8e8-0000-7000-8000-000000000031',
+          name: 'NestJS',
+          normalizedName: 'nestjs',
+        },
       },
       {
         id: '0198c8e8-0000-7000-8000-000000000032',
@@ -49,7 +53,11 @@ function snapshot(): MockRequirementSnapshot {
         isRequired: false,
         weight: new Prisma.Decimal('0.5'),
         minExperienceMonths: null,
-        skill: { id: '0198c8e8-0000-7000-8000-000000000033', name: 'Docker', normalizedName: 'docker' },
+        skill: {
+          id: '0198c8e8-0000-7000-8000-000000000033',
+          name: 'Docker',
+          normalizedName: 'docker',
+        },
       },
     ],
   };
@@ -57,13 +65,22 @@ function snapshot(): MockRequirementSnapshot {
 
 describe('JobSkillRequirementsService', () => {
   it('builds a stable matching requirement snapshot', async () => {
-    const findJobVersionRequirements = jest.fn<(jobVersionId: string) => Promise<MockRequirementSnapshot | null>>();
+    const findJobVersionRequirements =
+      jest.fn<
+        (jobVersionId: string) => Promise<MockRequirementSnapshot | null>
+      >();
     findJobVersionRequirements.mockImplementation(async () => snapshot());
-    const service = new JobSkillRequirementsService({ findJobVersionRequirements } as unknown as MatchingRepository);
+    const service = new JobSkillRequirementsService({
+      findJobVersionRequirements,
+    } as unknown as MatchingRepository);
 
-    const result = await service.getSnapshot('0198c8e8-0000-7000-8000-000000000020');
+    const result = await service.getSnapshot(
+      '0198c8e8-0000-7000-8000-000000000020',
+    );
 
-    expect(findJobVersionRequirements).toHaveBeenCalledWith('0198c8e8-0000-7000-8000-000000000020');
+    expect(findJobVersionRequirements).toHaveBeenCalledWith(
+      '0198c8e8-0000-7000-8000-000000000020',
+    );
     expect(result).toEqual({
       jobVersionId: '0198c8e8-0000-7000-8000-000000000020',
       jobId: '0198c8e8-0000-7000-8000-000000000010',
@@ -97,10 +114,17 @@ describe('JobSkillRequirementsService', () => {
   });
 
   it('returns null when the job version does not exist', async () => {
-    const findJobVersionRequirements = jest.fn<(jobVersionId: string) => Promise<MockRequirementSnapshot | null>>();
+    const findJobVersionRequirements =
+      jest.fn<
+        (jobVersionId: string) => Promise<MockRequirementSnapshot | null>
+      >();
     findJobVersionRequirements.mockImplementation(async () => null);
-    const service = new JobSkillRequirementsService({ findJobVersionRequirements } as unknown as MatchingRepository);
+    const service = new JobSkillRequirementsService({
+      findJobVersionRequirements,
+    } as unknown as MatchingRepository);
 
-    await expect(service.getSnapshot('0198c8e8-0000-7000-8000-000000000099')).resolves.toBeNull();
+    await expect(
+      service.getSnapshot('0198c8e8-0000-7000-8000-000000000099'),
+    ).resolves.toBeNull();
   });
 });

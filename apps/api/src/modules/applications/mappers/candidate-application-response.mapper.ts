@@ -39,7 +39,9 @@ function toStageResponse(stage: CandidateApplicationListItem['currentStage']) {
   };
 }
 
-function toCompanyResponse(company: CandidateApplicationListItem['job']['company']) {
+function toCompanyResponse(
+  company: CandidateApplicationListItem['job']['company'],
+) {
   return {
     id: company.id,
     name: company.name,
@@ -49,7 +51,9 @@ function toCompanyResponse(company: CandidateApplicationListItem['job']['company
   };
 }
 
-export function toCandidateApplicationListItemResponse(application: CandidateApplicationListItem) {
+export function toCandidateApplicationListItemResponse(
+  application: CandidateApplicationListItem,
+) {
   return {
     id: application.id,
     jobId: application.jobId,
@@ -76,7 +80,10 @@ export function toCandidateApplicationListItemResponse(application: CandidateApp
   };
 }
 
-export function toCandidateApplicationDetailResponse(application: CandidateApplicationDetail, history: CandidateStageHistory[]) {
+export function toCandidateApplicationDetailResponse(
+  application: CandidateApplicationDetail,
+  history: CandidateStageHistory[],
+) {
   return {
     id: application.id,
     jobId: application.jobId,
@@ -130,11 +137,13 @@ export function toCandidateApplicationDetailResponse(application: CandidateAppli
     },
     history: history.map((item) => ({
       id: item.id,
-      fromStage: item.fromStage ? {
-        id: item.fromStage.id,
-        code: item.fromStage.code,
-        name: item.fromStage.name,
-      } : null,
+      fromStage: item.fromStage
+        ? {
+            id: item.fromStage.id,
+            code: item.fromStage.code,
+            name: item.fromStage.name,
+          }
+        : null,
       toStage: {
         id: item.toStage.id,
         code: item.toStage.code,

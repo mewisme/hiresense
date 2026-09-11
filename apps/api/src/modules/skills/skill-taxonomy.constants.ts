@@ -12,5 +12,4 @@ export const REQUIRED_SKILL_CATEGORY_CODES = [
   'LANGUAGE',
 ] as const;
 
-export type SkillCategoryCode =
-  (typeof REQUIRED_SKILL_CATEGORY_CODES)[number];
+export type SkillCategoryCode = (typeof REQUIRED_SKILL_CATEGORY_CODES)[number];

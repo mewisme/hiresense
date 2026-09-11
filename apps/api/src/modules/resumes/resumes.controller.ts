@@ -1,5 +1,19 @@
 import { Readable } from 'node:stream';
-import { Body, Controller, Delete, Get, NotFoundException, Param, ParseUUIDPipe, Patch, Post, Res, StreamableFile, UploadedFile, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  NotFoundException,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Res,
+  StreamableFile,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Express, Response } from 'express';
 import { Auth } from '../auth/decorators/auth.decorator';
@@ -10,8 +24,14 @@ import { CreateResumeDto } from './dto/create-resume.dto';
 import { toResumeVersionResponse } from './mappers/resume-response.mapper';
 import { ResumesService } from './resumes.service';
 import { createAttachmentDisposition } from './utils/content-disposition.util';
-import { createResumeObjectKey, RESUME_STORAGE_BUCKET } from './utils/resume-object-key.util';
-import { RESUME_MAX_FILE_SIZE_BYTES, validateResumePdf } from './utils/resume-file.util';
+import {
+  createResumeObjectKey,
+  RESUME_STORAGE_BUCKET,
+} from './utils/resume-object-key.util';
+import {
+  RESUME_MAX_FILE_SIZE_BYTES,
+  validateResumePdf,
+} from './utils/resume-file.util';
 
 @Controller('resumes')
 @Auth('CANDIDATE')
@@ -19,10 +39,14 @@ export class ResumesController {
   constructor(
     private readonly candidatesService: CandidatesService,
     private readonly resumesService: ResumesService,
-  ) { }
+  ) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor('file', { limits: { files: 1, fileSize: RESUME_MAX_FILE_SIZE_BYTES } }))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { files: 1, fileSize: RESUME_MAX_FILE_SIZE_BYTES },
+    }),
+  )
   async create(
     @CurrentUser() user: AuthenticatedUser,
     @Body() dto: CreateResumeDto,
@@ -69,7 +93,11 @@ export class ResumesController {
   }
 
   @Post(':resumeId/versions')
-  @UseInterceptors(FileInterceptor('file', { limits: { files: 1, fileSize: RESUME_MAX_FILE_SIZE_BYTES } }))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { files: 1, fileSize: RESUME_MAX_FILE_SIZE_BYTES },
+    }),
+  )
   async addVersion(
     @CurrentUser() user: AuthenticatedUser,
     @Param('resumeId', ParseUUIDPipe) resumeId: string,
@@ -121,7 +149,9 @@ export class ResumesController {
       name: resume.name,
       isDefault: resume.isDefault,
       currentVersionId: resume.currentVersionId,
-      currentVersion: currentVersion ? toResumeVersionResponse(currentVersion) : null,
+      currentVersion: currentVersion
+        ? toResumeVersionResponse(currentVersion)
+        : null,
       createdAt: resume.createdAt,
       updatedAt: resume.updatedAt,
     }));
@@ -153,9 +183,15 @@ export class ResumesController {
     @Res({ passthrough: true }) response: Response,
   ): Promise<StreamableFile> {
     const candidate = await this.requireCandidate(user.id);
-    const result = await this.resumesService.openCurrentVersion(resumeId, candidate.id);
+    const result = await this.resumesService.openCurrentVersion(
+      resumeId,
+      candidate.id,
+    );
 
-    response.setHeader('Content-Disposition', createAttachmentDisposition(result.fileObject.originalFilename));
+    response.setHeader(
+      'Content-Disposition',
+      createAttachmentDisposition(result.fileObject.originalFilename),
+    );
 
     return new StreamableFile(result.stream, {
       type: result.contentType,
@@ -171,9 +207,16 @@ export class ResumesController {
     @Res({ passthrough: true }) response: Response,
   ): Promise<StreamableFile> {
     const candidate = await this.requireCandidate(user.id);
-    const result = await this.resumesService.openVersion(resumeId, versionId, candidate.id);
+    const result = await this.resumesService.openVersion(
+      resumeId,
+      versionId,
+      candidate.id,
+    );
 
-    response.setHeader('Content-Disposition', createAttachmentDisposition(result.fileObject.originalFilename));
+    response.setHeader(
+      'Content-Disposition',
+      createAttachmentDisposition(result.fileObject.originalFilename),
+    );
 
     return new StreamableFile(result.stream, {
       type: result.contentType,

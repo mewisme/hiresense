@@ -15,15 +15,9 @@ import { CompaniesService } from './companies.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 
 @Controller('companies')
-@Auth(
-  'RECRUITER',
-  'ADMIN',
-)
+@Auth('RECRUITER', 'ADMIN')
 export class CompaniesController {
-  constructor(
-    private readonly companiesService:
-      CompaniesService,
-  ) { }
+  constructor(private readonly companiesService: CompaniesService) {}
 
   @Post()
   createCompany(
@@ -33,11 +27,7 @@ export class CompaniesController {
     @Body()
     dto: CreateCompanyDto,
   ) {
-    return this.companiesService
-      .createCompany(
-        user.id,
-        dto,
-      );
+    return this.companiesService.createCompany(user.id, dto);
   }
 
   @Get('me')
@@ -45,10 +35,7 @@ export class CompaniesController {
     @CurrentUser()
     user: AuthenticatedUser,
   ) {
-    return this.companiesService
-      .getMyCompanies(
-        user.id,
-      );
+    return this.companiesService.getMyCompanies(user.id);
   }
 
   @Get(':companyId')
@@ -64,10 +51,6 @@ export class CompaniesController {
     )
     companyId: string,
   ) {
-    return this.companiesService
-      .getCompanyForMember(
-        user.id,
-        companyId,
-      );
+    return this.companiesService.getCompanyForMember(user.id, companyId);
   }
 }

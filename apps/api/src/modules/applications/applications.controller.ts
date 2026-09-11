@@ -9,7 +9,7 @@ import { toApplicationResponse } from './mappers/application-response.mapper';
 @Controller('jobs')
 @Auth('CANDIDATE')
 export class ApplicationsController {
-  constructor(private readonly applicationsService: ApplicationsService) { }
+  constructor(private readonly applicationsService: ApplicationsService) {}
 
   @Post(':jobId/applications')
   async apply(

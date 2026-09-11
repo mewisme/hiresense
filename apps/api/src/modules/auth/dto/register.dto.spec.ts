@@ -1,8 +1,4 @@
-import {
-  describe,
-  expect,
-  it,
-} from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
 import { ValidationPipe } from '@nestjs/common';
 import type { ArgumentMetadata } from '@nestjs/common';
 
@@ -31,9 +27,7 @@ describe('RegisterDto', () => {
       metadata,
     );
 
-    expect(result.email).toBe(
-      'user@example.com',
-    );
+    expect(result.email).toBe('user@example.com');
   });
 
   it('should reject ADMIN registration', async () => {

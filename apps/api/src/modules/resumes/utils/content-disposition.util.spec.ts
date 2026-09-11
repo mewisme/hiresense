@@ -12,7 +12,9 @@ describe('createAttachmentDisposition', () => {
     const result = createAttachmentDisposition('CV Nguyễn Văn A.pdf');
 
     expect(result).toContain('attachment;');
-    expect(result).toContain(`filename*=UTF-8''CV%20Nguy%E1%BB%85n%20V%C4%83n%20A.pdf`);
+    expect(result).toContain(
+      `filename*=UTF-8''CV%20Nguy%E1%BB%85n%20V%C4%83n%20A.pdf`,
+    );
   });
 
   it('removes CRLF characters', () => {

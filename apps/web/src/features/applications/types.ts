@@ -20,7 +20,13 @@ export interface CandidateApplicationDetail {
     id: string;
     slug: string;
     status: string;
-    company: { id: string; name: string; slug: string; description: string | null; websiteUrl: string | null };
+    company: {
+      id: string;
+      name: string;
+      slug: string;
+      description: string | null;
+      websiteUrl: string | null;
+    };
   };
   jobVersion: {
     id: string;

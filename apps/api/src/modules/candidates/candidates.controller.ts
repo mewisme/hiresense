@@ -1,10 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Patch,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post } from '@nestjs/common';
 
 import { Auth } from '../auth/decorators/auth.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -17,18 +11,14 @@ import { UpdateCandidateProfileDto } from './dto/update-candidate-profile.dto';
 @Controller('candidates')
 @Auth('CANDIDATE')
 export class CandidatesController {
-  constructor(
-    private readonly candidatesService:
-      CandidatesService,
-  ) { }
+  constructor(private readonly candidatesService: CandidatesService) {}
 
   @Get('me')
   getMyProfile(
     @CurrentUser()
     user: AuthenticatedUser,
   ) {
-    return this.candidatesService
-      .getMyProfile(user.id);
+    return this.candidatesService.getMyProfile(user.id);
   }
 
   @Post('me')
@@ -39,11 +29,7 @@ export class CandidatesController {
     @Body()
     dto: CreateCandidateProfileDto,
   ) {
-    return this.candidatesService
-      .createMyProfile(
-        user.id,
-        dto,
-      );
+    return this.candidatesService.createMyProfile(user.id, dto);
   }
 
   @Patch('me')
@@ -54,10 +40,6 @@ export class CandidatesController {
     @Body()
     dto: UpdateCandidateProfileDto,
   ) {
-    return this.candidatesService
-      .updateMyProfile(
-        user.id,
-        dto,
-      );
+    return this.candidatesService.updateMyProfile(user.id, dto);
   }
 }

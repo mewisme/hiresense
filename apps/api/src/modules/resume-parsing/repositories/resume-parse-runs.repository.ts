@@ -25,7 +25,7 @@ export interface FailResumeParseRunInput {
 
 @Injectable()
 export class ResumeParseRunsRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   create(input: CreateResumeParseRunInput, db: DbClient = this.prisma) {
     return db.resumeParseRun.create({
@@ -53,7 +53,10 @@ export class ResumeParseRunsRepository {
     });
   }
 
-  findLatestByResumeVersionId(resumeVersionId: string, db: DbClient = this.prisma) {
+  findLatestByResumeVersionId(
+    resumeVersionId: string,
+    db: DbClient = this.prisma,
+  ) {
     return db.resumeParseRun.findFirst({
       where: { resumeVersionId },
       include: {
@@ -66,7 +69,11 @@ export class ResumeParseRunsRepository {
     });
   }
 
-  findLatestByResumeVersionAndPipeline(resumeVersionId: string, pipelineVersionId: string, db: DbClient = this.prisma) {
+  findLatestByResumeVersionAndPipeline(
+    resumeVersionId: string,
+    pipelineVersionId: string,
+    db: DbClient = this.prisma,
+  ) {
     return db.resumeParseRun.findFirst({
       where: { resumeVersionId, pipelineVersionId },
       include: { pipelineVersion: true },
@@ -74,7 +81,10 @@ export class ResumeParseRunsRepository {
     });
   }
 
-  findLatestSucceededByResumeVersionId(resumeVersionId: string, db: DbClient = this.prisma) {
+  findLatestSucceededByResumeVersionId(
+    resumeVersionId: string,
+    db: DbClient = this.prisma,
+  ) {
     return db.resumeParseRun.findFirst({
       where: { resumeVersionId, status: 'SUCCEEDED' },
       include: {
@@ -87,7 +97,11 @@ export class ResumeParseRunsRepository {
     });
   }
 
-  async markProcessing(id: string, startedAt: Date = new Date(), db: DbClient = this.prisma): Promise<boolean> {
+  async markProcessing(
+    id: string,
+    startedAt: Date = new Date(),
+    db: DbClient = this.prisma,
+  ): Promise<boolean> {
     const result = await db.resumeParseRun.updateMany({
       where: { id, status: 'PENDING' },
       data: {
@@ -101,7 +115,11 @@ export class ResumeParseRunsRepository {
     return result.count === 1;
   }
 
-  async markSucceeded(id: string, input: CompleteResumeParseRunInput, db: DbClient = this.prisma): Promise<boolean> {
+  async markSucceeded(
+    id: string,
+    input: CompleteResumeParseRunInput,
+    db: DbClient = this.prisma,
+  ): Promise<boolean> {
     const result = await db.resumeParseRun.updateMany({
       where: { id, status: 'PROCESSING' },
       data: {
@@ -111,14 +129,20 @@ export class ResumeParseRunsRepository {
         completedAt: input.completedAt ?? new Date(),
         errorCode: null,
         errorMessage: null,
-        ...(input.rawOutput !== undefined ? { rawOutput: input.rawOutput } : {}),
+        ...(input.rawOutput !== undefined
+          ? { rawOutput: input.rawOutput }
+          : {}),
         ...(input.warnings !== undefined ? { warnings: input.warnings } : {}),
       },
     });
     return result.count === 1;
   }
 
-  async markFailed(id: string, input: FailResumeParseRunInput, db: DbClient = this.prisma): Promise<boolean> {
+  async markFailed(
+    id: string,
+    input: FailResumeParseRunInput,
+    db: DbClient = this.prisma,
+  ): Promise<boolean> {
     const result = await db.resumeParseRun.updateMany({
       where: { id, status: { in: ['PENDING', 'PROCESSING'] } },
       data: {

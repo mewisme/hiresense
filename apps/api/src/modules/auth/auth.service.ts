@@ -6,10 +6,7 @@ import {
 
 import type { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
-import {
-  UsersService,
-  type UserWithRoles,
-} from '../users/users.service';
+import { UsersService, type UserWithRoles } from '../users/users.service';
 
 import type { AuthResponse } from './dto/auth-response.dto';
 import type { LoginDto } from './dto/login.dto';
@@ -33,122 +30,74 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly usersService: UsersService,
 
-    private readonly sessionsRepository:
-      AuthSessionsRepository,
+    private readonly sessionsRepository: AuthSessionsRepository,
 
-    private readonly passwordService:
-      PasswordService,
+    private readonly passwordService: PasswordService,
 
-    private readonly tokenService:
-      TokenService,
-  ) { }
+    private readonly tokenService: TokenService,
+  ) {}
 
   async register(
     dto: RegisterDto,
     metadata: RequestMetadata,
   ): Promise<AuthResponse> {
-    const existingUser =
-      await this.usersService.findByEmail(
-        dto.email,
-      );
+    const existingUser = await this.usersService.findByEmail(dto.email);
 
     if (existingUser) {
-      throw new ConflictException(
-        'Email is already registered',
-      );
+      throw new ConflictException('Email is already registered');
     }
 
-    const passwordHash =
-      await this.passwordService.hash(
-        dto.password,
+    const passwordHash = await this.passwordService.hash(dto.password);
+
+    return this.prisma.$transaction(async (tx) => {
+      const user = await this.usersService.createIdentity(
+        {
+          email: dto.email,
+          passwordHash,
+          roleCode: dto.role,
+        },
+        tx,
       );
 
-    return this.prisma.$transaction(
-      async (tx) => {
-        const user =
-          await this.usersService.createIdentity(
-            {
-              email: dto.email,
-              passwordHash,
-              roleCode: dto.role,
-            },
-            tx,
-          );
-
-        return this.createSessionAndResponse(
-          user,
-          metadata,
-          tx,
-        );
-      },
-    );
+      return this.createSessionAndResponse(user, metadata, tx);
+    });
   }
 
-  async login(
-    dto: LoginDto,
-    metadata: RequestMetadata,
-  ): Promise<AuthResponse> {
-    const user =
-      await this.usersService.findByEmail(
-        dto.email,
-      );
+  async login(dto: LoginDto, metadata: RequestMetadata): Promise<AuthResponse> {
+    const user = await this.usersService.findByEmail(dto.email);
 
     if (!user) {
-      throw new UnauthorizedException(
-        'Invalid email or password',
-      );
+      throw new UnauthorizedException('Invalid email or password');
     }
 
     if (user.status !== 'ACTIVE') {
-      throw new UnauthorizedException(
-        'Account is not active',
-      );
+      throw new UnauthorizedException('Account is not active');
     }
 
-    const passwordValid =
-      await this.passwordService.verify(
-        user.passwordHash,
-        dto.password,
-      );
+    const passwordValid = await this.passwordService.verify(
+      user.passwordHash,
+      dto.password,
+    );
 
     if (!passwordValid) {
-      throw new UnauthorizedException(
-        'Invalid email or password',
-      );
+      throw new UnauthorizedException('Invalid email or password');
     }
 
-    return this.prisma.$transaction(
-      async (tx) => {
-        return this.createSessionAndResponse(
-          user,
-          metadata,
-          tx,
-        );
-      },
-    );
+    return this.prisma.$transaction(async (tx) => {
+      return this.createSessionAndResponse(user, metadata, tx);
+    });
   }
 
-  async logout(
-    user: AuthenticatedUser,
-  ): Promise<void> {
-    await this.sessionsRepository.revoke(
-      user.sessionId,
-      user.id,
-    );
+  async logout(user: AuthenticatedUser): Promise<void> {
+    await this.sessionsRepository.revoke(user.sessionId, user.id);
   }
 
-  async refresh(
-    dto: RefreshTokenDto,
-  ): Promise<AuthResponse> {
-    const payload =
-      await this.tokenService.verifyRefreshToken(
-        dto.refreshToken,
-      );
+  async refresh(dto: RefreshTokenDto): Promise<AuthResponse> {
+    const payload = await this.tokenService.verifyRefreshToken(
+      dto.refreshToken,
+    );
 
-    const session =
-      await this.sessionsRepository.findByIdWithUser(
-        payload.sid,
-      );
+    const session = await this.sessionsRepository.findByIdWithUser(payload.sid);
 
     const now = new Date();
 
@@ -158,59 +107,42 @@ export class AuthService {
       session.revokedAt !== null ||
       session.expiresAt <= now
     ) {
-      throw new UnauthorizedException(
-        'Invalid or expired refresh token',
-      );
+      throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
     if (session.user.status !== 'ACTIVE') {
-      throw new UnauthorizedException(
-        'Account is not active',
-      );
+      throw new UnauthorizedException('Account is not active');
     }
 
-    const validRefreshToken =
-      this.tokenService.refreshTokenMatches(
-        dto.refreshToken,
-        session.refreshTokenHash,
-      );
+    const validRefreshToken = this.tokenService.refreshTokenMatches(
+      dto.refreshToken,
+      session.refreshTokenHash,
+    );
 
     if (!validRefreshToken) {
-      throw new UnauthorizedException(
-        'Invalid or expired refresh token',
-      );
+      throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
-    const tokens =
-      await this.tokenService.issueTokenPair(
-        session.userId,
-        session.id,
-        session.expiresAt,
-      );
+    const tokens = await this.tokenService.issueTokenPair(
+      session.userId,
+      session.id,
+      session.expiresAt,
+    );
 
-    const nextHash =
-      this.tokenService.hashRefreshToken(
-        tokens.refreshToken,
-      );
+    const nextHash = this.tokenService.hashRefreshToken(tokens.refreshToken);
 
-    const rotated =
-      await this.sessionsRepository.rotateRefreshToken(
-        {
-          sessionId: session.id,
+    const rotated = await this.sessionsRepository.rotateRefreshToken({
+      sessionId: session.id,
 
-          expectedCurrentHash:
-            session.refreshTokenHash,
+      expectedCurrentHash: session.refreshTokenHash,
 
-          nextHash,
+      nextHash,
 
-          usedAt: now,
-        },
-      );
+      usedAt: now,
+    });
 
     if (!rotated) {
-      throw new UnauthorizedException(
-        'Refresh token has already been used',
-      );
+      throw new UnauthorizedException('Refresh token has already been used');
     }
 
     return {
@@ -223,17 +155,13 @@ export class AuthService {
         email: session.user.email,
 
         roles: parseAppRoles(
-          session.user.userRoles.map(
-            ({ role }) => role.code,
-          ),
+          session.user.userRoles.map(({ role }) => role.code),
         ),
       },
     };
   }
 
-  me(
-    user: AuthenticatedUser,
-  ) {
+  me(user: AuthenticatedUser) {
     return {
       id: user.id,
       email: user.email,
@@ -246,56 +174,45 @@ export class AuthService {
     metadata: RequestMetadata,
     tx: Prisma.TransactionClient,
   ): Promise<AuthResponse> {
-    const expiresAt =
-      this.tokenService.getRefreshExpiresAt();
+    const expiresAt = this.tokenService.getRefreshExpiresAt();
 
-    const session =
-      await this.sessionsRepository.create(
-        {
-          userId: user.id,
+    const session = await this.sessionsRepository.create(
+      {
+        userId: user.id,
 
-          expiresAt,
+        expiresAt,
 
-          userAgent:
-            metadata.userAgent,
+        userAgent: metadata.userAgent,
 
-          ipAddress:
-            metadata.ipAddress,
+        ipAddress: metadata.ipAddress,
 
-          deviceName:
-            metadata.deviceName,
-        },
-        tx,
-      );
+        deviceName: metadata.deviceName,
+      },
+      tx,
+    );
 
-    const tokens =
-      await this.tokenService.issueTokenPair(
-        user.id,
-        session.id,
-        session.expiresAt,
-      );
+    const tokens = await this.tokenService.issueTokenPair(
+      user.id,
+      session.id,
+      session.expiresAt,
+    );
 
-    const refreshTokenHash =
-      this.tokenService.hashRefreshToken(
-        tokens.refreshToken,
-      );
+    const refreshTokenHash = this.tokenService.hashRefreshToken(
+      tokens.refreshToken,
+    );
 
-    await this.sessionsRepository
-      .updateRefreshTokenHash(
-        session.id,
-        refreshTokenHash,
-        tx,
-      );
+    await this.sessionsRepository.updateRefreshTokenHash(
+      session.id,
+      refreshTokenHash,
+      tx,
+    );
 
     return {
       ...tokens,
 
       tokenType: 'Bearer',
 
-      user:
-        this.usersService.toPublicIdentity(
-          user,
-        ),
+      user: this.usersService.toPublicIdentity(user),
     };
   }
 }

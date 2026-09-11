@@ -170,11 +170,25 @@ function version(overrides: Partial<MockJobVersion> = {}): MockJobVersion {
 }
 
 function createMocks() {
-  const findPublicPublished = jest.fn<(companyId?: string) => Promise<MockJob[]>>();
-  const findPublicPublishedById = jest.fn<(id: string) => Promise<MockJob | null>>();
-  const findPublicCurrentVersions = jest.fn<(versionIds: string[], query: PublicVersionQuery) => Promise<MockJobVersion[]>>();
-  const countPublicCurrentVersions = jest.fn<(versionIds: string[], query: PublicVersionQuery) => Promise<number>>();
-  const findPublishedByJobAndIdWithSkills = jest.fn<(jobId: string, versionId: string) => Promise<MockJobVersion | null>>();
+  const findPublicPublished =
+    jest.fn<(companyId?: string) => Promise<MockJob[]>>();
+  const findPublicPublishedById =
+    jest.fn<(id: string) => Promise<MockJob | null>>();
+  const findPublicCurrentVersions =
+    jest.fn<
+      (
+        versionIds: string[],
+        query: PublicVersionQuery,
+      ) => Promise<MockJobVersion[]>
+    >();
+  const countPublicCurrentVersions =
+    jest.fn<
+      (versionIds: string[], query: PublicVersionQuery) => Promise<number>
+    >();
+  const findPublishedByJobAndIdWithSkills =
+    jest.fn<
+      (jobId: string, versionId: string) => Promise<MockJobVersion | null>
+    >();
 
   findPublicPublished.mockImplementation(async () => [job()]);
   findPublicPublishedById.mockImplementation(async () => job());
@@ -249,8 +263,14 @@ describe('PublicJobsService', () => {
         skills: [],
       });
 
-      mocks.findPublicPublished.mockImplementation(async () => [job(), secondJob]);
-      mocks.findPublicCurrentVersions.mockImplementation(async () => [version(), secondVersion]);
+      mocks.findPublicPublished.mockImplementation(async () => [
+        job(),
+        secondJob,
+      ]);
+      mocks.findPublicCurrentVersions.mockImplementation(async () => [
+        version(),
+        secondVersion,
+      ]);
       mocks.countPublicCurrentVersions.mockImplementation(async () => 2);
 
       const result = await service.list({
@@ -258,25 +278,27 @@ describe('PublicJobsService', () => {
         limit: 20,
       });
 
-      expect(mocks.findPublicCurrentVersions).toHaveBeenCalledWith([
-        publishedVersionId,
-        secondJob.currentPublishedVersionId ?? '',
-      ], expect.objectContaining({
-        skip: 0,
-        take: 20,
-      }));
+      expect(mocks.findPublicCurrentVersions).toHaveBeenCalledWith(
+        [publishedVersionId, secondJob.currentPublishedVersionId ?? ''],
+        expect.objectContaining({
+          skip: 0,
+          take: 20,
+        }),
+      );
 
-      expect(mocks.countPublicCurrentVersions).toHaveBeenCalledWith([
-        publishedVersionId,
-        secondJob.currentPublishedVersionId ?? '',
-      ], expect.objectContaining({
-        skip: 0,
-        take: 20,
-      }));
+      expect(mocks.countPublicCurrentVersions).toHaveBeenCalledWith(
+        [publishedVersionId, secondJob.currentPublishedVersionId ?? ''],
+        expect.objectContaining({
+          skip: 0,
+          take: 20,
+        }),
+      );
 
       expect(result.items).toHaveLength(2);
       expect(result.items[0]?.version.id).toBe(publishedVersionId);
-      expect(result.items[1]?.version.id).toBe(secondJob.currentPublishedVersionId);
+      expect(result.items[1]?.version.id).toBe(
+        secondJob.currentPublishedVersionId,
+      );
     });
 
     it('does not use a draft version when currentPublishedVersionId points to v1', async () => {
@@ -433,7 +455,10 @@ describe('PublicJobsService', () => {
       });
 
       mocks.findPublicPublished.mockImplementation(async () => [jobA, jobB]);
-      mocks.findPublicCurrentVersions.mockImplementation(async () => [versionB, versionA]);
+      mocks.findPublicCurrentVersions.mockImplementation(async () => [
+        versionB,
+        versionA,
+      ]);
       mocks.countPublicCurrentVersions.mockImplementation(async () => 2);
 
       const result = await service.list({
@@ -455,7 +480,9 @@ describe('PublicJobsService', () => {
         jobId: '0198c8e8-0000-7000-8000-000000000098',
       });
 
-      mocks.findPublicCurrentVersions.mockImplementation(async () => [unknownVersion]);
+      mocks.findPublicCurrentVersions.mockImplementation(async () => [
+        unknownVersion,
+      ]);
       mocks.countPublicCurrentVersions.mockImplementation(async () => 1);
 
       const result = await service.list({
@@ -476,21 +503,26 @@ describe('PublicJobsService', () => {
       });
 
       mocks.findPublicPublishedById.mockImplementation(async () => publicJob);
-      mocks.findPublishedByJobAndIdWithSkills.mockImplementation(async (receivedJobId, versionId) => {
-        expect(receivedJobId).toBe(jobId);
-        expect(versionId).toBe(publishedVersionId);
-        expect(versionId).not.toBe(draftVersionId);
-        return version({
-          id: publishedVersionId,
-          versionNo: 1,
-          title: 'Published v1',
-        });
-      });
+      mocks.findPublishedByJobAndIdWithSkills.mockImplementation(
+        async (receivedJobId, versionId) => {
+          expect(receivedJobId).toBe(jobId);
+          expect(versionId).toBe(publishedVersionId);
+          expect(versionId).not.toBe(draftVersionId);
+          return version({
+            id: publishedVersionId,
+            versionNo: 1,
+            title: 'Published v1',
+          });
+        },
+      );
 
       const result = await service.getDetail(jobId);
 
       expect(mocks.findPublicPublishedById).toHaveBeenCalledWith(jobId);
-      expect(mocks.findPublishedByJobAndIdWithSkills).toHaveBeenCalledWith(jobId, publishedVersionId);
+      expect(mocks.findPublishedByJobAndIdWithSkills).toHaveBeenCalledWith(
+        jobId,
+        publishedVersionId,
+      );
       expect(result.version.id).toBe(publishedVersionId);
       expect(result.version.versionNo).toBe(1);
       expect(result.version.title).toBe('Published v1');
@@ -501,7 +533,9 @@ describe('PublicJobsService', () => {
 
       mocks.findPublicPublishedById.mockImplementation(async () => null);
 
-      await expect(service.getDetail(jobId)).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.getDetail(jobId)).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
 
       expect(mocks.findPublishedByJobAndIdWithSkills).not.toHaveBeenCalled();
     });
@@ -509,11 +543,15 @@ describe('PublicJobsService', () => {
     it('returns NotFound when currentPublishedVersionId is null', async () => {
       const { service, mocks } = createMocks();
 
-      mocks.findPublicPublishedById.mockImplementation(async () => job({
-        currentPublishedVersionId: null,
-      }));
+      mocks.findPublicPublishedById.mockImplementation(async () =>
+        job({
+          currentPublishedVersionId: null,
+        }),
+      );
 
-      await expect(service.getDetail(jobId)).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.getDetail(jobId)).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
 
       expect(mocks.findPublishedByJobAndIdWithSkills).not.toHaveBeenCalled();
     });
@@ -522,11 +560,18 @@ describe('PublicJobsService', () => {
       const { service, mocks } = createMocks();
 
       mocks.findPublicPublishedById.mockImplementation(async () => job());
-      mocks.findPublishedByJobAndIdWithSkills.mockImplementation(async () => null);
+      mocks.findPublishedByJobAndIdWithSkills.mockImplementation(
+        async () => null,
+      );
 
-      await expect(service.getDetail(jobId)).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.getDetail(jobId)).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
 
-      expect(mocks.findPublishedByJobAndIdWithSkills).toHaveBeenCalledWith(jobId, publishedVersionId);
+      expect(mocks.findPublishedByJobAndIdWithSkills).toHaveBeenCalledWith(
+        jobId,
+        publishedVersionId,
+      );
     });
 
     it('returns the public job and its exact published snapshot', async () => {
@@ -536,7 +581,9 @@ describe('PublicJobsService', () => {
       const publishedVersion = version();
 
       mocks.findPublicPublishedById.mockImplementation(async () => publicJob);
-      mocks.findPublishedByJobAndIdWithSkills.mockImplementation(async () => publishedVersion);
+      mocks.findPublishedByJobAndIdWithSkills.mockImplementation(
+        async () => publishedVersion,
+      );
 
       const result = await service.getDetail(jobId);
 

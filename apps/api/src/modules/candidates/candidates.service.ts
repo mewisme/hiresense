@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma as PrismaNamespace } from '../../generated/prisma/client';
 import type { CreateCandidateProfileDto } from './dto/create-candidate-profile.dto';
 import type { UpdateCandidateProfileDto } from './dto/update-candidate-profile.dto';
@@ -10,7 +14,9 @@ export type CandidateProfile = NonNullable<
 
 @Injectable()
 export class CandidatesService {
-  constructor(private readonly candidateProfilesRepository: CandidateProfilesRepository) { }
+  constructor(
+    private readonly candidateProfilesRepository: CandidateProfilesRepository,
+  ) {}
 
   async getMyProfile(userId: string): Promise<CandidateProfile> {
     const profile = await this.candidateProfilesRepository.findByUserId(userId);

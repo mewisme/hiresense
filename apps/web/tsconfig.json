@@ -2,7 +2,8 @@
   "extends": "@hiresense/tsconfig/nextjs.json",
   "compilerOptions": {
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@hiresense/ui/*": ["../../packages/ui/src/*"]
     }
   },
   "include": [

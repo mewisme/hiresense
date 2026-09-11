@@ -21,7 +21,7 @@ export interface CompleteFileObjectInput {
 
 @Injectable()
 export class FileObjectsRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   findById(id: string, db: DbClient = this.prisma) {
     return db.fileObject.findUnique({
@@ -67,7 +67,11 @@ export class FileObjectsRepository {
     });
   }
 
-  markActive(id: string, input: CompleteFileObjectInput, db: DbClient = this.prisma) {
+  markActive(
+    id: string,
+    input: CompleteFileObjectInput,
+    db: DbClient = this.prisma,
+  ) {
     return db.fileObject.update({
       where: { id },
       data: {

@@ -3,9 +3,7 @@ import { Injectable } from '@nestjs/common';
 import type { Prisma } from '../../../generated/prisma/client';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
 
-type DbClient =
-  | PrismaService
-  | Prisma.TransactionClient;
+type DbClient = PrismaService | Prisma.TransactionClient;
 
 export interface CreateCandidateProfileInput {
   userId: string;
@@ -41,9 +39,7 @@ export interface UpdateCandidateProfileInput {
 
   timezone?: string;
 
-  experienceMonthsDeclared?:
-  | number
-  | null;
+  experienceMonthsDeclared?: number | null;
 
   portfolioUrl?: string | null;
   githubUrl?: string | null;
@@ -52,15 +48,9 @@ export interface UpdateCandidateProfileInput {
 
 @Injectable()
 export class CandidateProfilesRepository {
-  constructor(
-    private readonly prisma:
-      PrismaService,
-  ) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-  findByUserId(
-    userId: string,
-    db: DbClient = this.prisma,
-  ) {
+  findByUserId(userId: string, db: DbClient = this.prisma) {
     return db.candidateProfile.findUnique({
       where: {
         userId,
@@ -68,10 +58,7 @@ export class CandidateProfilesRepository {
     });
   }
 
-  findById(
-    id: string,
-    db: DbClient = this.prisma,
-  ) {
+  findById(id: string, db: DbClient = this.prisma) {
     return db.candidateProfile.findUnique({
       where: {
         id,
@@ -79,50 +66,34 @@ export class CandidateProfilesRepository {
     });
   }
 
-  create(
-    input: CreateCandidateProfileInput,
-    db: DbClient = this.prisma,
-  ) {
+  create(input: CreateCandidateProfileInput, db: DbClient = this.prisma) {
     return db.candidateProfile.create({
       data: {
-        userId:
-          input.userId,
+        userId: input.userId,
 
-        fullName:
-          input.fullName,
+        fullName: input.fullName,
 
-        phone:
-          input.phone,
+        phone: input.phone,
 
-        headline:
-          input.headline,
+        headline: input.headline,
 
-        summary:
-          input.summary,
+        summary: input.summary,
 
-        city:
-          input.city,
+        city: input.city,
 
-        region:
-          input.region,
+        region: input.region,
 
-        countryCode:
-          input.countryCode,
+        countryCode: input.countryCode,
 
-        timezone:
-          input.timezone,
+        timezone: input.timezone,
 
-        experienceMonthsDeclared:
-          input.experienceMonthsDeclared,
+        experienceMonthsDeclared: input.experienceMonthsDeclared,
 
-        portfolioUrl:
-          input.portfolioUrl,
+        portfolioUrl: input.portfolioUrl,
 
-        githubUrl:
-          input.githubUrl,
+        githubUrl: input.githubUrl,
 
-        linkedinUrl:
-          input.linkedinUrl,
+        linkedinUrl: input.linkedinUrl,
       },
     });
   }

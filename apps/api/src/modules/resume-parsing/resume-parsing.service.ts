@@ -1,16 +1,26 @@
 import type { Readable } from 'node:stream';
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { AiClientError } from '../../infrastructure/ai/ai-client.error';
 import { AiClientService } from '../../infrastructure/ai/ai-client.service';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { FileStorageService } from '../files/file-storage.service';
 import { RESUME_MAX_FILE_SIZE_BYTES } from '../resumes/utils/resume-file.util';
-import { RESUME_PARSER_PIPELINE_CODE, RESUME_PARSER_PIPELINE_TYPE } from './constants/resume-parsing.constants';
+import {
+  RESUME_PARSER_PIPELINE_CODE,
+  RESUME_PARSER_PIPELINE_TYPE,
+} from './constants/resume-parsing.constants';
 import { AiPipelineVersionsRepository } from './repositories/ai-pipeline-versions.repository';
 import { ResumeEducationsRepository } from './repositories/resume-educations.repository';
 import { ResumeExperiencesRepository } from './repositories/resume-experiences.repository';
 import { ResumeParseRunsRepository } from './repositories/resume-parse-runs.repository';
-import { ResumeParsingSourceRepository, type LockedResumeParsingSource } from './repositories/resume-parsing-source.repository';
+import {
+  ResumeParsingSourceRepository,
+  type LockedResumeParsingSource,
+} from './repositories/resume-parsing-source.repository';
 import { ResumeSkillsRepository } from './repositories/resume-skills.repository';
 import { ResumeEducationExtractionService } from './resume-education-extraction.service';
 import { ResumeExperienceExtractionService } from './resume-experience-extraction.service';
@@ -31,14 +41,25 @@ export class ResumeParsingService {
     private readonly resumeSkillsRepository: ResumeSkillsRepository,
     private readonly resumeExperiencesRepository: ResumeExperiencesRepository,
     private readonly resumeEducationsRepository: ResumeEducationsRepository,
-  ) { }
+  ) {}
 
-  async parseForCandidate(resumeId: string, resumeVersionId: string, candidateProfileId: string) {
-    const prepared = await this.prepareCandidateRun(resumeId, resumeVersionId, candidateProfileId);
+  async parseForCandidate(
+    resumeId: string,
+    resumeVersionId: string,
+    candidateProfileId: string,
+  ) {
+    const prepared = await this.prepareCandidateRun(
+      resumeId,
+      resumeVersionId,
+      candidateProfileId,
+    );
 
     if (!prepared.shouldProcess) {
-      const hydrated = await this.resumeParseRunsRepository.findByIdWithResult(prepared.parseRun.id);
-      if (!hydrated) throw new InternalServerErrorException('Resume parse run disappeared');
+      const hydrated = await this.resumeParseRunsRepository.findByIdWithResult(
+        prepared.parseRun.id,
+      );
+      if (!hydrated)
+        throw new InternalServerErrorException('Resume parse run disappeared');
       return { parseRun: hydrated, reused: true };
     }
 
@@ -48,64 +69,136 @@ export class ResumeParsingService {
       prepared.pipeline.config,
     );
 
-    const completed = await this.resumeParseRunsRepository.findByIdWithResult(prepared.parseRun.id);
-    if (!completed) throw new InternalServerErrorException('Resume parse run disappeared after processing');
+    const completed = await this.resumeParseRunsRepository.findByIdWithResult(
+      prepared.parseRun.id,
+    );
+    if (!completed)
+      throw new InternalServerErrorException(
+        'Resume parse run disappeared after processing',
+      );
 
     return { parseRun: completed, reused: false };
   }
 
-  async getLatestForCandidate(resumeId: string, resumeVersionId: string, candidateProfileId: string) {
-    const source = await this.resumeParsingSourceRepository.findCandidateOwnedResumeVersion(resumeId, resumeVersionId, candidateProfileId);
+  async getLatestForCandidate(
+    resumeId: string,
+    resumeVersionId: string,
+    candidateProfileId: string,
+  ) {
+    const source =
+      await this.resumeParsingSourceRepository.findCandidateOwnedResumeVersion(
+        resumeId,
+        resumeVersionId,
+        candidateProfileId,
+      );
     if (!source) throw new NotFoundException('Resume version not found');
-    return this.resumeParseRunsRepository.findLatestByResumeVersionId(source.id);
+    return this.resumeParseRunsRepository.findLatestByResumeVersionId(
+      source.id,
+    );
   }
 
   async getParseRun(parseRunId: string) {
-    const parseRun = await this.resumeParseRunsRepository.findByIdWithResult(parseRunId);
+    const parseRun =
+      await this.resumeParseRunsRepository.findByIdWithResult(parseRunId);
     if (!parseRun) throw new NotFoundException('Resume parse run not found');
     return parseRun;
   }
 
   getLatestSucceeded(resumeVersionId: string) {
-    return this.resumeParseRunsRepository.findLatestSucceededByResumeVersionId(resumeVersionId);
+    return this.resumeParseRunsRepository.findLatestSucceededByResumeVersionId(
+      resumeVersionId,
+    );
   }
 
-  private prepareCandidateRun(resumeId: string, resumeVersionId: string, candidateProfileId: string) {
+  private prepareCandidateRun(
+    resumeId: string,
+    resumeVersionId: string,
+    candidateProfileId: string,
+  ) {
     return this.prisma.$transaction(async (tx) => {
-      const source = await this.resumeParsingSourceRepository.lockCandidateOwnedAvailableResumeVersion(resumeId, resumeVersionId, candidateProfileId, tx);
-      if (!source) throw new NotFoundException('Resume version is not available for parsing');
+      const source =
+        await this.resumeParsingSourceRepository.lockCandidateOwnedAvailableResumeVersion(
+          resumeId,
+          resumeVersionId,
+          candidateProfileId,
+          tx,
+        );
+      if (!source)
+        throw new NotFoundException(
+          'Resume version is not available for parsing',
+        );
 
-      const pipeline = await this.aiPipelineVersionsRepository.findActiveByCodeAndType(
-        RESUME_PARSER_PIPELINE_CODE,
-        RESUME_PARSER_PIPELINE_TYPE,
+      const pipeline =
+        await this.aiPipelineVersionsRepository.findActiveByCodeAndType(
+          RESUME_PARSER_PIPELINE_CODE,
+          RESUME_PARSER_PIPELINE_TYPE,
+          tx,
+        );
+
+      if (!pipeline)
+        throw new InternalServerErrorException(
+          'Active resume parser pipeline is not configured',
+        );
+
+      const latest =
+        await this.resumeParseRunsRepository.findLatestByResumeVersionAndPipeline(
+          source.id,
+          pipeline.id,
+          tx,
+        );
+
+      if (
+        latest &&
+        ['PENDING', 'PROCESSING', 'SUCCEEDED'].includes(latest.status)
+      ) {
+        return {
+          parseRun: latest,
+          source,
+          pipeline,
+          shouldProcess: false as const,
+        };
+      }
+
+      const parseRun = await this.resumeParseRunsRepository.create(
+        {
+          resumeVersionId: source.id,
+          pipelineVersionId: pipeline.id,
+        },
         tx,
       );
 
-      if (!pipeline) throw new InternalServerErrorException('Active resume parser pipeline is not configured');
+      const hydrated =
+        await this.resumeParseRunsRepository.findLatestByResumeVersionAndPipeline(
+          source.id,
+          pipeline.id,
+          tx,
+        );
+      if (!hydrated || hydrated.id !== parseRun.id)
+        throw new InternalServerErrorException(
+          'Failed to initialize resume parse run',
+        );
 
-      const latest = await this.resumeParseRunsRepository.findLatestByResumeVersionAndPipeline(source.id, pipeline.id, tx);
-
-      if (latest && ['PENDING', 'PROCESSING', 'SUCCEEDED'].includes(latest.status)) {
-        return { parseRun: latest, source, pipeline, shouldProcess: false as const };
-      }
-
-      const parseRun = await this.resumeParseRunsRepository.create({
-        resumeVersionId: source.id,
-        pipelineVersionId: pipeline.id,
-      }, tx);
-
-      const hydrated = await this.resumeParseRunsRepository.findLatestByResumeVersionAndPipeline(source.id, pipeline.id, tx);
-      if (!hydrated || hydrated.id !== parseRun.id) throw new InternalServerErrorException('Failed to initialize resume parse run');
-
-      return { parseRun: hydrated, source, pipeline, shouldProcess: true as const };
+      return {
+        parseRun: hydrated,
+        source,
+        pipeline,
+        shouldProcess: true as const,
+      };
     });
   }
 
-  private async processRun(parseRunId: string, source: LockedResumeParsingSource, pipelineConfig: unknown): Promise<void> {
+  private async processRun(
+    parseRunId: string,
+    source: LockedResumeParsingSource,
+    pipelineConfig: unknown,
+  ): Promise<void> {
     const startedAt = new Date();
 
     try {
-      const processing = await this.resumeParseRunsRepository.markProcessing(parseRunId, startedAt);
+      const processing = await this.resumeParseRunsRepository.markProcessing(
+        parseRunId,
+        startedAt,
+      );
       if (!processing) return;
 
       const stored = await this.fileStorageService.open(source.fileObjectId);
@@ -117,17 +210,26 @@ export class ResumeParsingService {
         contentType: source.mimeType,
       });
 
-      const [skills, experienceExtraction, educationExtraction] = await Promise.all([
-        this.resumeSkillExtractionService.extract(textExtraction.text, pipelineConfig),
-        this.resumeExperienceExtractionService.extract(textExtraction.text, startedAt),
-        this.resumeEducationExtractionService.extract(textExtraction.text),
-      ]);
+      const [skills, experienceExtraction, educationExtraction] =
+        await Promise.all([
+          this.resumeSkillExtractionService.extract(
+            textExtraction.text,
+            pipelineConfig,
+          ),
+          this.resumeExperienceExtractionService.extract(
+            textExtraction.text,
+            startedAt,
+          ),
+          this.resumeEducationExtractionService.extract(textExtraction.text),
+        ]);
 
-      const warnings = [...new Set([
-        ...textExtraction.warnings,
-        ...experienceExtraction.warnings,
-        ...educationExtraction.warnings,
-      ])];
+      const warnings = [
+        ...new Set([
+          ...textExtraction.warnings,
+          ...experienceExtraction.warnings,
+          ...educationExtraction.warnings,
+        ]),
+      ];
 
       await this.prisma.$transaction(async (tx) => {
         await this.resumeSkillsRepository.createMany(
@@ -171,24 +273,29 @@ export class ResumeParsingService {
           tx,
         );
 
-        const succeeded = await this.resumeParseRunsRepository.markSucceeded(parseRunId, {
-          rawText: textExtraction.text,
-          rawOutput: {
-            extraction: {
-              pageCount: textExtraction.pageCount,
-              textLength: textExtraction.textLength,
+        const succeeded = await this.resumeParseRunsRepository.markSucceeded(
+          parseRunId,
+          {
+            rawText: textExtraction.text,
+            rawOutput: {
+              extraction: {
+                pageCount: textExtraction.pageCount,
+                textLength: textExtraction.textLength,
+              },
+              parsing: {
+                referenceDate: startedAt.toISOString().slice(0, 10),
+                skillCount: skills.length,
+                experienceCount: experienceExtraction.experiences.length,
+                educationCount: educationExtraction.educations.length,
+              },
             },
-            parsing: {
-              referenceDate: startedAt.toISOString().slice(0, 10),
-              skillCount: skills.length,
-              experienceCount: experienceExtraction.experiences.length,
-              educationCount: educationExtraction.educations.length,
-            },
+            warnings,
           },
-          warnings,
-        }, tx);
+          tx,
+        );
 
-        if (!succeeded) throw new Error('Resume parse run could not enter SUCCEEDED status');
+        if (!succeeded)
+          throw new Error('Resume parse run could not enter SUCCEEDED status');
       });
     } catch (error) {
       const failure = this.resolveFailure(error);
@@ -240,10 +347,13 @@ export class ResumeParsingService {
       };
     }
 
-    const message = error instanceof Error ? error.message : 'Unknown resume parsing error';
+    const message =
+      error instanceof Error ? error.message : 'Unknown resume parsing error';
 
-    if (message === 'Resume PDF is empty') return { code: 'SOURCE_FILE_EMPTY', message };
-    if (message === 'Resume PDF exceeds maximum supported parsing size') return { code: 'SOURCE_FILE_TOO_LARGE', message };
+    if (message === 'Resume PDF is empty')
+      return { code: 'SOURCE_FILE_EMPTY', message };
+    if (message === 'Resume PDF exceeds maximum supported parsing size')
+      return { code: 'SOURCE_FILE_TOO_LARGE', message };
 
     return {
       code: 'RESUME_PARSING_FAILED',

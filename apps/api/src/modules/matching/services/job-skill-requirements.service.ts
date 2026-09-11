@@ -26,8 +26,11 @@ export interface JobSkillRequirementSnapshot {
 export class JobSkillRequirementsService {
   constructor(private readonly matchingRepository: MatchingRepository) {}
 
-  async getSnapshot(jobVersionId: string): Promise<JobSkillRequirementSnapshot | null> {
-    const version = await this.matchingRepository.findJobVersionRequirements(jobVersionId);
+  async getSnapshot(
+    jobVersionId: string,
+  ): Promise<JobSkillRequirementSnapshot | null> {
+    const version =
+      await this.matchingRepository.findJobVersionRequirements(jobVersionId);
     if (!version) return null;
 
     return {

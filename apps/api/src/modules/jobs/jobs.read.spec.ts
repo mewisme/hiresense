@@ -111,14 +111,45 @@ function version(overrides: Partial<MockJobVersion> = {}): MockJobVersion {
 }
 
 function createMocks() {
-  const findMembership = jest.fn<(companyId: string, userId: string, db?: unknown) => Promise<MockMembership | null>>();
-  const findByCompanyId = jest.fn<(companyId: string, db?: unknown) => Promise<MockJob[]>>();
-  const findActiveOwnedById = jest.fn<(jobId: string, companyId: string, db?: unknown) => Promise<MockJob | null>>();
-  const findDraftsByJobIds = jest.fn<(jobIds: string[], db?: unknown) => Promise<MockJobVersion[]>>();
-  const findByIds = jest.fn<(ids: string[], db?: unknown) => Promise<MockJobVersion[]>>();
-  const findByJobId = jest.fn<(jobId: string, db?: unknown) => Promise<MockJobVersion[]>>();
-  const findLatestDraftByJobIdWithSkills = jest.fn<(jobId: string, db?: unknown) => Promise<(MockJobVersion & { skills: unknown[] }) | null>>();
-  const findByJobAndIdWithSkills = jest.fn<(jobId: string, versionId: string, db?: unknown) => Promise<(MockJobVersion & { skills: unknown[] }) | null>>();
+  const findMembership =
+    jest.fn<
+      (
+        companyId: string,
+        userId: string,
+        db?: unknown,
+      ) => Promise<MockMembership | null>
+    >();
+  const findByCompanyId =
+    jest.fn<(companyId: string, db?: unknown) => Promise<MockJob[]>>();
+  const findActiveOwnedById =
+    jest.fn<
+      (
+        jobId: string,
+        companyId: string,
+        db?: unknown,
+      ) => Promise<MockJob | null>
+    >();
+  const findDraftsByJobIds =
+    jest.fn<(jobIds: string[], db?: unknown) => Promise<MockJobVersion[]>>();
+  const findByIds =
+    jest.fn<(ids: string[], db?: unknown) => Promise<MockJobVersion[]>>();
+  const findByJobId =
+    jest.fn<(jobId: string, db?: unknown) => Promise<MockJobVersion[]>>();
+  const findLatestDraftByJobIdWithSkills =
+    jest.fn<
+      (
+        jobId: string,
+        db?: unknown,
+      ) => Promise<(MockJobVersion & { skills: unknown[] }) | null>
+    >();
+  const findByJobAndIdWithSkills =
+    jest.fn<
+      (
+        jobId: string,
+        versionId: string,
+        db?: unknown,
+      ) => Promise<(MockJobVersion & { skills: unknown[] }) | null>
+    >();
 
   findMembership.mockImplementation(async () => membership());
   findByCompanyId.mockImplementation(async () => [job()]);
@@ -127,7 +158,10 @@ function createMocks() {
   findActiveOwnedById.mockImplementation(async () => job());
   findByJobId.mockImplementation(async () => [version()]);
   findLatestDraftByJobIdWithSkills.mockImplementation(async () => null);
-  findByJobAndIdWithSkills.mockImplementation(async () => ({ ...version(), skills: [] }));
+  findByJobAndIdWithSkills.mockImplementation(async () => ({
+    ...version(),
+    skills: [],
+  }));
 
   const prisma = {} as PrismaService;
 
@@ -150,7 +184,13 @@ function createMocks() {
     findByCompanyAndUser: findMembership,
   } as unknown as JobCompanyMembershipsRepository;
 
-  const service = new JobsService(prisma, jobsRepository, jobVersionsRepository, jobVersionSkillsRepository, membershipsRepository);
+  const service = new JobsService(
+    prisma,
+    jobsRepository,
+    jobVersionsRepository,
+    jobVersionSkillsRepository,
+    membershipsRepository,
+  );
 
   return {
     service,
@@ -182,7 +222,9 @@ describe('JobsService management read', () => {
     it('allows ACTIVE REVIEWER to list company jobs', async () => {
       const { service, mocks } = createMocks();
 
-      mocks.findMembership.mockImplementation(async () => membership({ role: 'REVIEWER' }));
+      mocks.findMembership.mockImplementation(async () =>
+        membership({ role: 'REVIEWER' }),
+      );
 
       const result = await service.listManaged(companyId, userId);
 
@@ -192,9 +234,13 @@ describe('JobsService management read', () => {
     it('rejects an inactive membership', async () => {
       const { service, mocks } = createMocks();
 
-      mocks.findMembership.mockImplementation(async () => membership({ status: 'SUSPENDED' }));
+      mocks.findMembership.mockImplementation(async () =>
+        membership({ status: 'SUSPENDED' }),
+      );
 
-      await expect(service.listManaged(companyId, userId)).rejects.toBeInstanceOf(ForbiddenException);
+      await expect(
+        service.listManaged(companyId, userId),
+      ).rejects.toBeInstanceOf(ForbiddenException);
 
       expect(mocks.findByCompanyId).not.toHaveBeenCalled();
     });
@@ -204,7 +250,9 @@ describe('JobsService management read', () => {
 
       mocks.findMembership.mockImplementation(async () => null);
 
-      await expect(service.listManaged(companyId, userId)).rejects.toBeInstanceOf(ForbiddenException);
+      await expect(
+        service.listManaged(companyId, userId),
+      ).rejects.toBeInstanceOf(ForbiddenException);
 
       expect(mocks.findByCompanyId).not.toHaveBeenCalled();
     });
@@ -241,7 +289,9 @@ describe('JobsService management read', () => {
       expect(result[0]?.currentPublishedVersion?.id).toBe(publishedVersionId);
       expect(result[0]?.currentDraftVersion?.id).toBe(draftVersionId);
       expect(result[0]?.currentDraftVersion?.versionStatus).toBe('DRAFT');
-      expect(result[0]?.currentPublishedVersion?.versionStatus).toBe('PUBLISHED');
+      expect(result[0]?.currentPublishedVersion?.versionStatus).toBe(
+        'PUBLISHED',
+      );
     });
 
     it('uses currentPublishedVersionId instead of assuming the latest version is public', async () => {
@@ -284,8 +334,13 @@ describe('JobsService management read', () => {
       };
 
       mocks.findByJobId.mockImplementation(async () => [draft, published]);
-      mocks.findLatestDraftByJobIdWithSkills.mockImplementation(async () => draft);
-      mocks.findByJobAndIdWithSkills.mockImplementation(async () => ({ ...published, skills: [] }));
+      mocks.findLatestDraftByJobIdWithSkills.mockImplementation(
+        async () => draft,
+      );
+      mocks.findByJobAndIdWithSkills.mockImplementation(async () => ({
+        ...published,
+        skills: [],
+      }));
 
       const result = await service.getManagedDetail(companyId, jobId, userId);
 
@@ -300,17 +355,22 @@ describe('JobsService management read', () => {
 
       await service.getManagedDetail(companyId, jobId, userId);
 
-      expect(mocks.findByJobAndIdWithSkills).toHaveBeenCalledWith(jobId, publishedVersionId);
+      expect(mocks.findByJobAndIdWithSkills).toHaveBeenCalledWith(
+        jobId,
+        publishedVersionId,
+      );
     });
 
     it('does not query a published snapshot when currentPublishedVersionId is null', async () => {
       const { service, mocks } = createMocks();
 
-      mocks.findActiveOwnedById.mockImplementation(async () => job({
-        status: 'DRAFT',
-        currentPublishedVersionId: null,
-        firstPublishedAt: null,
-      }));
+      mocks.findActiveOwnedById.mockImplementation(async () =>
+        job({
+          status: 'DRAFT',
+          currentPublishedVersionId: null,
+          firstPublishedAt: null,
+        }),
+      );
 
       const result = await service.getManagedDetail(companyId, jobId, userId);
 
@@ -323,7 +383,9 @@ describe('JobsService management read', () => {
 
       mocks.findActiveOwnedById.mockImplementation(async () => null);
 
-      await expect(service.getManagedDetail(companyId, jobId, userId)).rejects.toBeInstanceOf(NotFoundException);
+      await expect(
+        service.getManagedDetail(companyId, jobId, userId),
+      ).rejects.toBeInstanceOf(NotFoundException);
 
       expect(mocks.findByJobId).not.toHaveBeenCalled();
     });
@@ -331,7 +393,9 @@ describe('JobsService management read', () => {
     it('allows ACTIVE REVIEWER to view job detail', async () => {
       const { service, mocks } = createMocks();
 
-      mocks.findMembership.mockImplementation(async () => membership({ role: 'REVIEWER' }));
+      mocks.findMembership.mockImplementation(async () =>
+        membership({ role: 'REVIEWER' }),
+      );
 
       const result = await service.getManagedDetail(companyId, jobId, userId);
 
@@ -341,9 +405,13 @@ describe('JobsService management read', () => {
     it('rejects LEFT membership from viewing job detail', async () => {
       const { service, mocks } = createMocks();
 
-      mocks.findMembership.mockImplementation(async () => membership({ status: 'LEFT' }));
+      mocks.findMembership.mockImplementation(async () =>
+        membership({ status: 'LEFT' }),
+      );
 
-      await expect(service.getManagedDetail(companyId, jobId, userId)).rejects.toBeInstanceOf(ForbiddenException);
+      await expect(
+        service.getManagedDetail(companyId, jobId, userId),
+      ).rejects.toBeInstanceOf(ForbiddenException);
 
       expect(mocks.findActiveOwnedById).not.toHaveBeenCalled();
     });

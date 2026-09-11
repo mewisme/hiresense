@@ -1,6 +1,4 @@
-export function normalizeSkillName(
-  value: string,
-): string {
+export function normalizeSkillName(value: string): string {
   return value
     .normalize('NFKC')
     .trim()

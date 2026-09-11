@@ -12,9 +12,13 @@ export interface CreateResumeSkillInput {
 
 @Injectable()
 export class ResumeSkillsRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-  async createMany(parseRunId: string, items: CreateResumeSkillInput[], db: DbClient = this.prisma) {
+  async createMany(
+    parseRunId: string,
+    items: CreateResumeSkillInput[],
+    db: DbClient = this.prisma,
+  ) {
     if (items.length === 0) return { count: 0 };
 
     return db.resumeSkill.createMany({

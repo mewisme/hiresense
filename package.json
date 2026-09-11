@@ -4,7 +4,7 @@
   "private": true,
   "author": "Nguyễn Mậu Minh",
   "license": "Apache-2.0",
-  "packageManager": "pnpm@11.22.0",
+  "packageManager": "pnpm@12.3.4",
   "repository": {
     "type": "git",
     "url": "https://github.com/mewisme/hiresense.git"
@@ -32,6 +32,10 @@
     "compile:all": "pnpm -r --if-present compile:all",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "precommit:install": "pre-commit install",
+    "precommit:uninstall": "pre-commit uninstall",
+    "precommit:run": "pre-commit run --all-files",
+    "precommit:update": "pre-commit autoupdate",
     "ts:version": "tsc --version"
   },
   "devDependencies": {

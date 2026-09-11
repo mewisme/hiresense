@@ -18,18 +18,31 @@ export class DiscordClient {
   private nextBotIndex = 0;
 
   constructor(configService: ConfigService) {
-    this.baseUrl = configService.getOrThrow<string>('storage.discloud.apiBaseUrl').replace(/\/+$/, '');
-    this.channelId = configService.getOrThrow<string>('storage.discloud.channelId');
+    this.baseUrl = configService
+      .getOrThrow<string>('storage.discloud.apiBaseUrl')
+      .replace(/\/+$/, '');
+    this.channelId = configService.getOrThrow<string>(
+      'storage.discloud.channelId',
+    );
 
-    const configuredBots = configService.get<DiscloudBotConfig[]>('storage.discloud.bots') ?? [];
-    if (configuredBots.length === 0) throw new Error('At least one DisCloud bot must be configured');
+    const configuredBots =
+      configService.get<DiscloudBotConfig[]>('storage.discloud.bots') ?? [];
+    if (configuredBots.length === 0)
+      throw new Error('At least one DisCloud bot must be configured');
 
     this.bots = configuredBots.map((bot) => ({ ...bot, waitUntilMs: 0 }));
-    this.requestTimeoutMs = configService.getOrThrow<number>('storage.discloud.requestTimeoutMs');
-    this.maxAttempts = configService.getOrThrow<number>('storage.discloud.maxAttempts');
+    this.requestTimeoutMs = configService.getOrThrow<number>(
+      'storage.discloud.requestTimeoutMs',
+    );
+    this.maxAttempts = configService.getOrThrow<number>(
+      'storage.discloud.maxAttempts',
+    );
   }
 
-  async uploadChunk(filename: string, content: Buffer): Promise<DiscordUploadResult> {
+  async uploadChunk(
+    filename: string,
+    content: Buffer,
+  ): Promise<DiscordUploadResult> {
     let lastError: unknown;
 
     for (let attempt = 1; attempt <= this.maxAttempts; attempt += 1) {
@@ -42,17 +55,32 @@ export class DiscordClient {
         if (response.status === 429) {
           const retryAfterMs = await this.parseRetryAfterMs(response);
           this.backoff(bot, retryAfterMs);
-          throw new DiscordApiError(429, `Discord bot ${bot.id} rate limited for ${retryAfterMs}ms`);
+          throw new DiscordApiError(
+            429,
+            `Discord bot ${bot.id} rate limited for ${retryAfterMs}ms`,
+          );
         }
 
         this.updateRateLimitState(bot, response);
-        if (response.status !== 200 && response.status !== 201) throw await this.createApiError(response, `Discord upload failed using bot ${bot.id} for ${filename}`);
+        if (response.status !== 200 && response.status !== 201)
+          throw await this.createApiError(
+            response,
+            `Discord upload failed using bot ${bot.id} for ${filename}`,
+          );
 
         const message = await this.readMessage(response);
         const attachment = message.attachments[0];
-        if (!attachment) throw new DiscordApiError(response.status, `Discord message ${message.id} has no attachments`);
+        if (!attachment)
+          throw new DiscordApiError(
+            response.status,
+            `Discord message ${message.id} has no attachments`,
+          );
 
-        return { messageId: message.id, attachmentId: attachment.id, filename: attachment.filename };
+        return {
+          messageId: message.id,
+          attachmentId: attachment.id,
+          filename: attachment.filename,
+        };
       } catch (error) {
         lastError = error;
         if (attempt === this.maxAttempts) break;
@@ -63,30 +91,44 @@ export class DiscordClient {
     throw new Error(`Discord upload failed after ${this.maxAttempts} attempts`);
   }
 
-  async getAttachmentUrl(messageId: string, attachmentId: string): Promise<string> {
+  async getAttachmentUrl(
+    messageId: string,
+    attachmentId: string,
+  ): Promise<string> {
     const response = await this.executeAcrossBots(
-      (bot) => this.fetchWithTimeout(`${this.baseUrl}/channels/${this.channelId}/messages/${messageId}`, {
-        method: 'GET',
-        headers: { Authorization: `Bot ${bot.token}` },
-      }),
+      (bot) =>
+        this.fetchWithTimeout(
+          `${this.baseUrl}/channels/${this.channelId}/messages/${messageId}`,
+          {
+            method: 'GET',
+            headers: { Authorization: `Bot ${bot.token}` },
+          },
+        ),
       `Failed to read Discord message ${messageId}`,
       [404],
     );
 
-    if (response.status === 404) throw new DiscordAttachmentGoneError(messageId);
+    if (response.status === 404)
+      throw new DiscordAttachmentGoneError(messageId);
 
     const message = await this.readMessage(response);
-    const attachment = message.attachments.find((item) => item.id === attachmentId);
+    const attachment = message.attachments.find(
+      (item) => item.id === attachmentId,
+    );
     if (!attachment) throw new DiscordAttachmentGoneError(messageId);
     return attachment.url;
   }
 
   async deleteMessage(messageId: string): Promise<void> {
     const response = await this.executeAcrossBots(
-      (bot) => this.fetchWithTimeout(`${this.baseUrl}/channels/${this.channelId}/messages/${messageId}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bot ${bot.token}` },
-      }),
+      (bot) =>
+        this.fetchWithTimeout(
+          `${this.baseUrl}/channels/${this.channelId}/messages/${messageId}`,
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bot ${bot.token}` },
+          },
+        ),
       `Failed to delete Discord message ${messageId}`,
       [404],
     );
@@ -101,7 +143,11 @@ export class DiscordClient {
     return bot;
   }
 
-  private async executeAcrossBots(operation: (bot: RuntimeDiscordBot) => Promise<Response>, context: string, acceptedStatuses: readonly number[] = []): Promise<Response> {
+  private async executeAcrossBots(
+    operation: (bot: RuntimeDiscordBot) => Promise<Response>,
+    context: string,
+    acceptedStatuses: readonly number[] = [],
+  ): Promise<Response> {
     let lastError: unknown;
 
     for (let attempt = 1; attempt <= this.maxAttempts; attempt += 1) {
@@ -114,13 +160,20 @@ export class DiscordClient {
         if (response.status === 429) {
           const retryAfterMs = await this.parseRetryAfterMs(response);
           this.backoff(bot, retryAfterMs);
-          lastError = new DiscordApiError(429, `Discord bot ${bot.id} rate limited for ${retryAfterMs}ms`);
+          lastError = new DiscordApiError(
+            429,
+            `Discord bot ${bot.id} rate limited for ${retryAfterMs}ms`,
+          );
           continue;
         }
 
         this.updateRateLimitState(bot, response);
-        if (response.ok || acceptedStatuses.includes(response.status)) return response;
-        lastError = await this.createApiError(response, `${context} using bot ${bot.id}`);
+        if (response.ok || acceptedStatuses.includes(response.status))
+          return response;
+        lastError = await this.createApiError(
+          response,
+          `${context} using bot ${bot.id}`,
+        );
       } catch (error) {
         lastError = error;
       }
@@ -140,11 +193,16 @@ export class DiscordClient {
     bot.waitUntilMs = Math.max(bot.waitUntilMs, Date.now() + durationMs);
   }
 
-  private updateRateLimitState(bot: RuntimeDiscordBot, response: Response): void {
+  private updateRateLimitState(
+    bot: RuntimeDiscordBot,
+    response: Response,
+  ): void {
     const remaining = Number(response.headers.get('x-ratelimit-remaining'));
     if (!Number.isFinite(remaining) || remaining !== 0) return;
 
-    const resetAfterSeconds = Number(response.headers.get('x-ratelimit-reset-after'));
+    const resetAfterSeconds = Number(
+      response.headers.get('x-ratelimit-reset-after'),
+    );
     if (!Number.isFinite(resetAfterSeconds) || resetAfterSeconds <= 0) return;
     this.backoff(bot, resetAfterSeconds * 1000);
   }
@@ -152,7 +210,8 @@ export class DiscordClient {
   private async parseRetryAfterMs(response: Response): Promise<number> {
     try {
       const payload = (await response.json()) as { retry_after?: unknown };
-      if (typeof payload.retry_after === 'number' && payload.retry_after > 0) return payload.retry_after * 1000;
+      if (typeof payload.retry_after === 'number' && payload.retry_after > 0)
+        return payload.retry_after * 1000;
     } catch {
       // Fall through to Retry-After header.
     }
@@ -162,7 +221,10 @@ export class DiscordClient {
     return 1000;
   }
 
-  private async fetchWithTimeout(url: string, init: RequestInit): Promise<Response> {
+  private async fetchWithTimeout(
+    url: string,
+    init: RequestInit,
+  ): Promise<Response> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.requestTimeoutMs);
 
@@ -175,11 +237,22 @@ export class DiscordClient {
 
   private async readMessage(response: Response): Promise<DiscordMessage> {
     const payload = (await response.json()) as DiscordMessage;
-    if (!payload || typeof payload.id !== 'string' || !Array.isArray(payload.attachments)) throw new DiscordApiError(response.status, 'Discord returned an invalid message payload');
+    if (
+      !payload ||
+      typeof payload.id !== 'string' ||
+      !Array.isArray(payload.attachments)
+    )
+      throw new DiscordApiError(
+        response.status,
+        'Discord returned an invalid message payload',
+      );
     return payload;
   }
 
-  private async createApiError(response: Response, prefix: string): Promise<DiscordApiError> {
+  private async createApiError(
+    response: Response,
+    prefix: string,
+  ): Promise<DiscordApiError> {
     let body = '';
 
     try {
@@ -188,17 +261,27 @@ export class DiscordClient {
       // Ignore response body read failure.
     }
 
-    return new DiscordApiError(response.status, body ? `${prefix}: ${body}` : prefix);
+    return new DiscordApiError(
+      response.status,
+      body ? `${prefix}: ${body}` : prefix,
+    );
   }
 
-  private postAttachment(bot: RuntimeDiscordBot, filename: string, content: Buffer): Promise<Response> {
+  private postAttachment(
+    bot: RuntimeDiscordBot,
+    filename: string,
+    content: Buffer,
+  ): Promise<Response> {
     const form = new FormData();
     form.append('files[0]', new Blob([Uint8Array.from(content)]), filename);
 
-    return this.fetchWithTimeout(`${this.baseUrl}/channels/${this.channelId}/messages`, {
-      method: 'POST',
-      headers: { Authorization: `Bot ${bot.token}` },
-      body: form,
-    });
+    return this.fetchWithTimeout(
+      `${this.baseUrl}/channels/${this.channelId}/messages`,
+      {
+        method: 'POST',
+        headers: { Authorization: `Bot ${bot.token}` },
+        body: form,
+      },
+    );
   }
 }

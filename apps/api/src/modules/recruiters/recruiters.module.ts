@@ -7,21 +7,12 @@ import { RecruitersController } from './recruiters.controller';
 import { RecruitersService } from './recruiters.service';
 
 @Module({
-  imports: [
-    AuthModule,
-  ],
+  imports: [AuthModule],
 
-  controllers: [
-    RecruitersController,
-  ],
+  controllers: [RecruitersController],
 
-  providers: [
-    RecruitersService,
-    RecruiterProfilesRepository,
-  ],
+  providers: [RecruitersService, RecruiterProfilesRepository],
 
-  exports: [
-    RecruitersService,
-  ],
+  exports: [RecruitersService],
 })
-export class RecruitersModule { }
+export class RecruitersModule {}

@@ -1,5 +1,14 @@
 import { Transform } from 'class-transformer';
-import { IsBoolean, IsInt, IsOptional, IsString, IsUUID, Matches, Max, Min } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Matches,
+  Max,
+  Min,
+} from 'class-validator';
 
 export class CreateJobSkillDto {
   @IsUUID()
@@ -16,7 +25,7 @@ export class CreateJobSkillDto {
   isRequired?: boolean = true;
 
   @IsOptional()
-  @Transform(({ value }) => typeof value === 'number' ? String(value) : value)
+  @Transform(({ value }) => (typeof value === 'number' ? String(value) : value))
   @IsString()
   @Matches(/^(?:0(?:\.\d{1,6})?|1(?:\.0{1,6})?)$/)
   weight?: string = '1';

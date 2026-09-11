@@ -17,7 +17,13 @@ import { ResumeExperienceExtractionService } from './resume-experience-extractio
 import { ResumeEducationExtractionService } from './resume-education-extraction.service';
 
 @Module({
-  imports: [AuthModule, CandidatesModule, AiClientModule, FilesModule, SkillsModule],
+  imports: [
+    AuthModule,
+    CandidatesModule,
+    AiClientModule,
+    FilesModule,
+    SkillsModule,
+  ],
   controllers: [ResumeParsingController],
   providers: [
     ResumeParsingService,
@@ -42,4 +48,4 @@ import { ResumeEducationExtractionService } from './resume-education-extraction.
     ResumeEducationsRepository,
   ],
 })
-export class ResumeParsingModule { }
+export class ResumeParsingModule {}

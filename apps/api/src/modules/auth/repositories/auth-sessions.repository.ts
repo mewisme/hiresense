@@ -4,9 +4,7 @@ import { randomBytes } from 'node:crypto';
 import type { Prisma } from '../../../generated/prisma/client';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
 
-type DbClient =
-  | PrismaService
-  | Prisma.TransactionClient;
+type DbClient = PrismaService | Prisma.TransactionClient;
 
 export interface CreateAuthSessionInput {
   userId: string;
@@ -19,14 +17,9 @@ export interface CreateAuthSessionInput {
 
 @Injectable()
 export class AuthSessionsRepository {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-  create(
-    input: CreateAuthSessionInput,
-    db: DbClient = this.prisma,
-  ) {
+  create(input: CreateAuthSessionInput, db: DbClient = this.prisma) {
     return db.authSession.create({
       data: {
         userId: input.userId,
@@ -34,8 +27,7 @@ export class AuthSessionsRepository {
         // Temporary value.
         // It will be replaced by the real refresh-token hash
         // before the transaction commits.
-        refreshTokenHash:
-          randomBytes(32).toString('hex'),
+        refreshTokenHash: randomBytes(32).toString('hex'),
 
         expiresAt: input.expiresAt,
 
@@ -61,9 +53,7 @@ export class AuthSessionsRepository {
     });
   }
 
-  findByIdWithUser(
-    sessionId: string,
-  ) {
+  findByIdWithUser(sessionId: string) {
     return this.prisma.authSession.findUnique({
       where: {
         id: sessionId,
@@ -82,57 +72,47 @@ export class AuthSessionsRepository {
     });
   }
 
-  async rotateRefreshToken(
-    input: {
-      sessionId: string;
-      expectedCurrentHash: string;
-      nextHash: string;
-      usedAt: Date;
-    },
-  ): Promise<boolean> {
-    const result =
-      await this.prisma.authSession.updateMany({
-        where: {
-          id: input.sessionId,
+  async rotateRefreshToken(input: {
+    sessionId: string;
+    expectedCurrentHash: string;
+    nextHash: string;
+    usedAt: Date;
+  }): Promise<boolean> {
+    const result = await this.prisma.authSession.updateMany({
+      where: {
+        id: input.sessionId,
 
-          refreshTokenHash:
-            input.expectedCurrentHash,
+        refreshTokenHash: input.expectedCurrentHash,
 
-          revokedAt: null,
+        revokedAt: null,
 
-          expiresAt: {
-            gt: input.usedAt,
-          },
+        expiresAt: {
+          gt: input.usedAt,
         },
+      },
 
-        data: {
-          refreshTokenHash:
-            input.nextHash,
+      data: {
+        refreshTokenHash: input.nextHash,
 
-          lastUsedAt:
-            input.usedAt,
-        },
-      });
+        lastUsedAt: input.usedAt,
+      },
+    });
 
     return result.count === 1;
   }
 
-  async revoke(
-    sessionId: string,
-    userId: string,
-  ): Promise<boolean> {
-    const result =
-      await this.prisma.authSession.updateMany({
-        where: {
-          id: sessionId,
-          userId,
-          revokedAt: null,
-        },
+  async revoke(sessionId: string, userId: string): Promise<boolean> {
+    const result = await this.prisma.authSession.updateMany({
+      where: {
+        id: sessionId,
+        userId,
+        revokedAt: null,
+      },
 
-        data: {
-          revokedAt: new Date(),
-        },
-      });
+      data: {
+        revokedAt: new Date(),
+      },
+    });
 
     return result.count === 1;
   }

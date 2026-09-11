@@ -13,4 +13,4 @@ import { ResumesService } from './resumes.service';
   providers: [ResumesRepository, ResumeVersionsRepository, ResumesService],
   exports: [ResumesService, ResumesRepository, ResumeVersionsRepository],
 })
-export class ResumesModule { }
+export class ResumesModule {}

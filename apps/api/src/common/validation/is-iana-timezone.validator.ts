@@ -4,23 +4,15 @@ import {
   type ValidationOptions,
 } from 'class-validator';
 
-export function isIanaTimeZone(
-  value: unknown,
-): value is string {
-  if (
-    typeof value !== 'string' ||
-    value.length === 0
-  ) {
+export function isIanaTimeZone(value: unknown): value is string {
+  if (typeof value !== 'string' || value.length === 0) {
     return false;
   }
 
   try {
-    new Intl.DateTimeFormat(
-      'en-US',
-      {
-        timeZone: value,
-      },
-    ).format();
+    new Intl.DateTimeFormat('en-US', {
+      timeZone: value,
+    }).format();
 
     return true;
   } catch {
@@ -31,38 +23,23 @@ export function isIanaTimeZone(
 export function IsIanaTimeZone(
   validationOptions?: ValidationOptions,
 ): PropertyDecorator {
-  return (
-    target,
-    propertyKey,
-  ) => {
+  return (target, propertyKey) => {
     registerDecorator({
       name: 'isIanaTimeZone',
 
-      target:
-        target.constructor,
+      target: target.constructor,
 
-      propertyName:
-        propertyKey.toString(),
+      propertyName: propertyKey.toString(),
 
-      options:
-        validationOptions,
+      options: validationOptions,
 
       validator: {
-        validate(
-          value: unknown,
-        ): boolean {
-          return isIanaTimeZone(
-            value,
-          );
+        validate(value: unknown): boolean {
+          return isIanaTimeZone(value);
         },
 
-        defaultMessage(
-          args: ValidationArguments,
-        ): string {
-          return (
-            `${args.property} ` +
-            'must be a valid IANA time zone'
-          );
+        defaultMessage(args: ValidationArguments): string {
+          return `${args.property} ` + 'must be a valid IANA time zone';
         },
       },
     });

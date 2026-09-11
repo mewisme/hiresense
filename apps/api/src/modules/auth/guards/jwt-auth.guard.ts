@@ -13,39 +13,26 @@ import type { AuthenticatedUser } from '../types/authenticated-user.type';
 import { isAppRole, type AppRole } from '../types/role.type';
 import { parseAppRoles } from '../utils/role.util';
 
-type AuthenticatedRequest =
-  Request & {
-    user?: AuthenticatedUser;
-  };
+type AuthenticatedRequest = Request & {
+  user?: AuthenticatedUser;
+};
 
 @Injectable()
-export class JwtAuthGuard
-  implements CanActivate {
+export class JwtAuthGuard implements CanActivate {
   constructor(
-    private readonly tokenService:
-      TokenService,
+    private readonly tokenService: TokenService,
 
-    private readonly sessionsRepository:
-      AuthSessionsRepository,
-  ) { }
+    private readonly sessionsRepository: AuthSessionsRepository,
+  ) {}
 
-  async canActivate(
-    context: ExecutionContext,
-  ): Promise<boolean> {
-    const request =
-      context.switchToHttp()
-        .getRequest<AuthenticatedRequest>();
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
 
-    const token =
-      this.extractBearerToken(request);
+    const token = this.extractBearerToken(request);
 
-    const payload =
-      await this.tokenService
-        .verifyAccessToken(token);
+    const payload = await this.tokenService.verifyAccessToken(token);
 
-    const session =
-      await this.sessionsRepository
-        .findByIdWithUser(payload.sid);
+    const session = await this.sessionsRepository.findByIdWithUser(payload.sid);
 
     const now = new Date();
 
@@ -55,31 +42,21 @@ export class JwtAuthGuard
       session.revokedAt !== null ||
       session.expiresAt <= now
     ) {
-      throw new UnauthorizedException(
-        'Session is no longer active',
-      );
+      throw new UnauthorizedException('Session is no longer active');
     }
 
-    if (
-      session.user.status !== 'ACTIVE'
-    ) {
-      throw new UnauthorizedException(
-        'Account is not active',
-      );
+    if (session.user.status !== 'ACTIVE') {
+      throw new UnauthorizedException('Account is not active');
     }
 
     let roles: AppRole[];
 
     try {
       roles = parseAppRoles(
-        session.user.userRoles.map(
-          ({ role }) => role.code,
-        ),
+        session.user.userRoles.map(({ role }) => role.code),
       );
     } catch {
-      throw new UnauthorizedException(
-        'Account contains invalid roles',
-      );
+      throw new UnauthorizedException('Account contains invalid roles');
     }
 
     request.user = {
@@ -92,30 +69,17 @@ export class JwtAuthGuard
     return true;
   }
 
-  private extractBearerToken(
-    request: Request,
-  ): string {
-    const authorization =
-      request.headers.authorization;
+  private extractBearerToken(request: Request): string {
+    const authorization = request.headers.authorization;
 
     if (!authorization) {
-      throw new UnauthorizedException(
-        'Bearer access token is required',
-      );
+      throw new UnauthorizedException('Bearer access token is required');
     }
 
-    const [
-      type,
-      token,
-    ] = authorization.split(' ');
+    const [type, token] = authorization.split(' ');
 
-    if (
-      type !== 'Bearer' ||
-      !token
-    ) {
-      throw new UnauthorizedException(
-        'Bearer access token is required',
-      );
+    if (type !== 'Bearer' || !token) {
+      throw new UnauthorizedException('Bearer access token is required');
     }
 
     return token;

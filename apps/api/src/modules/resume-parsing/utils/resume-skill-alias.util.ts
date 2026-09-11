@@ -6,11 +6,18 @@ export interface ResumeSkillAliasConfigItem {
   targetNormalizedName: string;
 }
 
-export function readResumeSkillAliases(config: unknown): ResumeSkillAliasConfigItem[] {
+export function readResumeSkillAliases(
+  config: unknown,
+): ResumeSkillAliasConfigItem[] {
   if (!config || typeof config !== 'object' || Array.isArray(config)) return [];
 
   const skillAliases = (config as Record<string, unknown>).skillAliases;
-  if (!skillAliases || typeof skillAliases !== 'object' || Array.isArray(skillAliases)) return [];
+  if (
+    !skillAliases ||
+    typeof skillAliases !== 'object' ||
+    Array.isArray(skillAliases)
+  )
+    return [];
 
   const items: ResumeSkillAliasConfigItem[] = [];
 

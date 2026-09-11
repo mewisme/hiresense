@@ -8,5 +8,10 @@ export function createFileObjectKey(userId: string, extension: string): string {
     return ['users', userId, 'resumes', objectId].join('/');
   }
 
-  return ['users', userId, 'resumes', `${objectId}.${normalizedExtension}`].join('/');
+  return [
+    'users',
+    userId,
+    'resumes',
+    `${objectId}.${normalizedExtension}`,
+  ].join('/');
 }

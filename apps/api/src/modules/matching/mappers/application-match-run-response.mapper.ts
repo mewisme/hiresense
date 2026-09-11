@@ -41,7 +41,9 @@ export function toApplicationMatchRunResponse(run: ApplicationMatchRunResult) {
     skills: run.skillResults.map((result) => ({
       id: result.id,
       status: result.status,
-      similarityScore: result.similarityScore ? Number(result.similarityScore) : null,
+      similarityScore: result.similarityScore
+        ? Number(result.similarityScore)
+        : null,
       evidenceText: result.evidenceText,
       requirement: {
         jobVersionSkillId: result.jobVersionSkillId,
@@ -53,13 +55,15 @@ export function toApplicationMatchRunResponse(run: ApplicationMatchRunResult) {
         weight: result.jobVersionSkill.weight.toString(),
         minExperienceMonths: result.jobVersionSkill.minExperienceMonths,
       },
-      resumeSkill: result.resumeSkill ? {
-        id: result.resumeSkill.id,
-        skillId: result.resumeSkill.skillId,
-        name: result.resumeSkill.skill.name,
-        normalizedName: result.resumeSkill.skill.normalizedName,
-        confidence: result.resumeSkill.confidence?.toString() ?? null,
-      } : null,
+      resumeSkill: result.resumeSkill
+        ? {
+            id: result.resumeSkill.id,
+            skillId: result.resumeSkill.skillId,
+            name: result.resumeSkill.skill.name,
+            normalizedName: result.resumeSkill.skill.normalizedName,
+            confidence: result.resumeSkill.confidence?.toString() ?? null,
+          }
+        : null,
     })),
   };
 }

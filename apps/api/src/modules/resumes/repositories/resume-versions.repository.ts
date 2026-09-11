@@ -13,7 +13,7 @@ export interface CreateResumeVersionInput {
 
 @Injectable()
 export class ResumeVersionsRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   findById(id: string, db: DbClient = this.prisma) {
     return db.resumeVersion.findUnique({ where: { id } });
@@ -49,7 +49,10 @@ export class ResumeVersionsRepository {
     });
   }
 
-  async getNextVersionNo(resumeId: string, db: DbClient = this.prisma): Promise<number> {
+  async getNextVersionNo(
+    resumeId: string,
+    db: DbClient = this.prisma,
+  ): Promise<number> {
     const latest = await db.resumeVersion.findFirst({
       where: { resumeId },
       orderBy: { versionNo: 'desc' },

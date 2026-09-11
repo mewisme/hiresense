@@ -6,7 +6,9 @@ export class ChangeApplicationStageDto {
   stageId!: string;
 
   @IsOptional()
-  @Transform(({ value }) => typeof value === 'string' ? value.trim() || null : value)
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.trim() || null : value,
+  )
   @IsString()
   @MaxLength(2000)
   note?: string | null;

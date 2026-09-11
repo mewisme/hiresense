@@ -6,7 +6,9 @@ export class ApplyJobDto {
   resumeVersionId!: string;
 
   @IsOptional()
-  @Transform(({ value }) => typeof value === 'string' ? value.trim() || null : value)
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.trim() || null : value,
+  )
   @IsString()
   @MaxLength(5000)
   coverLetter?: string | null;

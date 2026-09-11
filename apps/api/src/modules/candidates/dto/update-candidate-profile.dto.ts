@@ -14,72 +14,46 @@ import {
 
 import { IsIanaTimeZone } from '../../../common/validation/is-iana-timezone.validator';
 
-const isProvided = (
-  _object: unknown,
-  value: unknown,
-): boolean => value !== undefined;
+const isProvided = (_object: unknown, value: unknown): boolean =>
+  value !== undefined;
 
 export class UpdateCandidateProfileDto {
-  @Transform(({ value }) =>
-    typeof value === 'string'
-      ? value.trim()
-      : value,
-  )
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @ValidateIf(isProvided)
   @IsString()
   @IsNotEmpty()
   @MaxLength(200)
   fullName?: string;
 
-  @Transform(({ value }) =>
-    typeof value === 'string'
-      ? value.trim()
-      : value,
-  )
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsOptional()
   @IsString()
   @IsNotEmpty()
   @MaxLength(50)
   phone?: string | null;
 
-  @Transform(({ value }) =>
-    typeof value === 'string'
-      ? value.trim()
-      : value,
-  )
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsOptional()
   @IsString()
   @IsNotEmpty()
   @MaxLength(200)
   headline?: string | null;
 
-  @Transform(({ value }) =>
-    typeof value === 'string'
-      ? value.trim()
-      : value,
-  )
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsOptional()
   @IsString()
   @IsNotEmpty()
   @MaxLength(5000)
   summary?: string | null;
 
-  @Transform(({ value }) =>
-    typeof value === 'string'
-      ? value.trim()
-      : value,
-  )
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsOptional()
   @IsString()
   @IsNotEmpty()
   @MaxLength(120)
   city?: string | null;
 
-  @Transform(({ value }) =>
-    typeof value === 'string'
-      ? value.trim()
-      : value,
-  )
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsOptional()
   @IsString()
   @IsNotEmpty()
@@ -87,11 +61,7 @@ export class UpdateCandidateProfileDto {
   region?: string | null;
 
   @Transform(({ value }) =>
-    typeof value === 'string'
-      ? value
-        .trim()
-        .toUpperCase()
-      : value,
+    typeof value === 'string' ? value.trim().toUpperCase() : value,
   )
   @IsOptional()
   @IsString()
@@ -99,11 +69,7 @@ export class UpdateCandidateProfileDto {
   @Matches(/^[A-Z]{2}$/)
   countryCode?: string | null;
 
-  @Transform(({ value }) =>
-    typeof value === 'string'
-      ? value.trim()
-      : value,
-  )
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @ValidateIf(isProvided)
   @IsString()
   @IsNotEmpty()
@@ -114,53 +80,30 @@ export class UpdateCandidateProfileDto {
   @IsOptional()
   @IsInt()
   @Min(0)
-  experienceMonthsDeclared?:
-    | number
-    | null;
+  experienceMonthsDeclared?: number | null;
 
-  @Transform(({ value }) =>
-    typeof value === 'string'
-      ? value.trim()
-      : value,
-  )
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsOptional()
   @IsUrl({
-    protocols: [
-      'http',
-      'https',
-    ],
+    protocols: ['http', 'https'],
     require_protocol: true,
   })
   @MaxLength(2048)
   portfolioUrl?: string | null;
 
-  @Transform(({ value }) =>
-    typeof value === 'string'
-      ? value.trim()
-      : value,
-  )
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsOptional()
   @IsUrl({
-    protocols: [
-      'http',
-      'https',
-    ],
+    protocols: ['http', 'https'],
     require_protocol: true,
   })
   @MaxLength(2048)
   githubUrl?: string | null;
 
-  @Transform(({ value }) =>
-    typeof value === 'string'
-      ? value.trim()
-      : value,
-  )
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsOptional()
   @IsUrl({
-    protocols: [
-      'http',
-      'https',
-    ],
+    protocols: ['http', 'https'],
     require_protocol: true,
   })
   @MaxLength(2048)

@@ -7,7 +7,9 @@ function tokenFor(id: string, suffix = 'signature'): string {
 
 describe('storage config', () => {
   it('decodes the Discord bot id from the token first segment', () => {
-    expect(decodeDiscordBotId(tokenFor('123456789012345678'))).toBe('123456789012345678');
+    expect(decodeDiscordBotId(tokenFor('123456789012345678'))).toBe(
+      '123456789012345678',
+    );
   });
 
   it('builds bot config from tokens without separate keys', () => {
@@ -23,11 +25,17 @@ describe('storage config', () => {
   it('rejects duplicate bot ids even when token signatures differ', () => {
     const first = tokenFor('123456789012345678', 'a');
     const second = tokenFor('123456789012345678', 'b');
-    expect(() => parseDiscloudBots(`${first},${second}`)).toThrow('Duplicate DisCloud bot id');
+    expect(() => parseDiscloudBots(`${first},${second}`)).toThrow(
+      'Duplicate DisCloud bot id',
+    );
   });
 
   it('rejects an invalid Discord bot token', () => {
-    expect(() => decodeDiscordBotId('invalid.token.value')).toThrow('Invalid Discord bot token id');
-    expect(() => decodeDiscordBotId('missing-segments')).toThrow('Invalid Discord bot token format');
+    expect(() => decodeDiscordBotId('invalid.token.value')).toThrow(
+      'Invalid Discord bot token id',
+    );
+    expect(() => decodeDiscordBotId('missing-segments')).toThrow(
+      'Invalid Discord bot token format',
+    );
   });
 });

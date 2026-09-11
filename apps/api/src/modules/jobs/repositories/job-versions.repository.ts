@@ -48,7 +48,7 @@ export interface PublicJobVersionsQuery {
 
 @Injectable()
 export class JobVersionsRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   findById(id: string, db: DbClient = this.prisma) {
     return db.jobVersion.findUnique({ where: { id } });
@@ -98,12 +98,14 @@ export class JobVersionsRepository {
   }
 
   findByIds(ids: string[], db: DbClient = this.prisma) {
-    if (ids.length === 0) return db.jobVersion.findMany({ where: { id: { in: [] } } });
+    if (ids.length === 0)
+      return db.jobVersion.findMany({ where: { id: { in: [] } } });
     return db.jobVersion.findMany({ where: { id: { in: ids } } });
   }
 
   findDraftsByJobIds(jobIds: string[], db: DbClient = this.prisma) {
-    if (jobIds.length === 0) return db.jobVersion.findMany({ where: { jobId: { in: [] } } });
+    if (jobIds.length === 0)
+      return db.jobVersion.findMany({ where: { jobId: { in: [] } } });
 
     return db.jobVersion.findMany({
       where: { jobId: { in: jobIds }, versionStatus: 'DRAFT' },
@@ -111,7 +113,11 @@ export class JobVersionsRepository {
     });
   }
 
-  findByJobAndIdWithSkills(jobId: string, id: string, db: DbClient = this.prisma) {
+  findByJobAndIdWithSkills(
+    jobId: string,
+    id: string,
+    db: DbClient = this.prisma,
+  ) {
     return db.jobVersion.findFirst({
       where: { id, jobId },
       include: {
@@ -136,7 +142,11 @@ export class JobVersionsRepository {
     });
   }
 
-  findByJobAndOptionalIdWithSkills(jobId: string, id: string | null, db: DbClient = this.prisma) {
+  findByJobAndOptionalIdWithSkills(
+    jobId: string,
+    id: string | null,
+    db: DbClient = this.prisma,
+  ) {
     if (!id) {
       return db.jobVersion.findFirst({
         where: { id: { equals: undefined }, jobId },
@@ -152,7 +162,11 @@ export class JobVersionsRepository {
     return this.findByJobAndIdWithSkills(jobId, id, db);
   }
 
-  findPublicCurrentVersions(versionIds: string[], query: PublicJobVersionsQuery, db: DbClient = this.prisma) {
+  findPublicCurrentVersions(
+    versionIds: string[],
+    query: PublicJobVersionsQuery,
+    db: DbClient = this.prisma,
+  ) {
     return db.jobVersion.findMany({
       where: this.createPublicWhere(versionIds, query),
       include: {
@@ -167,7 +181,11 @@ export class JobVersionsRepository {
     });
   }
 
-  findPublishedByJobAndIdWithSkills(jobId: string, id: string, db: DbClient = this.prisma) {
+  findPublishedByJobAndIdWithSkills(
+    jobId: string,
+    id: string,
+    db: DbClient = this.prisma,
+  ) {
     return db.jobVersion.findFirst({
       where: {
         id,
@@ -184,11 +202,20 @@ export class JobVersionsRepository {
     });
   }
 
-  countPublicCurrentVersions(versionIds: string[], query: PublicJobVersionsQuery, db: DbClient = this.prisma) {
-    return db.jobVersion.count({ where: this.createPublicWhere(versionIds, query) });
+  countPublicCurrentVersions(
+    versionIds: string[],
+    query: PublicJobVersionsQuery,
+    db: DbClient = this.prisma,
+  ) {
+    return db.jobVersion.count({
+      where: this.createPublicWhere(versionIds, query),
+    });
   }
 
-  async getNextVersionNo(jobId: string, db: DbClient = this.prisma): Promise<number> {
+  async getNextVersionNo(
+    jobId: string,
+    db: DbClient = this.prisma,
+  ): Promise<number> {
     const latest = await db.jobVersion.findFirst({
       where: { jobId },
       orderBy: { versionNo: 'desc' },
@@ -221,7 +248,11 @@ export class JobVersionsRepository {
     });
   }
 
-  updateDraft(id: string, input: UpdateDraftJobVersionInput, db: DbClient = this.prisma) {
+  updateDraft(
+    id: string,
+    input: UpdateDraftJobVersionInput,
+    db: DbClient = this.prisma,
+  ) {
     return db.jobVersion.updateMany({
       where: { id, versionStatus: 'DRAFT' },
       data: input,
@@ -235,21 +266,28 @@ export class JobVersionsRepository {
     });
   }
 
-  private createPublicWhere(versionIds: string[], query: PublicJobVersionsQuery): Prisma.JobVersionWhereInput {
+  private createPublicWhere(
+    versionIds: string[],
+    query: PublicJobVersionsQuery,
+  ): Prisma.JobVersionWhereInput {
     return {
       id: { in: versionIds },
       versionStatus: 'PUBLISHED',
       publishedAt: { not: null },
       ...(query.employmentType ? { employmentType: query.employmentType } : {}),
       ...(query.workplaceType ? { workplaceType: query.workplaceType } : {}),
-      ...(query.skillId ? { skills: { some: { skillId: query.skillId } } } : {}),
-      ...(query.q ? {
-        OR: [
-          { title: { contains: query.q, mode: 'insensitive' } },
-          { summary: { contains: query.q, mode: 'insensitive' } },
-          { description: { contains: query.q, mode: 'insensitive' } },
-        ],
-      } : {}),
+      ...(query.skillId
+        ? { skills: { some: { skillId: query.skillId } } }
+        : {}),
+      ...(query.q
+        ? {
+            OR: [
+              { title: { contains: query.q, mode: 'insensitive' } },
+              { summary: { contains: query.q, mode: 'insensitive' } },
+              { description: { contains: query.q, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
     };
   }
 }

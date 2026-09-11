@@ -11,6 +11,10 @@ describe('chunkStream', () => {
       chunks.push(chunk);
     }
 
-    expect(chunks.map((chunk) => chunk.toString())).toEqual(['abcd', 'efgh', 'i']);
+    expect(chunks.map((chunk) => chunk.toString())).toEqual([
+      'abcd',
+      'efgh',
+      'i',
+    ]);
   });
 });

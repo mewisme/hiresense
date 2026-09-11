@@ -21,10 +21,16 @@ interface ApiErrorBody {
 }
 
 const AUTH_STORAGE_KEY = 'hiresense.auth';
-const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000').replace(/\/$/, '');
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000').replace(
+  /\/$/,
+  '',
+);
 
 export class ApiError extends Error {
-  constructor(public readonly status: number, message: string) {
+  constructor(
+    public readonly status: number,
+    message: string,
+  ) {
     super(message);
     this.name = 'ApiError';
   }
@@ -53,9 +59,11 @@ export function clearAuthSession() {
 async function parseError(response: Response) {
   let body: ApiErrorBody | null = null;
   try {
-    body = await response.json() as ApiErrorBody;
+    body = (await response.json()) as ApiErrorBody;
   } catch {}
-  const message = Array.isArray(body?.message) ? body.message.join(', ') : body?.message ?? body?.error ?? `Request failed with status ${response.status}`;
+  const message = Array.isArray(body?.message)
+    ? body.message.join(', ')
+    : (body?.message ?? body?.error ?? `Request failed with status ${response.status}`);
   return new ApiError(response.status, message);
 }
 
@@ -69,7 +77,7 @@ async function refreshSession(session: AuthSession): Promise<AuthSession | null>
     clearAuthSession();
     return null;
   }
-  const next = await response.json() as AuthSession;
+  const next = (await response.json()) as AuthSession;
   saveAuthSession(next);
   return next;
 }
@@ -81,12 +89,16 @@ export async function login(email: string, password: string) {
     body: JSON.stringify({ email, password }),
   });
   if (!response.ok) throw await parseError(response);
-  const session = await response.json() as AuthSession;
+  const session = (await response.json()) as AuthSession;
   saveAuthSession(session);
   return session;
 }
 
-export async function apiRequest<T>(path: string, init: RequestInit = {}, retry = true): Promise<T> {
+export async function apiRequest<T>(
+  path: string,
+  init: RequestInit = {},
+  retry = true,
+): Promise<T> {
   const session = getAuthSession();
   const headers = new Headers(init.headers);
   if (session) headers.set('Authorization', `${session.tokenType} ${session.accessToken}`);

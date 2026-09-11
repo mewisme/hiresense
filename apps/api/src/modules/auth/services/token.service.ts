@@ -5,26 +5,14 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import {
-  createHash,
-  randomUUID,
-  timingSafeEqual,
-} from 'node:crypto';
+import { createHash, randomUUID, timingSafeEqual } from 'node:crypto';
 
-import type {
-  TokenPayload,
-  TokenType,
-} from '../types/token-payload.type';
+import type { TokenPayload, TokenType } from '../types/token-payload.type';
 
-const DURATION_PATTERN =
-  /^(\d+)(s|m|h|d)?$/i;
+const DURATION_PATTERN = /^(\d+)(s|m|h|d)?$/i;
 
-function parseDurationToSeconds(
-  value: string,
-  name: string,
-): number {
-  const match =
-    DURATION_PATTERN.exec(value.trim());
+function parseDurationToSeconds(value: string, name: string): number {
+  const match = DURATION_PATTERN.exec(value.trim());
 
   if (!match) {
     throw new InternalServerErrorException(
@@ -33,28 +21,15 @@ function parseDurationToSeconds(
   }
 
   const amount = Number(match[1]);
-  const unit =
-    (match[2] ?? 's').toLowerCase();
+  const unit = (match[2] ?? 's').toLowerCase();
 
   const multiplier =
-    unit === 'd'
-      ? 86_400
-      : unit === 'h'
-        ? 3_600
-        : unit === 'm'
-          ? 60
-          : 1;
+    unit === 'd' ? 86_400 : unit === 'h' ? 3_600 : unit === 'm' ? 60 : 1;
 
-  const seconds =
-    amount * multiplier;
+  const seconds = amount * multiplier;
 
-  if (
-    !Number.isSafeInteger(seconds) ||
-    seconds <= 0
-  ) {
-    throw new InternalServerErrorException(
-      `${name} must be positive`,
-    );
+  if (!Number.isSafeInteger(seconds) || seconds <= 0) {
+    throw new InternalServerErrorException(`${name} must be positive`);
   }
 
   return seconds;
@@ -72,42 +47,30 @@ export class TokenService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {
-    this.accessSecret =
-      this.configService.getOrThrow<string>(
-        'auth.accessTokenSecret',
-      );
+    this.accessSecret = this.configService.getOrThrow<string>(
+      'auth.accessTokenSecret',
+    );
 
-    this.refreshSecret =
-      this.configService.getOrThrow<string>(
-        'auth.refreshTokenSecret',
-      );
+    this.refreshSecret = this.configService.getOrThrow<string>(
+      'auth.refreshTokenSecret',
+    );
 
-    const accessTtl =
-      this.configService.getOrThrow<string>(
-        'auth.accessTokenTtl',
-      );
+    const accessTtl = this.configService.getOrThrow<string>(
+      'auth.accessTokenTtl',
+    );
 
-    const refreshTtl =
-      this.configService.getOrThrow<string>(
-        'auth.refreshTokenTtl',
-      );
+    const refreshTtl = this.configService.getOrThrow<string>(
+      'auth.refreshTokenTtl',
+    );
 
-    this.accessTtlSeconds =
-      parseDurationToSeconds(
-        accessTtl,
-        'JWT_ACCESS_TTL',
-      );
+    this.accessTtlSeconds = parseDurationToSeconds(accessTtl, 'JWT_ACCESS_TTL');
 
-    this.refreshTtlSeconds =
-      parseDurationToSeconds(
-        refreshTtl,
-        'JWT_REFRESH_TTL',
-      );
+    this.refreshTtlSeconds = parseDurationToSeconds(
+      refreshTtl,
+      'JWT_REFRESH_TTL',
+    );
 
-    if (
-      this.accessSecret ===
-      this.refreshSecret
-    ) {
+    if (this.accessSecret === this.refreshSecret) {
       throw new InternalServerErrorException(
         'JWT access and refresh secrets must be different',
       );
@@ -122,53 +85,31 @@ export class TokenService {
     return this.refreshTtlSeconds;
   }
 
-  getRefreshExpiresAt(
-    from = new Date(),
-  ): Date {
-    return new Date(
-      from.getTime() +
-      this.refreshTtlSeconds * 1000,
-    );
+  getRefreshExpiresAt(from = new Date()): Date {
+    return new Date(from.getTime() + this.refreshTtlSeconds * 1000);
   }
 
   hashRefreshToken(token: string): string {
-    return createHash('sha256')
-      .update(token, 'utf8')
-      .digest('hex');
+    return createHash('sha256').update(token, 'utf8').digest('hex');
   }
 
-  refreshTokenMatches(
-    token: string,
-    storedHash: string,
-  ): boolean {
+  refreshTokenMatches(token: string, storedHash: string): boolean {
     if (!/^[0-9a-f]{64}$/i.test(storedHash)) {
       return false;
     }
 
-    const actual = Buffer.from(
-      this.hashRefreshToken(token),
-      'hex',
-    );
+    const actual = Buffer.from(this.hashRefreshToken(token), 'hex');
 
-    const expected = Buffer.from(
-      storedHash,
-      'hex',
-    );
+    const expected = Buffer.from(storedHash, 'hex');
 
     if (actual.length !== expected.length) {
       return false;
     }
 
-    return timingSafeEqual(
-      actual,
-      expected,
-    );
+    return timingSafeEqual(actual, expected);
   }
 
-  signAccessToken(
-    userId: string,
-    sessionId: string,
-  ): Promise<string> {
+  signAccessToken(userId: string, sessionId: string): Promise<string> {
     return this.signToken(
       userId,
       sessionId,
@@ -178,10 +119,7 @@ export class TokenService {
     );
   }
 
-  signRefreshToken(
-    userId: string,
-    sessionId: string,
-  ): Promise<string> {
+  signRefreshToken(userId: string, sessionId: string): Promise<string> {
     return this.signToken(
       userId,
       sessionId,
@@ -196,36 +134,25 @@ export class TokenService {
     sessionId: string,
     sessionExpiresAt: Date,
   ) {
-    const remainingSessionSeconds =
-      Math.floor(
-        (
-          sessionExpiresAt.getTime() -
-          Date.now()
-        ) / 1000,
-      );
+    const remainingSessionSeconds = Math.floor(
+      (sessionExpiresAt.getTime() - Date.now()) / 1000,
+    );
 
     if (remainingSessionSeconds <= 0) {
-      throw new UnauthorizedException(
-        'Session has expired',
-      );
+      throw new UnauthorizedException('Session has expired');
     }
 
-    const accessTokenExpiresIn =
-      Math.min(
-        this.accessTtlSeconds,
-        remainingSessionSeconds,
-      );
+    const accessTokenExpiresIn = Math.min(
+      this.accessTtlSeconds,
+      remainingSessionSeconds,
+    );
 
-    const refreshTokenExpiresIn =
-      Math.min(
-        this.refreshTtlSeconds,
-        remainingSessionSeconds,
-      );
+    const refreshTokenExpiresIn = Math.min(
+      this.refreshTtlSeconds,
+      remainingSessionSeconds,
+    );
 
-    const [
-      accessToken,
-      refreshToken,
-    ] = await Promise.all([
+    const [accessToken, refreshToken] = await Promise.all([
       this.signToken(
         userId,
         sessionId,
@@ -251,24 +178,12 @@ export class TokenService {
     };
   }
 
-  verifyAccessToken(
-    token: string,
-  ): Promise<TokenPayload> {
-    return this.verifyToken(
-      token,
-      'access',
-      this.accessSecret,
-    );
+  verifyAccessToken(token: string): Promise<TokenPayload> {
+    return this.verifyToken(token, 'access', this.accessSecret);
   }
 
-  verifyRefreshToken(
-    token: string,
-  ): Promise<TokenPayload> {
-    return this.verifyToken(
-      token,
-      'refresh',
-      this.refreshSecret,
-    );
+  verifyRefreshToken(token: string): Promise<TokenPayload> {
+    return this.verifyToken(token, 'refresh', this.refreshSecret);
   }
 
   private signToken(
@@ -285,13 +200,10 @@ export class TokenService {
       jti: randomUUID(),
     };
 
-    return this.jwtService.signAsync(
-      payload,
-      {
-        secret,
-        expiresIn,
-      },
-    );
+    return this.jwtService.signAsync(payload, {
+      secret,
+      expiresIn,
+    });
   }
 
   private async verifyToken(
@@ -300,13 +212,9 @@ export class TokenService {
     secret: string,
   ): Promise<TokenPayload> {
     try {
-      const payload =
-        await this.jwtService.verifyAsync<TokenPayload>(
-          token,
-          {
-            secret,
-          },
-        );
+      const payload = await this.jwtService.verifyAsync<TokenPayload>(token, {
+        secret,
+      });
 
       if (
         !payload.sub ||
@@ -314,24 +222,16 @@ export class TokenService {
         !payload.jti ||
         payload.typ !== expectedType
       ) {
-        throw new UnauthorizedException(
-          'Invalid token payload',
-        );
+        throw new UnauthorizedException('Invalid token payload');
       }
 
       return payload;
     } catch (error) {
-      if (
-        error instanceof
-        UnauthorizedException
-      ) {
+      if (error instanceof UnauthorizedException) {
         throw error;
       }
 
-      throw new UnauthorizedException(
-        'Invalid or expired token',
-      );
+      throw new UnauthorizedException('Invalid or expired token');
     }
   }
-
 }

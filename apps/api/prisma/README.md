@@ -85,7 +85,6 @@ Some database rules intentionally live in migration SQL rather than Prisma DSL:
 
 Do not remove these just because Prisma schema cannot express every detail.
 
-
 The scalar fields `resumes.current_version_id`, `jobs.current_published_version_id`,
 and `applications.current_match_run_id` intentionally do **not** declare normal
 single-column Prisma relations. Their real database constraints are composite

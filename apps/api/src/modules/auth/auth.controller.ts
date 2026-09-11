@@ -22,10 +22,7 @@ import type { AuthenticatedUser } from './types/authenticated-user.type';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService:
-      AuthService,
-  ) { }
+  constructor(private readonly authService: AuthService) {}
 
   @Post('register')
   register(
@@ -33,15 +30,11 @@ export class AuthController {
     @Req() request: Request,
     @Ip() ipAddress: string,
   ): Promise<AuthResponse> {
-    return this.authService.register(
-      dto,
-      {
-        userAgent:
-          request.headers['user-agent'],
+    return this.authService.register(dto, {
+      userAgent: request.headers['user-agent'],
 
-        ipAddress,
-      },
-    );
+      ipAddress,
+    });
   }
 
   @Post('login')
@@ -51,22 +44,16 @@ export class AuthController {
     @Req() request: Request,
     @Ip() ipAddress: string,
   ): Promise<AuthResponse> {
-    return this.authService.login(
-      dto,
-      {
-        userAgent:
-          request.headers['user-agent'],
+    return this.authService.login(dto, {
+      userAgent: request.headers['user-agent'],
 
-        ipAddress,
-      },
-    );
+      ipAddress,
+    });
   }
 
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  refresh(
-    @Body() dto: RefreshTokenDto,
-  ): Promise<AuthResponse> {
+  refresh(@Body() dto: RefreshTokenDto): Promise<AuthResponse> {
     return this.authService.refresh(dto);
   }
 

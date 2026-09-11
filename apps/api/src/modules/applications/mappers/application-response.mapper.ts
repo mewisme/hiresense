@@ -1,6 +1,12 @@
-import type { Application, RecruitmentStage } from '../../../generated/prisma/client';
+import type {
+  Application,
+  RecruitmentStage,
+} from '../../../generated/prisma/client';
 
-export function toApplicationResponse(application: Application, currentStage: RecruitmentStage) {
+export function toApplicationResponse(
+  application: Application,
+  currentStage: RecruitmentStage,
+) {
   return {
     id: application.id,
     jobId: application.jobId,

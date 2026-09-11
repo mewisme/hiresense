@@ -1,13 +1,13 @@
 # HireSense — Database Architecture & Evolution Guide
 
-> **Canonical path trong repository:** `hiresense/docs/DATABASE.md`  
-> **Trạng thái:** Source of Truth cho thiết kế database  
-> **Project:** HireSense  
-> **Database:** PostgreSQL 18 + pgvector  
-> **ORM chính:** Prisma  
-> **AI Service:** FastAPI  
-> **Timezone chuẩn:** UTC  
-> **Primary key chuẩn:** UUIDv7 do PostgreSQL sinh  
+> **Canonical path trong repository:** `hiresense/docs/DATABASE.md`
+> **Trạng thái:** Source of Truth cho thiết kế database
+> **Project:** HireSense
+> **Database:** PostgreSQL 18 + pgvector
+> **ORM chính:** Prisma
+> **AI Service:** FastAPI
+> **Timezone chuẩn:** UTC
+> **Primary key chuẩn:** UUIDv7 do PostgreSQL sinh
 > **Phạm vi:** Foundation → Thực tập tốt nghiệp → V1 → V2 → Future
 
 ---
@@ -721,17 +721,17 @@ Frontend render:
 
 **Phase:** Internship
 
-| Column | Type | Rule |
-|---|---|---|
-| `id` | uuid | PK, default uuidv7() |
-| `email` | citext | NOT NULL, UNIQUE |
-| `password_hash` | text | NOT NULL |
-| `status` | text | NOT NULL |
-| `email_verified_at` | timestamptz(6) | nullable |
-| `last_login_at` | timestamptz(6) | nullable |
-| `created_at` | timestamptz(6) | default now |
-| `updated_at` | timestamptz(6) | default now |
-| `deleted_at` | timestamptz(6) | nullable |
+| Column              | Type           | Rule                 |
+| ------------------- | -------------- | -------------------- |
+| `id`                | uuid           | PK, default uuidv7() |
+| `email`             | citext         | NOT NULL, UNIQUE     |
+| `password_hash`     | text           | NOT NULL             |
+| `status`            | text           | NOT NULL             |
+| `email_verified_at` | timestamptz(6) | nullable             |
+| `last_login_at`     | timestamptz(6) | nullable             |
+| `created_at`        | timestamptz(6) | default now          |
+| `updated_at`        | timestamptz(6) | default now          |
+| `deleted_at`        | timestamptz(6) | nullable             |
 
 Status:
 
@@ -1262,7 +1262,7 @@ ResumeVersion
 DiscordStorageChunk
 ```
 
-Resume versioning hiện đã được canonical hóa độc lập với storage implementation. 
+Resume versioning hiện đã được canonical hóa độc lập với storage implementation.
 
 ---
 

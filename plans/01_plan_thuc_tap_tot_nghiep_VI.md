@@ -1,6 +1,7 @@
 # KẾ HOẠCH CHI TIẾT — GIAI ĐOẠN THỰC TẬP TỐT NGHIỆP
 
 ## Đề tài
+
 **Xây dựng hệ thống tuyển dụng và phân tích mức độ phù hợp giữa CV và mô tả công việc ứng dụng trí tuệ nhân tạo**
 
 ---
@@ -70,6 +71,7 @@ Hoàn thành các thành phần:
 ## 2.1. Bắt buộc phải có
 
 ### Candidate
+
 - Đăng ký.
 - Đăng nhập.
 - Đăng xuất.
@@ -86,6 +88,7 @@ Hoàn thành các thành phần:
 - Xem điểm phù hợp của bản thân với JD sau khi hệ thống phân tích.
 
 ### Recruiter
+
 - Đăng ký/đăng nhập.
 - Tạo/cập nhật thông tin công ty.
 - Tạo tin tuyển dụng.
@@ -98,6 +101,7 @@ Hoàn thành các thành phần:
 - Cập nhật trạng thái application.
 
 ### Admin
+
 - Đăng nhập.
 - Xem danh sách người dùng.
 - Khóa/mở tài khoản ở mức cơ bản.
@@ -106,6 +110,7 @@ Hoàn thành các thành phần:
 - Ẩn job vi phạm nếu cần.
 
 ### AI/Matching
+
 - Extract text từ CV PDF.
 - Chuẩn hóa text.
 - Trích xuất kỹ năng.
@@ -148,6 +153,7 @@ Các nội dung sau được cố ý để dành cho đồ án hoàn chỉnh:
 ## 3.1. Candidate
 
 Quyền chính:
+
 - Quản lý hồ sơ cá nhân.
 - Quản lý CV của bản thân.
 - Xem job đang mở.
@@ -156,6 +162,7 @@ Quyền chính:
 - Xem matching result của bản thân.
 
 Không được:
+
 - Xem CV ứng viên khác.
 - Xem dữ liệu nội bộ recruiter.
 - Thay đổi trạng thái application.
@@ -164,6 +171,7 @@ Không được:
 ## 3.2. Recruiter
 
 Quyền chính:
+
 - Quản lý công ty mà mình thuộc về.
 - Quản lý job của công ty.
 - Xem application gửi vào job thuộc công ty.
@@ -172,6 +180,7 @@ Quyền chính:
 - Cập nhật application status.
 
 Không được:
+
 - Xem dữ liệu riêng tư của ứng viên chưa ứng tuyển.
 - Quản lý job công ty khác.
 - Tự thay đổi score AI trực tiếp.
@@ -179,6 +188,7 @@ Không được:
 ## 3.3. Admin
 
 Quyền chính:
+
 - Quản lý user.
 - Quản lý company.
 - Quản lý job.
@@ -261,6 +271,7 @@ Không nên thêm quá nhiều trạng thái ở giai đoạn 1.
 ## FR-AUTH
 
 ### FR-AUTH-01 — Đăng ký
+
 - Cho phép chọn role Candidate hoặc Recruiter.
 - Email duy nhất.
 - Password phải đạt rule tối thiểu.
@@ -268,17 +279,20 @@ Không nên thêm quá nhiều trạng thái ở giai đoạn 1.
 - Trả lỗi rõ ràng khi email tồn tại.
 
 ### FR-AUTH-02 — Đăng nhập
+
 - Kiểm tra email/password.
 - Sinh access token.
 - Có refresh token nếu triển khai.
 - Trả role và user profile cơ bản.
 
 ### FR-AUTH-03 — Phân quyền
+
 - Mỗi API private phải kiểm tra authentication.
 - API recruiter phải kiểm tra role.
 - API candidate phải kiểm tra quyền sở hữu tài nguyên.
 
 ### FR-AUTH-04 — Đổi mật khẩu
+
 - Yêu cầu password hiện tại.
 - Hash password mới.
 - Invalidate refresh token cũ nếu triển khai.
@@ -288,7 +302,9 @@ Không nên thêm quá nhiều trạng thái ở giai đoạn 1.
 ## FR-CANDIDATE
 
 ### FR-CAN-01 — Candidate profile
+
 Thông tin đề xuất:
+
 - fullName
 - phone
 - dateOfBirth (optional)
@@ -302,6 +318,7 @@ Thông tin đề xuất:
 - LinkedIn URL
 
 ### FR-CAN-02 — Upload CV
+
 - Chỉ chấp nhận PDF trong MVP.
 - Giới hạn kích thước file.
 - Kiểm tra MIME type.
@@ -310,18 +327,22 @@ Thông tin đề xuất:
 - Trigger parse sau upload.
 
 ### FR-CAN-03 — Quản lý CV
+
 - Xem danh sách CV của bản thân.
 - Đặt một CV là active/default.
 - Xóa CV nếu chưa gắn với application hoặc có policy phù hợp.
 
 ### FR-CAN-04 — Tìm việc
+
 Filter tối thiểu:
+
 - keyword;
 - location;
 - employment type;
 - experience level.
 
 ### FR-CAN-05 — Ứng tuyển
+
 - Candidate phải có CV.
 - Không cho duplicate application cùng job nếu policy là 1 lần/job.
 - Snapshot CV được chọn vào application.
@@ -329,7 +350,9 @@ Filter tối thiểu:
 - Trigger matching.
 
 ### FR-CAN-06 — Theo dõi application
+
 Hiển thị:
+
 - Job title.
 - Company.
 - Applied date.
@@ -341,6 +364,7 @@ Hiển thị:
 ## FR-RECRUITER
 
 ### FR-REC-01 — Company
+
 - Tạo company.
 - Update company.
 - Logo optional.
@@ -350,7 +374,9 @@ Hiển thị:
 - Description.
 
 ### FR-REC-02 — Job CRUD
+
 Thông tin job:
+
 - title
 - slug
 - description
@@ -368,14 +394,18 @@ Thông tin job:
 - status: DRAFT/PUBLISHED/CLOSED
 
 ### FR-REC-03 — Danh sách ứng viên
+
 Cho phép:
+
 - xem theo job;
 - sort theo appliedAt;
 - sort theo matchScore;
 - filter theo status.
 
 ### FR-REC-04 — Chi tiết ứng viên
+
 Hiển thị:
+
 - candidate profile;
 - CV link/view;
 - parsed information;
@@ -385,6 +415,7 @@ Hiển thị:
 - application status.
 
 ### FR-REC-05 — Cập nhật trạng thái
+
 - Chỉ recruiter thuộc company được thao tác.
 - Ghi `updatedAt`.
 - Nếu có status history thì lưu lịch sử.
@@ -394,11 +425,13 @@ Hiển thị:
 ## FR-ADMIN
 
 ### FR-ADM-01 — User management
+
 - List.
 - Search theo email/tên.
 - Disable/enable account.
 
 ### FR-ADM-02 — Job moderation
+
 - List job.
 - Xem company/job.
 - Ẩn hoặc đóng job vi phạm.
@@ -416,20 +449,24 @@ Không cố xây “AI tuyển dụng hoàn chỉnh”. Mục tiêu là tạo m�
 ## 6.2. Pipeline CV
 
 ### Bước 1 — File validation
+
 - PDF hợp lệ.
 - Không vượt size limit.
 - Không bị lỗi file.
 
 ### Bước 2 — Text extraction
+
 Ưu tiên thư viện PDF text extraction trước.
 Không dùng OCR trừ khi cần.
 
 Output:
+
 - rawText
 - extractionStatus
 - extractionError nếu có
 
 ### Bước 3 — Normalization
+
 - lowercase cho matching nhưng giữ raw text.
 - remove redundant spaces.
 - normalize punctuation.
@@ -440,13 +477,16 @@ Output:
   - js -> javascript khi ngữ cảnh phù hợp.
 
 ### Bước 4 — Skill extraction
+
 Cách MVP:
+
 - skill dictionary.
 - keyword matching.
 - alias matching.
 - optional regex.
 
 Ví dụ dictionary:
+
 - JavaScript
 - TypeScript
 - React
@@ -471,7 +511,9 @@ Ví dụ dictionary:
 - GraphQL
 
 ### Bước 5 — Experience extraction
+
 MVP có thể:
+
 - đọc trường “x years experience”;
 - hoặc tính gần đúng từ work history;
 - lưu `estimatedYearsOfExperience`.
@@ -479,7 +521,9 @@ MVP có thể:
 Phải đánh dấu đây là giá trị ước tính.
 
 ### Bước 6 — Education extraction
+
 Tìm:
+
 - university/college;
 - degree;
 - major;
@@ -492,6 +536,7 @@ MVP không cần NLP phức tạp.
 ## 6.3. Pipeline JD
 
 Tách JD thành:
+
 - required skills;
 - preferred skills;
 - minimum experience;
@@ -500,6 +545,7 @@ Tách JD thành:
 Có thể hỗ trợ recruiter chọn skills thủ công khi đăng job để giảm lỗi parse.
 
 Đây là lựa chọn rất phù hợp cho MVP:
+
 - JD text dùng để hiển thị.
 - `job_skills` dùng cho matching tin cậy hơn.
 
@@ -512,7 +558,9 @@ Có thể hỗ trợ recruiter chọn skills thủ công khi đăng job để gi
 `FinalScore = SkillScore * 0.60 + ExperienceScore * 0.25 + EducationScore * 0.15`
 
 ### SkillScore
+
 Ví dụ:
+
 - required skill match: trọng số 1.0;
 - preferred skill match: trọng số 0.5.
 
@@ -521,7 +569,9 @@ Công thức có thể:
 `matched required weights / total required weights * 100`
 
 ### ExperienceScore
+
 Ví dụ:
+
 - candidate >= required: 100.
 - candidate = required - 1 năm: 75.
 - candidate = required - 2 năm: 50.
@@ -530,7 +580,9 @@ Ví dụ:
 Cần ghi rõ công thức trong báo cáo.
 
 ### EducationScore
+
 Ví dụ:
+
 - đáp ứng: 100;
 - gần tương đương: 70;
 - không xác định: 50;
@@ -557,11 +609,13 @@ Ví dụ:
 # 7. Yêu cầu phi chức năng
 
 ## NFR-01 — Hiệu năng
+
 - API CRUD thông thường mục tiêu < 500 ms trong môi trường dev/local hợp lý.
 - Matching có thể chạy đồng bộ nếu < vài giây; nếu lâu hơn chuyển background job.
 - List endpoint phải pagination.
 
 ## NFR-02 — Bảo mật
+
 - Password hash bằng bcrypt/argon2.
 - JWT có expiry.
 - Không public file path trực tiếp nếu storage private.
@@ -571,12 +625,14 @@ Ví dụ:
 - Không log password/token.
 
 ## NFR-03 — Quyền riêng tư
+
 - CV được xem là dữ liệu nhạy cảm.
 - Chỉ candidate sở hữu, recruiter liên quan và admin hợp lệ được truy cập.
 - Có chức năng xóa CV hoặc xóa tài khoản ở mức phù hợp.
 - Không dùng CV thật của người khác trong demo nếu chưa có quyền.
 
 ## NFR-04 — Khả năng bảo trì
+
 - Tách module rõ ràng.
 - Có DTO/schema.
 - Có migration.
@@ -584,7 +640,9 @@ Ví dụ:
 - Có `.env.example`.
 
 ## NFR-05 — Khả năng mở rộng
+
 Thiết kế để sau này thêm:
+
 - AI service riêng;
 - vector search;
 - recommendation;
@@ -593,7 +651,9 @@ Thiết kế để sau này thêm:
 - analytics.
 
 ## NFR-06 — Logging
+
 Tối thiểu log:
+
 - request errors;
 - auth failures đáng chú ý;
 - AI parse failure;
@@ -637,6 +697,7 @@ Nếu tách Python:
 ## 8.2. Khuyến nghị giai đoạn 1
 
 Nếu thời gian ngắn:
+
 - giữ AI logic đơn giản;
 - ưu tiên ít service;
 - không thêm Redis/Kafka/vector DB khi chưa cần.
@@ -646,6 +707,7 @@ Nếu thời gian ngắn:
 # 9. Thiết kế database MVP
 
 ## 9.1. `users`
+
 - id UUID
 - email unique
 - passwordHash
@@ -655,6 +717,7 @@ Nếu thời gian ngắn:
 - updatedAt
 
 ## 9.2. `candidate_profiles`
+
 - id
 - userId unique FK
 - fullName
@@ -670,6 +733,7 @@ Nếu thời gian ngắn:
 - updatedAt
 
 ## 9.3. `recruiter_profiles`
+
 - id
 - userId unique FK
 - fullName
@@ -680,6 +744,7 @@ Nếu thời gian ngắn:
 - updatedAt
 
 ## 9.4. `companies`
+
 - id
 - name
 - slug
@@ -693,6 +758,7 @@ Nếu thời gian ngắn:
 - updatedAt
 
 ## 9.5. `jobs`
+
 - id
 - companyId FK
 - createdBy FK user
@@ -718,12 +784,14 @@ Nếu thời gian ngắn:
 - updatedAt
 
 ## 9.6. `skills`
+
 - id
 - name unique
 - normalizedName unique
 - category optional
 
 ## 9.7. `job_skills`
+
 - id
 - jobId FK
 - skillId FK
@@ -732,6 +800,7 @@ Nếu thời gian ngắn:
 - unique(jobId, skillId)
 
 ## 9.8. `resumes`
+
 - id
 - candidateId FK
 - originalFileName
@@ -745,6 +814,7 @@ Nếu thời gian ngắn:
 - uploadedAt
 
 ## 9.9. `resume_skills`
+
 - id
 - resumeId FK
 - skillId FK
@@ -753,6 +823,7 @@ Nếu thời gian ngắn:
 - unique(resumeId, skillId)
 
 ## 9.10. `applications`
+
 - id
 - candidateId FK
 - jobId FK
@@ -763,6 +834,7 @@ Nếu thời gian ngắn:
 - unique(candidateId, jobId)
 
 ## 9.11. `ai_analyses`
+
 - id
 - applicationId unique FK
 - version
@@ -779,6 +851,7 @@ Nếu thời gian ngắn:
 - updatedAt
 
 ## 9.12. `application_status_history` — optional nhưng nên có
+
 - id
 - applicationId
 - oldStatus
@@ -791,6 +864,7 @@ Nếu thời gian ngắn:
 # 10. API dự kiến
 
 ## Auth
+
 - `POST /auth/register`
 - `POST /auth/login`
 - `POST /auth/refresh`
@@ -798,6 +872,7 @@ Nếu thời gian ngắn:
 - `PATCH /auth/change-password`
 
 ## Candidate
+
 - `GET /candidate/profile`
 - `PATCH /candidate/profile`
 - `GET /candidate/resumes`
@@ -806,6 +881,7 @@ Nếu thời gian ngắn:
 - `PATCH /candidate/resumes/:id/default`
 
 ## Jobs
+
 - `GET /jobs`
 - `GET /jobs/:id`
 - `POST /recruiter/jobs`
@@ -814,6 +890,7 @@ Nếu thời gian ngắn:
 - `POST /recruiter/jobs/:id/close`
 
 ## Applications
+
 - `POST /jobs/:jobId/applications`
 - `GET /candidate/applications`
 - `GET /candidate/applications/:id`
@@ -822,16 +899,19 @@ Nếu thời gian ngắn:
 - `PATCH /recruiter/applications/:id/status`
 
 ## Company
+
 - `GET /recruiter/company`
 - `POST /recruiter/company`
 - `PATCH /recruiter/company`
 
 ## AI
+
 - `POST /internal/resumes/:id/parse`
 - `POST /internal/applications/:id/match`
 - `GET /applications/:id/analysis`
 
 ## Admin
+
 - `GET /admin/users`
 - `PATCH /admin/users/:id/status`
 - `GET /admin/jobs`
@@ -842,6 +922,7 @@ Nếu thời gian ngắn:
 # 11. Danh sách màn hình
 
 ## Public
+
 1. Landing page.
 2. Job listing.
 3. Job detail.
@@ -849,6 +930,7 @@ Nếu thời gian ngắn:
 5. Register.
 
 ## Candidate
+
 6. Candidate dashboard.
 7. Profile.
 8. Resume management.
@@ -857,6 +939,7 @@ Nếu thời gian ngắn:
 11. Application detail + match result.
 
 ## Recruiter
+
 12. Recruiter dashboard.
 13. Company profile.
 14. Job list.
@@ -867,6 +950,7 @@ Nếu thời gian ngắn:
 19. Applicant detail + CV + AI score.
 
 ## Admin
+
 20. Admin dashboard.
 21. User management.
 22. Job management.
@@ -938,6 +1022,7 @@ recruitment-ai-service/
 ## Tuần 1 — Phân tích yêu cầu và chốt phạm vi
 
 ### Việc cần làm
+
 - Viết problem statement.
 - Xác định actor.
 - Chốt chức năng MVP.
@@ -948,12 +1033,14 @@ recruitment-ai-service/
 - Tạo backlog.
 
 ### Kết quả
+
 - Requirement document.
 - Use case diagram.
 - Product scope.
 - Initial backlog.
 
 ### Definition of Done
+
 - Có danh sách chức năng bắt buộc.
 - Có danh sách chức năng chưa làm.
 - Không còn mơ hồ về luồng demo chính.
@@ -963,6 +1050,7 @@ recruitment-ai-service/
 ## Tuần 2 — Thiết kế hệ thống và database
 
 ### Việc cần làm
+
 - ERD.
 - Database schema.
 - API contract v1.
@@ -972,12 +1060,14 @@ recruitment-ai-service/
 - Xác định data ownership.
 
 ### Kết quả
+
 - ERD v1.
 - API list.
 - Wireframe.
 - Architecture diagram.
 
 ### DoD
+
 - Có thể giải thích quan hệ giữa user, company, job, resume, application, analysis.
 
 ---
@@ -985,6 +1075,7 @@ recruitment-ai-service/
 ## Tuần 3 — Khởi tạo dự án và Auth
 
 ### Việc cần làm
+
 - Setup Next.js.
 - Setup NestJS.
 - Setup PostgreSQL.
@@ -997,11 +1088,13 @@ recruitment-ai-service/
 - Error handling.
 
 ### Kết quả
+
 - Đăng ký/đăng nhập được.
 - Candidate và Recruiter vào đúng khu vực.
 - Database chạy ổn.
 
 ### Test
+
 - Email duplicate.
 - Sai password.
 - Token hết hạn.
@@ -1012,6 +1105,7 @@ recruitment-ai-service/
 ## Tuần 4 — Candidate profile + Company + Job CRUD
 
 ### Việc cần làm
+
 - Candidate profile.
 - Recruiter profile.
 - Company CRUD.
@@ -1020,10 +1114,12 @@ recruitment-ai-service/
 - Job listing public.
 
 ### Kết quả
+
 - Recruiter có thể tạo company và đăng job.
 - Candidate có thể xem job.
 
 ### DoD
+
 - Job DRAFT không xuất hiện public.
 - Job CLOSED không nhận application mới.
 
@@ -1032,6 +1128,7 @@ recruitment-ai-service/
 ## Tuần 5 — Resume upload và quản lý file
 
 ### Việc cần làm
+
 - Upload PDF.
 - Validate file.
 - Storage service.
@@ -1041,10 +1138,12 @@ recruitment-ai-service/
 - PDF viewer/link bảo mật cơ bản.
 
 ### Kết quả
+
 - Candidate upload CV thành công.
 - Recruiter chưa thể xem nếu chưa có application.
 
 ### Test
+
 - Sai MIME.
 - File quá lớn.
 - File lỗi.
@@ -1055,6 +1154,7 @@ recruitment-ai-service/
 ## Tuần 6 — Application workflow
 
 ### Việc cần làm
+
 - Apply job.
 - Prevent duplicate.
 - Candidate application list.
@@ -1064,9 +1164,11 @@ recruitment-ai-service/
 - Status history nếu có.
 
 ### Kết quả
+
 - Luồng Candidate -> Apply -> Recruiter xem được hoàn chỉnh.
 
 ### DoD
+
 - Ownership và company permission đúng.
 
 ---
@@ -1074,6 +1176,7 @@ recruitment-ai-service/
 ## Tuần 7 — CV text extraction và parsing cơ bản
 
 ### Việc cần làm
+
 - Extract text.
 - Parse status.
 - Skill dictionary.
@@ -1083,9 +1186,11 @@ recruitment-ai-service/
 - Lưu parsed result.
 
 ### Kết quả
+
 - Upload CV -> có parsed text + skill list.
 
 ### Test
+
 - 10–20 CV mẫu.
 - Theo dõi parse failures.
 - Ghi chú các case không xử lý tốt.
@@ -1095,6 +1200,7 @@ recruitment-ai-service/
 ## Tuần 8 — JD structure + Matching Engine v1
 
 ### Việc cần làm
+
 - Job skill selection.
 - Required/preferred distinction.
 - Implement scoring formula.
@@ -1103,9 +1209,11 @@ recruitment-ai-service/
 - Versioning formula.
 
 ### Kết quả
+
 - Application tạo ra match result.
 
 ### DoD
+
 - Score reproducible.
 - Có công thức rõ trong tài liệu.
 - Không phụ thuộc LLM để trả score.
@@ -1115,6 +1223,7 @@ recruitment-ai-service/
 ## Tuần 9 — UI hoàn thiện cho AI result
 
 ### Việc cần làm
+
 - Candidate match view.
 - Recruiter applicant detail.
 - Score breakdown.
@@ -1124,6 +1233,7 @@ recruitment-ai-service/
 - Loading state.
 
 ### Kết quả
+
 - Demo trực quan và dễ hiểu.
 
 ---
@@ -1131,6 +1241,7 @@ recruitment-ai-service/
 ## Tuần 10 — Testing + Security + Data seed
 
 ### Việc cần làm
+
 - Unit test scoring.
 - Integration test API quan trọng.
 - E2E smoke test.
@@ -1140,6 +1251,7 @@ recruitment-ai-service/
 - Test invalid inputs.
 
 ### Kết quả
+
 - Test report.
 - Bug list.
 - Fix các bug P0/P1.
@@ -1149,6 +1261,7 @@ recruitment-ai-service/
 ## Tuần 11 — Deploy + Documentation
 
 ### Việc cần làm
+
 - Dockerfile.
 - Docker Compose nếu phù hợp.
 - `.env.example`.
@@ -1160,6 +1273,7 @@ recruitment-ai-service/
 - Hướng dẫn demo.
 
 ### Kết quả
+
 - Hệ thống chạy được từ clean environment.
 - Có URL demo nếu có server.
 
@@ -1168,6 +1282,7 @@ recruitment-ai-service/
 ## Tuần 12 — Hoàn thiện báo cáo và rehearsal
 
 ### Việc cần làm
+
 - Chốt screenshot.
 - Viết nội dung báo cáo thực tập.
 - Chuẩn bị slide.
@@ -1177,6 +1292,7 @@ recruitment-ai-service/
 - Tag release `internship-v1.0`.
 
 ### Kết quả
+
 - Source code.
 - Report.
 - Slide.
@@ -1189,13 +1305,16 @@ recruitment-ai-service/
 # 16. Kế hoạch kiểm thử
 
 ## 16.1. Unit test
+
 Ưu tiên:
+
 - matching formula;
 - skill normalization;
 - experience score;
 - permission helpers.
 
 ## 16.2. Integration test
+
 - register/login;
 - create job;
 - upload resume;
@@ -1205,7 +1324,9 @@ recruitment-ai-service/
 - trigger analysis.
 
 ## 16.3. E2E test quan trọng
+
 Scenario:
+
 1. Recruiter register.
 2. Create company.
 3. Create/publish job.
@@ -1218,7 +1339,9 @@ Scenario:
 10. Candidate sees updated status.
 
 ## 16.4. Test data
+
 Tạo ít nhất:
+
 - 3 recruiter.
 - 3 company.
 - 10–20 job.
@@ -1258,6 +1381,7 @@ Giai đoạn 1 được coi là đạt khi:
 ## Demo 8–12 phút
 
 ### Phần 1 — Recruiter
+
 - Login recruiter.
 - Tạo/publish job Full Stack Developer.
 - Chọn skills:
@@ -1268,6 +1392,7 @@ Giai đoạn 1 được coi là đạt khi:
   - 2 years experience.
 
 ### Phần 2 — Candidate
+
 - Login candidate.
 - Upload CV.
 - Hệ thống parse CV.
@@ -1275,6 +1400,7 @@ Giai đoạn 1 được coi là đạt khi:
 - Apply.
 
 ### Phần 3 — AI
+
 - Mở application.
 - Hiển thị:
   - overall score;
@@ -1285,12 +1411,15 @@ Giai đoạn 1 được coi là đạt khi:
   - missing skills.
 
 ### Phần 4 — Recruiter workflow
+
 - Recruiter xem applicant.
 - Update status sang REVIEWING/INTERVIEW.
 - Candidate xem trạng thái mới.
 
 ### Phần 5 — Kết luận
+
 Nêu rõ:
+
 - Matching hiện tại là rule/keyword-based.
 - Đây là baseline.
 - Giai đoạn đồ án sẽ nâng cấp sang semantic matching, ranking, recommendation, explainability và evaluation.
@@ -1300,6 +1429,7 @@ Nêu rõ:
 # 19. Deliverables bắt buộc
 
 ## Source
+
 - Frontend repository.
 - Backend repository.
 - AI module/service nếu có.
@@ -1308,6 +1438,7 @@ Nêu rõ:
 - Docker config nếu có.
 
 ## Tài liệu
+
 - Requirement specification.
 - Use case diagram.
 - Activity/sequence diagrams cho luồng chính.
@@ -1321,6 +1452,7 @@ Nêu rõ:
 - Báo cáo thực tập.
 
 ## Demo
+
 - Demo dataset.
 - CV mẫu.
 - Job mẫu.
@@ -1332,7 +1464,9 @@ Nêu rõ:
 # 20. Rủi ro và phương án xử lý
 
 ## R1 — CV parse không ổn định
+
 Giải pháp:
+
 - chỉ hỗ trợ PDF text-based;
 - không hứa OCR;
 - dùng skill dictionary;
@@ -1340,18 +1474,24 @@ Giải pháp:
 - cho phép candidate kiểm tra parsed skills nếu cần.
 
 ## R2 — Scope quá lớn
+
 Giải pháp:
+
 - freeze MVP cuối tuần 2;
 - mọi feature mới đưa vào backlog giai đoạn 2.
 
 ## R3 — AI bị hội đồng hỏi “AI ở đâu?”
+
 Giải pháp:
+
 - giải thích rõ baseline NLP/AI pipeline;
 - có extraction, normalization, feature matching, scoring;
 - trình bày đây là baseline để so sánh với semantic model ở giai đoạn sau.
 
 ## R4 — Score thiếu thuyết phục
+
 Giải pháp:
+
 - score breakdown;
 - công thức minh bạch;
 - test case;
@@ -1359,7 +1499,9 @@ Giải pháp:
 - không gọi score là “khả năng được tuyển”.
 
 ## R5 — File CV gây lộ dữ liệu
+
 Giải pháp:
+
 - private access;
 - authorization;
 - không public bucket;
@@ -1411,6 +1553,7 @@ Backlog này là đầu vào chính cho kế hoạch Đồ án tốt nghiệp ho
 # 23. Checklist kết thúc
 
 ## Product
+
 - [ ] Auth hoàn chỉnh.
 - [ ] Candidate profile.
 - [ ] Company.
@@ -1423,6 +1566,7 @@ Backlog này là đầu vào chính cho kế hoạch Đồ án tốt nghiệp ho
 - [ ] Admin basic.
 
 ## Engineering
+
 - [ ] Migration.
 - [ ] Seed.
 - [ ] Validation.
@@ -1436,6 +1580,7 @@ Backlog này là đầu vào chính cho kế hoạch Đồ án tốt nghiệp ho
 - [ ] Deployment.
 
 ## Documentation
+
 - [ ] Requirement.
 - [ ] Use case.
 - [ ] ERD.

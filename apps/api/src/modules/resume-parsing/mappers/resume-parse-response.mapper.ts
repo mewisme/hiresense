@@ -53,7 +53,10 @@ interface ResumeParseStatusSource {
   }>;
 }
 
-export function toResumeParseStatusResponse(run: ResumeParseStatusSource, reused = false) {
+export function toResumeParseStatusResponse(
+  run: ResumeParseStatusSource,
+  reused = false,
+) {
   const response = {
     id: run.id,
     resumeVersionId: run.resumeVersionId,

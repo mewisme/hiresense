@@ -6,7 +6,7 @@ type DbClient = PrismaService | Prisma.TransactionClient;
 
 @Injectable()
 export class AiPipelineVersionsRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   findActiveByCode(code: string, db: DbClient = this.prisma) {
     return db.aiPipelineVersion.findFirst({
@@ -14,7 +14,11 @@ export class AiPipelineVersionsRepository {
     });
   }
 
-  findActiveByCodeAndType(code: string, pipelineType: string, db: DbClient = this.prisma) {
+  findActiveByCodeAndType(
+    code: string,
+    pipelineType: string,
+    db: DbClient = this.prisma,
+  ) {
     return db.aiPipelineVersion.findFirst({
       where: { code, pipelineType, isActive: true },
     });

@@ -12,4 +12,4 @@ import { CandidateProfilesRepository } from './repositories/candidate-profiles.r
   providers: [CandidateProfilesRepository, CandidatesService],
   exports: [CandidatesService],
 })
-export class CandidatesModule { }
+export class CandidatesModule {}
