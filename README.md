@@ -44,8 +44,7 @@ hiresense/
 │   ├── types/                # shared TypeScript types
 │   ├── eslint-config/
 │   └── tsconfig/
-├── docs/
-│   └── DATABASE.md           # database architecture — source of truth
+├── docs/                     # architecture, demo, matching, acceptance, security
 ├── plans/                    # graduation project plans (VI/EN)
 ├── compose.yaml              # Docker Compose (profiles: dev, prod)
 └── .env.example
@@ -55,7 +54,7 @@ hiresense/
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org) ≥ 20 and [pnpm](https://pnpm.io) 11.x (`corepack enable`)
+- [Node.js](https://nodejs.org) ≥ 20 and [pnpm](https://pnpm.io) 12.x (`corepack enable`; repo pins `pnpm@12.3.4`)
 - [Docker](https://www.docker.com/) (for PostgreSQL)
 - [Python](https://www.python.org) 3.14 with [uv](https://docs.astral.sh/uv/) (for the AI service)
 
@@ -119,7 +118,7 @@ Demo accounts (password `Password123!`):
 - `recruiter@demo.hiresense.local`
 - `candidate@demo.hiresense.local`
 
-Synthetic CV/JD fixtures live under `apps/api/test/fixtures/demo/` (upload the PDF in the candidate UI).
+Seed provisions a synthetic **Demo CV**, parsed structured rows, published Full-stack Engineer job, and an Applied-stage application ready for recruiter-triggered analysis. Source fixtures live under `apps/api/test/fixtures/demo/`.
 
 ### 5. Run the services on the host
 
@@ -131,31 +130,40 @@ pnpm dev:ai                 # FastAPI AI on http://localhost:8000
 pnpm dev:web                # Next.js web on http://localhost:3000 (HMR)
 ```
 
+Follow the Candidate → Recruiter → Candidate script in [`docs/DEMO.md`](docs/DEMO.md).
+
 ## Quality checks
 
 ```bash
 pnpm lint         # ESLint across the workspace
 pnpm typecheck    # TypeScript, no emit
-pnpm test         # Jest unit tests
+pnpm test         # Jest / package tests
 pnpm build        # build all packages and apps
 pnpm format       # Prettier (also format:check)
+pnpm --filter @hiresense/web qa:desktop   # desktop Playwright checkpoint
 ```
+
+Acceptance checklist: [`docs/ACCEPTANCE_V1.md`](docs/ACCEPTANCE_V1.md).
 
 ## Documentation
 
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — as-built Internship V1 architecture
 - [`docs/DATABASE.md`](docs/DATABASE.md) — database architecture and evolution guide
+- [`docs/API.md`](docs/API.md) — API path index + Hoppscotch collections
 - [`docs/DEMO.md`](docs/DEMO.md) — seeded accounts + Internship V1 demo script
-- [`docs/MATCHING_V1.md`](docs/MATCHING_V1.md) — baseline formula and trigger rules
+- [`docs/MATCHING_V1.md`](docs/MATCHING_V1.md) — baseline formula, trigger rules, limitations
+- [`docs/SECURITY.md`](docs/SECURITY.md) — authorization and privacy notes
 - [`docs/QUALITY.md`](docs/QUALITY.md) — latest quality-gate snapshot
+- [`docs/ACCEPTANCE_V1.md`](docs/ACCEPTANCE_V1.md) — Internship V1 acceptance checklist
+- [`docs/WEB_UI_DESKTOP_CHECKPOINT.md`](docs/WEB_UI_DESKTOP_CHECKPOINT.md) — accepted desktop UI checkpoint
 - [`apps/api/BACKEND_STRUCTURE.md`](apps/api/BACKEND_STRUCTURE.md) — backend module layout
 - [`apps/api/prisma/README.md`](apps/api/prisma/README.md) — migrations + seed notes
 - [`plans/`](plans/) — internship / graduation plans (local working copies)
 
 ## Project phases
 
-1. **Internship (MVP)** — end-to-end recruitment flow with baseline CV parsing and CV–JD matching (skill/experience/education scoring).
-2. **V1 — Recruitment product** — skill taxonomy and aliases, structured requirements, interviews, notifications, audit, fuzzy/full-text search.
-3. **V2 — Intelligent matching** — pgvector embeddings, semantic and hybrid matching, candidate ranking, job recommendation, and explainable AI, with every AI result tied to an exact content + model + pipeline version.
+1. **Phase I — Graduation Internship (Baseline V1)** — end-to-end Candidate/Recruiter flow with deterministic CV parsing and explainable skill/experience/education matching. Admin and semantic AI are out of scope.
+2. **Phase II — Final graduation project** — semantic/hybrid matching, ranking, recommendation, richer explainability, and evaluation against the frozen V1 baseline.
 
 ## License
 

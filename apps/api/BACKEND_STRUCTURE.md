@@ -20,6 +20,7 @@ src/
 │   ├── skills/
 │   ├── files/
 │   ├── resumes/
+│   ├── resume-parsing/
 │   ├── jobs/
 │   ├── applications/
 │   └── matching/

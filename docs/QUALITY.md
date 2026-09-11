@@ -1,22 +1,30 @@
 # Quality gate snapshot — Internship V1
 
-Recorded 2026-09-11 on a clean Compose Postgres volume.
+Recorded through **2026-09-12**.
 
-| Check                                           | Result                      |
-| ----------------------------------------------- | --------------------------- |
-| `pnpm typecheck`                                | pass                        |
-| `pnpm lint`                                     | pass                        |
-| `pnpm build`                                    | pass (web + api + packages) |
-| `pnpm --filter @hiresense/api test`             | 48 suites / 377 tests pass  |
-| `pnpm --filter @hiresense/ai test`              | 2 tests pass                |
-| Authz / ownership / MIME unit coverage          | covered in API Jest suites  |
-| Compose wipe → `migrate deploy` → `prisma:seed` | pass                        |
+| Check                                                       | Result                      |
+| ----------------------------------------------------------- | --------------------------- |
+| `pnpm typecheck`                                            | pass                        |
+| `pnpm lint`                                                 | pass                        |
+| `pnpm build`                                                | pass (web + api + packages) |
+| `pnpm --filter @hiresense/api test`                         | 48 suites / 377 tests pass  |
+| `pnpm --filter @hiresense/ai test`                          | pass                        |
+| Authz / ownership / MIME unit coverage                      | covered in API Jest suites  |
+| Compose wipe → `migrate deploy` → `prisma:seed`             | pass                        |
+| `pnpm --filter @hiresense/ui typecheck` / `lint`            | pass                        |
+| `pnpm --filter @hiresense/web typecheck` / `lint` / `build` | pass                        |
+| `pnpm --filter @hiresense/web qa:desktop`                   | pass (16/16)                |
 
-Not yet automated for V1:
+Desktop Playwright checkpoint details: [`WEB_UI_DESKTOP_CHECKPOINT.md`](./WEB_UI_DESKTOP_CHECKPOINT.md).
 
-- Browser E2E happy path / failure paths (manual demo via [`DEMO.md`](./DEMO.md))
+Not part of the automated V1 gate yet:
+
+- Broad mobile/tablet layout suite (intentionally deferred)
 - Formal internship report PDF
+- Tagged release `internship-v1.0` (manual, on request)
 
 ## Privacy note
 
 Demo fixtures use synthetic names/emails (`*.demo.hiresense.local`). Do not commit real CVs or PII into `apps/api/test/fixtures/`.
+
+See also [`SECURITY.md`](./SECURITY.md).
