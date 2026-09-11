@@ -1,5 +1,7 @@
 'use client';
 
+import { useSyncExternalStore } from 'react';
+
 export interface AuthUser {
   id: string;
   email: string;
@@ -46,6 +48,15 @@ export function getAuthSession(): AuthSession | null {
     window.localStorage.removeItem(AUTH_STORAGE_KEY);
     return null;
   }
+}
+
+/** Safe for SSR: server + first hydrate paint are null; client then reads localStorage. */
+export function useAuthSession(): AuthSession | null {
+  return useSyncExternalStore(
+    () => () => {},
+    getAuthSession,
+    () => null,
+  );
 }
 
 export function saveAuthSession(session: AuthSession) {
