@@ -1,20 +1,18 @@
 import Link from 'next/link';
+import { BriefcaseBusiness } from 'lucide-react';
 import { LoginForm } from '@/features/auth/login-form';
 
 export default function LoginPage() {
   return (
-    <main className="flex flex-1 items-center justify-center bg-zinc-50 px-5 py-12">
-      <div className="w-full max-w-md">
-        <Link href="/" className="text-sm font-semibold tracking-tight text-zinc-900">
+    <main className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">
+      <div className="flex w-full max-w-sm flex-col gap-6">
+        <Link href="/" className="flex items-center gap-2 self-center font-medium">
+          <span className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
+            <BriefcaseBusiness className="size-4" />
+          </span>
           HireSense
         </Link>
-        <h1 className="mt-8 text-3xl font-semibold tracking-tight text-zinc-950">Sign in</h1>
-        <p className="mt-2 text-sm leading-6 text-zinc-600">
-          Use your Candidate or Recruiter account to open application analysis results.
-        </p>
-        <div className="mt-6">
-          <LoginForm />
-        </div>
+        <LoginForm />
       </div>
     </main>
   );

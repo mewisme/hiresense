@@ -1,4 +1,3 @@
-import { RecruiterShell } from '@/components/recruiter-shell';
 import { JobCreateView } from '@/features/recruiter/job-create-view';
 
 export default async function RecruiterJobCreatePage({
@@ -7,9 +6,5 @@ export default async function RecruiterJobCreatePage({
   params: Promise<{ companyId: string }>;
 }) {
   const { companyId } = await params;
-  return (
-    <RecruiterShell companyId={companyId}>
-      <JobCreateView companyId={companyId} />
-    </RecruiterShell>
-  );
+  return <JobCreateView companyId={companyId} />;
 }

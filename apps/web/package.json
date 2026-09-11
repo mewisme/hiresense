@@ -2,6 +2,7 @@
   "name": "@hiresense/web",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "author": "Nguyễn Mậu Minh",
   "license": "Apache-2.0",
   "scripts": {
@@ -10,6 +11,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "qa:desktop": "playwright test -c playwright.config.ts",
+    "qa:desktop:update": "playwright test -c playwright.config.ts --update-snapshots",
     "ts:version": "tsc --version"
   },
   "dependencies": {
@@ -24,6 +27,7 @@
   "devDependencies": {
     "@hiresense/eslint-config": "workspace:*",
     "@hiresense/tsconfig": "workspace:*",
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist_Mono, Inter } from 'next/font/google';
 
 import { ThemeProvider } from '@/components/theme-provider';
+import { Toaster } from '@hiresense/ui/components/toast';
 import { TooltipProvider } from '@hiresense/ui/components/tooltip';
 import { cn } from '@hiresense/ui/lib/utils';
 import '@hiresense/ui/globals.css';
@@ -30,7 +31,9 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
     >
       <body className="flex min-h-full flex-col">
         <ThemeProvider>
-          <TooltipProvider>{children}</TooltipProvider>
+          <TooltipProvider>
+            <Toaster>{children}</Toaster>
+          </TooltipProvider>
         </ThemeProvider>
       </body>
     </html>

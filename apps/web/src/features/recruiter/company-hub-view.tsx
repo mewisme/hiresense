@@ -1,8 +1,30 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { BriefcaseBusiness, Plus } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@hiresense/ui/components/alert';
+import { Badge } from '@hiresense/ui/components/badge';
+import { Button } from '@hiresense/ui/components/button';
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@hiresense/ui/components/empty';
+import { Skeleton } from '@hiresense/ui/components/skeleton';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@hiresense/ui/components/table';
+import { PageHeader } from '@/components/page/page-header';
 import type { ManagedJobListItem } from '@/features/recruiter/types';
 import { apiRequest, getAuthSession, hasRole } from '@/lib/api-client';
 
@@ -42,59 +64,96 @@ export function CompanyHubView({ companyId }: { companyId: string }) {
     };
   }, [companyId, router]);
 
-  if (loading) return <p className="text-sm text-zinc-500">Loading company…</p>;
-  if (error)
+  if (loading)
     return (
-      <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
-        {error}
-      </p>
+      <div className="space-y-6">
+        <Skeleton className="h-16 w-80" />
+        <Skeleton className="h-72" />
+      </div>
     );
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-zinc-950">{companyName}</h1>
-          <p className="mt-2 text-sm text-zinc-600">
-            Manage jobs and review applications for this company.
-          </p>
-        </div>
-        <Link
-          href={`/recruiter/companies/${companyId}/jobs/new`}
-          className="rounded-lg bg-zinc-950 px-4 py-2.5 text-sm font-medium text-white"
-        >
-          Create job
-        </Link>
-      </div>
-      <div className="space-y-3">
-        {jobs.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-zinc-300 bg-white p-8 text-sm text-zinc-600">
-            No jobs yet. Create and publish one to start receiving applications.
-          </p>
-        ) : (
-          jobs.map((job) => {
-            const title =
-              job.currentPublishedVersion?.title ?? job.currentDraftVersion?.title ?? job.slug;
+    <div className="space-y-6">
+      <PageHeader
+        title={companyName}
+        description="Manage job drafts, published openings, and applicant review for this company."
+        action={
+          <Button render={<Link href={`/recruiter/companies/${companyId}/jobs/new`} />}>
+            <Plus />
+            Create job
+          </Button>
+        }
+      />
+      {error ? (
+        <Alert variant="destructive">
+          <AlertTitle>Unable to load company</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      ) : null}
+      {!error && jobs.length === 0 ? (
+        <Empty className="min-h-64 border">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <BriefcaseBusiness />
+            </EmptyMedia>
+            <EmptyTitle>No jobs yet</EmptyTitle>
+            <EmptyDescription>
+              Create a structured job draft and publish it to start receiving applications.
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Button render={<Link href={`/recruiter/companies/${companyId}/jobs/new`} />}>
+              Create job
+            </Button>
+          </EmptyContent>
+        </Empty>
+      ) : null}
+      {!error && jobs.length > 0 ? <JobsTable companyId={companyId} jobs={jobs} /> : null}
+    </div>
+  );
+}
+
+function JobsTable({ companyId, jobs }: { companyId: string; jobs: ManagedJobListItem[] }) {
+  return (
+    <div className="overflow-hidden rounded-lg border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Job</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Version</TableHead>
+            <TableHead className="text-right">Action</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {jobs.map((job) => {
+            const version = job.currentPublishedVersion ?? job.currentDraftVersion;
             return (
-              <Link
-                key={job.id}
-                href={`/recruiter/companies/${companyId}/jobs/${job.id}`}
-                className="block rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:border-zinc-300"
-              >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <h2 className="text-xl font-semibold text-zinc-950">{title}</h2>
-                    <p className="mt-1 text-sm text-zinc-600">{job.slug}</p>
-                  </div>
-                  <span className="rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs font-medium text-zinc-700">
-                    {job.status}
-                  </span>
-                </div>
-              </Link>
+              <TableRow key={job.id}>
+                <TableCell>
+                  <div className="font-medium">{version?.title ?? job.slug}</div>
+                  <div className="text-xs text-muted-foreground">{job.slug}</div>
+                </TableCell>
+                <TableCell>
+                  <Badge variant="outline">{job.status}</Badge>
+                </TableCell>
+                <TableCell>
+                  {version ? `${version.versionStatus} v${version.versionNo}` : 'No version'}
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    render={<Link href={`/recruiter/companies/${companyId}/jobs/${job.id}`} />}
+                  >
+                    Manage
+                  </Button>
+                </TableCell>
+              </TableRow>
             );
-          })
-        )}
-      </div>
+          })}
+        </TableBody>
+      </Table>
     </div>
   );
 }

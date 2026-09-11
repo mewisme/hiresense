@@ -1,47 +1,86 @@
 import Link from 'next/link';
+import { BrainCircuit, BriefcaseBusiness, FileSearch, ShieldCheck } from 'lucide-react';
+import { Badge } from '@hiresense/ui/components/badge';
+import { Button } from '@hiresense/ui/components/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@hiresense/ui/components/card';
+
+const features = [
+  {
+    icon: FileSearch,
+    title: 'Structured CV analysis',
+    description: 'Extract skills, experience, and education into versioned resume data.',
+  },
+  {
+    icon: BrainCircuit,
+    title: 'Explainable matching',
+    description: 'Review deterministic component scores, requirements, and CV evidence.',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Human-in-the-loop',
+    description:
+      'Match scores support recruiter review and never make hiring decisions automatically.',
+  },
+];
 
 export default function Home() {
   return (
-    <main className="flex flex-1 items-center justify-center bg-zinc-50 px-5 py-16">
-      <div className="w-full max-w-5xl rounded-3xl border border-zinc-200 bg-white p-8 shadow-sm sm:p-12">
-        <p className="text-sm font-semibold tracking-tight text-zinc-900">HireSense</p>
-        <div className="mt-8 grid gap-10 lg:grid-cols-[1.3fr_0.7fr] lg:items-end">
-          <div>
-            <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-zinc-950 sm:text-5xl">
-              Explainable CV–job matching for recruitment workflows.
-            </h1>
-            <p className="mt-5 max-w-2xl text-base leading-7 text-zinc-600">
-              HireSense turns CV and job requirements into structured, versioned analysis with an
-              overall score, component breakdown, matched skills, missing skills, and evidence.
-            </p>
-          </div>
-          <div className="rounded-2xl bg-zinc-950 p-6 text-white">
-            <p className="text-sm font-medium text-zinc-300">Week 9 · AI result UI</p>
-            <p className="mt-3 text-sm leading-6 text-zinc-300">
-              Sign in, then open an application from the Candidate or Recruiter workflow to inspect
-              its matching result.
-            </p>
-            <Link
-              href="/login"
-              className="mt-5 inline-flex rounded-lg bg-white px-4 py-2.5 text-sm font-medium text-zinc-950 transition hover:bg-zinc-200"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/candidate"
-              className="mt-3 inline-flex rounded-lg border border-white/20 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-white/10"
-            >
-              Candidate workspace
-            </Link>
-            <Link
-              href="/recruiter"
-              className="mt-3 inline-flex rounded-lg border border-white/20 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-white/10"
-            >
-              Recruiter workspace
-            </Link>
+    <main className="flex min-h-svh flex-col bg-background">
+      <header className="border-b">
+        <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between px-6 lg:px-8">
+          <Link href="/" className="flex items-center gap-2 font-semibold">
+            <span className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <BriefcaseBusiness className="size-4" />
+            </span>
+            HireSense
+          </Link>
+          <Button render={<Link href="/login" />}>Sign in</Button>
+        </div>
+      </header>
+      <section className="mx-auto grid w-full max-w-7xl flex-1 items-center gap-12 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
+        <div>
+          <Badge variant="outline">AI-assisted recruitment</Badge>
+          <h1 className="mt-5 max-w-3xl text-4xl font-semibold tracking-tight text-balance lg:text-6xl">
+            Explainable CV–job matching for better recruitment review.
+          </h1>
+          <p className="mt-6 max-w-2xl text-base leading-7 text-muted-foreground">
+            HireSense turns resumes and job requirements into structured, versioned analysis so
+            candidates and recruiters can understand where a profile matches and where evidence is
+            missing.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Button size="lg" render={<Link href="/login" />}>
+              Open HireSense
+            </Button>
+            <Button size="lg" variant="outline" render={<Link href="/candidate/jobs" />}>
+              Browse jobs
+            </Button>
           </div>
         </div>
-      </div>
+        <div className="grid gap-4">
+          {features.map((feature) => {
+            const Icon = feature.icon;
+            return (
+              <Card key={feature.title}>
+                <CardHeader className="grid grid-cols-[auto_1fr] gap-x-4">
+                  <div className="row-span-2 flex size-9 items-center justify-center rounded-md bg-muted">
+                    <Icon className="size-4" />
+                  </div>
+                  <CardTitle>{feature.title}</CardTitle>
+                  <CardDescription>{feature.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="sr-only">{feature.description}</CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </section>
     </main>
   );
 }

@@ -1,10 +1,31 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { BriefcaseBusiness, Search } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@hiresense/ui/components/alert';
+import { Badge } from '@hiresense/ui/components/badge';
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@hiresense/ui/components/empty';
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@hiresense/ui/components/input-group';
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemTitle,
+} from '@hiresense/ui/components/item';
+import { Skeleton } from '@hiresense/ui/components/skeleton';
+import { PageHeader } from '@/components/page/page-header';
 import type { PublicJobListItem } from '@/features/candidate/types';
 import { apiRequest, getAuthSession, hasRole } from '@/lib/api-client';
-import { useRouter } from 'next/navigation';
 
 export function JobsListView() {
   const router = useRouter();
@@ -26,8 +47,9 @@ export function JobsListView() {
       try {
         const params = new URLSearchParams();
         if (query.trim()) params.set('q', query.trim());
-        const path = params.size ? `/api/jobs?${params}` : '/api/jobs';
-        const result = await apiRequest<{ items: PublicJobListItem[] }>(path);
+        const result = await apiRequest<{ items: PublicJobListItem[] }>(
+          params.size ? `/api/jobs?${params}` : '/api/jobs',
+        );
         if (!cancelled) setItems(result.items);
       } catch (loadError) {
         if (!cancelled)
@@ -44,60 +66,83 @@ export function JobsListView() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-zinc-950">Jobs</h1>
-          <p className="mt-2 text-sm text-zinc-600">
-            Browse published openings and apply with a resume version.
-          </p>
-        </div>
-        <input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search title or description"
-          className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm text-zinc-950 outline-none focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 sm:max-w-xs"
-        />
-      </div>
-      {loading ? <p className="text-sm text-zinc-500">Loading jobs…</p> : null}
+      <PageHeader
+        title="Jobs"
+        description="Browse published openings and apply with one of your current resume versions."
+        action={
+          <InputGroup className="w-80">
+            <InputGroupAddon>
+              <Search />
+            </InputGroupAddon>
+            <InputGroupInput
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search jobs"
+              aria-label="Search jobs"
+            />
+          </InputGroup>
+        }
+      />
       {error ? (
-        <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
-          {error}
-        </p>
+        <Alert variant="destructive">
+          <AlertTitle>Unable to load jobs</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      ) : null}
+      {loading ? (
+        <div className="space-y-3">
+          <Skeleton className="h-24" />
+          <Skeleton className="h-24" />
+          <Skeleton className="h-24" />
+        </div>
       ) : null}
       {!loading && !error && items.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-zinc-300 bg-white p-8 text-sm text-zinc-600">
-          No published jobs match this search yet.
-        </p>
+        <Empty className="min-h-64 border">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <BriefcaseBusiness />
+            </EmptyMedia>
+            <EmptyTitle>No jobs found</EmptyTitle>
+            <EmptyDescription>
+              {query.trim()
+                ? 'No published roles match your current search.'
+                : 'There are no published roles available yet.'}
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       ) : null}
-      <div className="space-y-3">
-        {items.map((job) => (
-          <Link
-            key={job.id}
-            href={`/candidate/jobs/${job.id}`}
-            className="block rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:border-zinc-300"
-          >
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <p className="text-sm font-medium text-zinc-500">{job.company.name}</p>
-                <h2 className="mt-1 text-xl font-semibold text-zinc-950">{job.version.title}</h2>
-                <p className="mt-2 text-sm text-zinc-600">
-                  {[job.version.employmentType, job.version.workplaceType]
-                    .filter(Boolean)
-                    .join(' · ') || 'Role details available on the job page'}
-                </p>
-              </div>
-              <span className="rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs font-medium text-zinc-700">
-                {job.status}
-              </span>
-            </div>
-            {job.version.summary ? (
-              <p className="mt-3 line-clamp-2 text-sm leading-6 text-zinc-600">
-                {job.version.summary}
-              </p>
-            ) : null}
-          </Link>
-        ))}
-      </div>
+      {!loading && !error && items.length > 0 ? (
+        <ItemGroup className="gap-2">
+          {items.map((job) => (
+            <Item
+              key={job.id}
+              variant="outline"
+              render={<Link href={`/candidate/jobs/${job.id}`} />}
+              className="p-4"
+            >
+              <ItemContent>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <span>{job.company.name}</span>
+                  {job.version.employmentType ? (
+                    <Badge variant="outline">{job.version.employmentType}</Badge>
+                  ) : null}
+                  {job.version.workplaceType ? (
+                    <Badge variant="outline">{job.version.workplaceType}</Badge>
+                  ) : null}
+                </div>
+                <ItemTitle className="text-base">{job.version.title}</ItemTitle>
+                <ItemDescription>
+                  {job.version.summary ??
+                    'Open the role to review the full description and structured requirements.'}
+                </ItemDescription>
+              </ItemContent>
+              <ItemActions>
+                <Badge variant="secondary">{job.status}</Badge>
+              </ItemActions>
+            </Item>
+          ))}
+        </ItemGroup>
+      ) : null}
     </div>
   );
 }

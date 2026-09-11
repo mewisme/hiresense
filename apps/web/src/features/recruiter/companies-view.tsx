@@ -1,8 +1,42 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { Building2 } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@hiresense/ui/components/alert';
+import { Badge } from '@hiresense/ui/components/badge';
+import { Button } from '@hiresense/ui/components/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@hiresense/ui/components/card';
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@hiresense/ui/components/empty';
+import { Field, FieldGroup, FieldLabel } from '@hiresense/ui/components/field';
+import { Input } from '@hiresense/ui/components/input';
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemTitle,
+} from '@hiresense/ui/components/item';
+import { Skeleton } from '@hiresense/ui/components/skeleton';
+import { Spinner } from '@hiresense/ui/components/spinner';
+import { Textarea } from '@hiresense/ui/components/textarea';
+import { toast } from '@hiresense/ui/components/toast';
+import { PageHeader } from '@/components/page/page-header';
 import type { CompanyMembershipItem } from '@/features/recruiter/types';
 import { apiRequest, getAuthSession, hasRole } from '@/lib/api-client';
 
@@ -49,14 +83,16 @@ export function CompaniesView() {
     try {
       const company = await apiRequest<{ id: string }>('/api/companies', {
         method: 'POST',
-        body: JSON.stringify({
-          name: name.trim(),
-          description: description.trim() || undefined,
-        }),
+        body: JSON.stringify({ name: name.trim(), description: description.trim() || undefined }),
       });
       setName('');
       setDescription('');
       await reload();
+      toast.add({
+        type: 'success',
+        title: 'Company created',
+        description: 'The company workspace is ready.',
+      });
       router.push(`/recruiter/companies/${company.id}`);
     } catch (saveError) {
       setError(saveError instanceof Error ? saveError.message : 'Unable to create company.');
@@ -65,82 +101,106 @@ export function CompaniesView() {
     }
   }
 
-  if (loading) return <p className="text-sm text-zinc-500">Loading companies…</p>;
+  if (loading)
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-16 w-80" />
+        <div className="grid gap-6 xl:grid-cols-[360px_1fr]">
+          <Skeleton className="h-72" />
+          <Skeleton className="h-72" />
+        </div>
+      </div>
+    );
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-zinc-950">Companies</h1>
-        <p className="mt-2 text-sm text-zinc-600">
-          Companies you own or belong to as an active member.
-        </p>
+    <div className="space-y-6">
+      <PageHeader
+        title="Companies"
+        description="Create a company workspace or open one where you have an active membership."
+      />
+      {error ? (
+        <Alert variant="destructive">
+          <AlertTitle>Company action failed</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      ) : null}
+      <div className="grid items-start gap-6 xl:grid-cols-[360px_1fr]">
+        <form onSubmit={(event) => void createCompany(event)}>
+          <Card>
+            <CardHeader>
+              <CardTitle>Create company</CardTitle>
+              <CardDescription>Start a workspace for jobs and applicant review.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FieldGroup>
+                <Field>
+                  <FieldLabel htmlFor="companyName">Company name</FieldLabel>
+                  <Input
+                    id="companyName"
+                    required
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="companyDescription">Description</FieldLabel>
+                  <Textarea
+                    id="companyDescription"
+                    rows={4}
+                    value={description}
+                    onChange={(event) => setDescription(event.target.value)}
+                  />
+                </Field>
+              </FieldGroup>
+            </CardContent>
+            <CardFooter className="justify-end border-t">
+              <Button type="submit" disabled={saving}>
+                {saving ? (
+                  <>
+                    <Spinner />
+                    Creating
+                  </>
+                ) : (
+                  'Create company'
+                )}
+              </Button>
+            </CardFooter>
+          </Card>
+        </form>
+        {items.length === 0 ? (
+          <Empty className="min-h-64 border">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Building2 />
+              </EmptyMedia>
+              <EmptyTitle>No companies yet</EmptyTitle>
+              <EmptyDescription>
+                Create your first company workspace to begin publishing jobs.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        ) : (
+          <ItemGroup className="gap-2">
+            {items.map((item) => (
+              <Item
+                key={item.id}
+                variant="outline"
+                render={<Link href={`/recruiter/companies/${item.company.id}`} />}
+                className="p-4"
+              >
+                <ItemContent>
+                  <ItemTitle className="text-base">{item.company.name}</ItemTitle>
+                  <ItemDescription>{item.company.description ?? item.company.slug}</ItemDescription>
+                </ItemContent>
+                <ItemActions>
+                  <Badge variant="outline">{item.role}</Badge>
+                  <Badge variant="secondary">{item.status}</Badge>
+                </ItemActions>
+              </Item>
+            ))}
+          </ItemGroup>
+        )}
       </div>
-      <form
-        onSubmit={(event) => void createCompany(event)}
-        className="space-y-4 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm"
-      >
-        <div>
-          <label htmlFor="companyName" className="text-sm font-medium text-zinc-700">
-            Company name
-          </label>
-          <input
-            id="companyName"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="mt-2 w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm"
-          />
-        </div>
-        <div>
-          <label htmlFor="companyDescription" className="text-sm font-medium text-zinc-700">
-            Description
-          </label>
-          <textarea
-            id="companyDescription"
-            rows={3}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="mt-2 w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm"
-          />
-        </div>
-        {error ? (
-          <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
-            {error}
-          </p>
-        ) : null}
-        <button
-          type="submit"
-          disabled={saving}
-          className="rounded-lg bg-zinc-950 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
-        >
-          {saving ? 'Creating…' : 'Create company'}
-        </button>
-      </form>
-      {items.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-zinc-300 bg-white p-8 text-sm text-zinc-600">
-          No companies yet.
-        </p>
-      ) : (
-        <div className="space-y-3">
-          {items.map((item) => (
-            <Link
-              key={item.id}
-              href={`/recruiter/companies/${item.company.id}`}
-              className="block rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:border-zinc-300"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-xl font-semibold text-zinc-950">{item.company.name}</h2>
-                  <p className="mt-1 text-sm text-zinc-600">{item.company.slug}</p>
-                </div>
-                <span className="rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs font-medium text-zinc-700">
-                  {item.role}
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

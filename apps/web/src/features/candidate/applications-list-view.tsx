@@ -1,8 +1,30 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { FileCheck2 } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@hiresense/ui/components/alert';
+import { Badge } from '@hiresense/ui/components/badge';
+import { Button } from '@hiresense/ui/components/button';
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@hiresense/ui/components/empty';
+import { Skeleton } from '@hiresense/ui/components/skeleton';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@hiresense/ui/components/table';
+import { PageHeader } from '@/components/page/page-header';
 import type { CandidateApplicationListItem } from '@/features/candidate/types';
 import { apiRequest, getAuthSession, hasRole } from '@/lib/api-client';
 
@@ -38,58 +60,76 @@ export function ApplicationsListView() {
     };
   }, [router]);
 
-  if (loading) return <p className="text-sm text-zinc-500">Loading applications…</p>;
-  if (error)
-    return (
-      <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
-        {error}
-      </p>
-    );
-
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-zinc-950">Applications</h1>
-        <p className="mt-2 text-sm text-zinc-600">
-          Track stage history and open matching results when available.
-        </p>
-      </div>
-      {items.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-zinc-300 bg-white p-8 text-sm text-zinc-600">
-          No applications yet.{' '}
-          <Link href="/candidate/jobs" className="underline underline-offset-4">
-            Browse jobs
-          </Link>
-        </p>
-      ) : (
-        <div className="space-y-3">
-          {items.map((item) => (
-            <Link
-              key={item.id}
-              href={`/candidate/applications/${item.id}`}
-              className="block rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:border-zinc-300"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="text-sm font-medium text-zinc-500">{item.job.company.name}</p>
-                  <h2 className="mt-1 text-xl font-semibold text-zinc-950">
-                    {item.jobVersion.title}
-                  </h2>
-                  <p className="mt-2 text-sm text-zinc-600">
-                    Applied{' '}
+      <PageHeader
+        title="Applications"
+        description="Track recruitment stages and open explainable matching results when a recruiter has run analysis."
+        action={<Button render={<Link href="/candidate/jobs" />}>Browse jobs</Button>}
+      />
+      {error ? (
+        <Alert variant="destructive">
+          <AlertTitle>Unable to load applications</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      ) : null}
+      {loading ? <Skeleton className="h-72" /> : null}
+      {!loading && !error && items.length === 0 ? (
+        <Empty className="min-h-64 border">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <FileCheck2 />
+            </EmptyMedia>
+            <EmptyTitle>No applications yet</EmptyTitle>
+            <EmptyDescription>
+              Browse published roles and submit an application with one of your resumes.
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Button render={<Link href="/candidate/jobs" />}>Browse jobs</Button>
+          </EmptyContent>
+        </Empty>
+      ) : null}
+      {!loading && !error && items.length > 0 ? (
+        <div className="overflow-hidden rounded-lg border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Role</TableHead>
+                <TableHead>Company</TableHead>
+                <TableHead>Applied</TableHead>
+                <TableHead>Stage</TableHead>
+                <TableHead className="text-right">Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {items.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell className="font-medium">{item.jobVersion.title}</TableCell>
+                  <TableCell>{item.job.company.name}</TableCell>
+                  <TableCell>
                     {new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(
                       new Date(item.appliedAt),
                     )}
-                  </p>
-                </div>
-                <span className="rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs font-medium text-zinc-700">
-                  {item.currentStage.name}
-                </span>
-              </div>
-            </Link>
-          ))}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{item.currentStage.name}</Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      render={<Link href={`/candidate/applications/${item.id}`} />}
+                    >
+                      View
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

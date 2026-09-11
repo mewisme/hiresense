@@ -3,6 +3,10 @@
 import type { ApplicationMatchRunResponse } from '@hiresense/types';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { ArrowLeft } from 'lucide-react';
+import { Button } from '@hiresense/ui/components/button';
+import { Card, CardContent } from '@hiresense/ui/components/card';
+import { StatusBadge } from '@/components/page/status-badge';
 import type { CandidateApplicationDetail } from '@/features/applications/types';
 import { ApiError, apiRequest } from '@/lib/api-client';
 import {
@@ -60,40 +64,45 @@ export function CandidateApplicationResultView({ applicationId }: { applicationI
   }
 
   if (loading) return <MatchResultLoading />;
-  if (error || !application) {
+  if (error || !application)
     return (
-      <div>
+      <div className="space-y-4">
         <MatchResultError message={error ?? 'Application not found.'} onRetry={retry} />
-        <Link
-          href="/login"
-          className="mt-4 inline-block text-sm font-medium text-zinc-600 underline underline-offset-4"
-        >
+        <Button variant="ghost" render={<Link href="/login" />}>
           Sign in with another account
-        </Link>
+        </Button>
       </div>
     );
-  }
 
   return (
-    <div>
-      <div className="mb-8 flex flex-col gap-4 border-b border-zinc-200 pb-6 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-sm font-medium text-zinc-500">{application.job.company.name}</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-zinc-950">
-            {application.jobVersion.title}
-          </h1>
-          <p className="mt-2 text-sm text-zinc-500">
-            CV: {application.resumeVersion.resume.name} · Applied{' '}
-            {new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(
-              new Date(application.appliedAt),
-            )}
-          </p>
-        </div>
-        <span className="w-fit rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-sm font-medium text-zinc-700">
-          {application.currentStage.name}
-        </span>
-      </div>
-
+    <div className="space-y-6">
+      <Button variant="ghost" render={<Link href="/candidate/applications" />}>
+        <ArrowLeft />
+        Back to applications
+      </Button>
+      <Card>
+        <CardContent className="flex items-center justify-between gap-6 py-1">
+          <div>
+            <p className="text-xs font-medium text-muted-foreground">
+              {application.job.company.name}
+            </p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight">
+              {application.jobVersion.title}
+            </h1>
+            <p className="mt-1 text-xs text-muted-foreground">
+              CV {application.resumeVersion.resume.name} · v{application.resumeVersion.versionNo} ·
+              Applied{' '}
+              {new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(
+                new Date(application.appliedAt),
+              )}
+            </p>
+          </div>
+          <StatusBadge
+            status={application.currentStage.code}
+            label={application.currentStage.name}
+          />
+        </CardContent>
+      </Card>
       {result ? <MatchResultPanel result={result} audience="candidate" /> : <MatchResultEmpty />}
     </div>
   );

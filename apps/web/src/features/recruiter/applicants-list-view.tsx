@@ -1,8 +1,37 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { Users } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@hiresense/ui/components/alert';
+import { Avatar, AvatarFallback } from '@hiresense/ui/components/avatar';
+import { Badge } from '@hiresense/ui/components/badge';
+import { Button } from '@hiresense/ui/components/button';
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@hiresense/ui/components/empty';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@hiresense/ui/components/select';
+import { Skeleton } from '@hiresense/ui/components/skeleton';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@hiresense/ui/components/table';
+import { PageHeader } from '@/components/page/page-header';
 import type {
   RecruiterApplicationListItem,
   RecruitmentStageOption,
@@ -30,10 +59,9 @@ export function ApplicantsListView({ companyId, jobId }: { companyId: string; jo
       try {
         const params = new URLSearchParams();
         if (stageId) params.set('stageId', stageId);
-        const query = params.size ? `?${params}` : '';
         const [result, nextStages] = await Promise.all([
           apiRequest<{ items: RecruiterApplicationListItem[] }>(
-            `/api/companies/${companyId}/jobs/${jobId}/applications${query}`,
+            `/api/companies/${companyId}/jobs/${jobId}/applications${params.size ? `?${params}` : ''}`,
           ),
           apiRequest<RecruitmentStageOption[]>(`/api/companies/${companyId}/recruitment-stages`),
         ]);
@@ -55,64 +83,122 @@ export function ApplicantsListView({ companyId, jobId }: { companyId: string; jo
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <Link
-            href={`/recruiter/companies/${companyId}/jobs/${jobId}`}
-            className="text-sm font-medium text-zinc-500 hover:text-zinc-800"
+      <PageHeader
+        title="Applicants"
+        description="Review candidates, filter by recruitment stage, and open an application to run matching."
+        action={
+          <Select
+            value={stageId || 'ALL'}
+            onValueChange={(value) => {
+              if (value != null) setStageId(value === 'ALL' ? '' : value);
+            }}
           >
-            ← Job
-          </Link>
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-zinc-950">Applicants</h1>
-          <p className="mt-2 text-sm text-zinc-600">
-            Open an applicant to run matching and change recruitment stage.
-          </p>
-        </div>
-        <select
-          value={stageId}
-          onChange={(event) => setStageId(event.target.value)}
-          className="rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm"
-        >
-          <option value="">All stages</option>
-          {stages.map((stage) => (
-            <option key={stage.id} value={stage.id}>
-              {stage.name}
-            </option>
-          ))}
-        </select>
-      </div>
-      {loading ? <p className="text-sm text-zinc-500">Loading applicants…</p> : null}
+            <SelectTrigger className="w-48" aria-label="Filter by stage">
+              <SelectValue>
+                {(value) =>
+                  value === 'ALL'
+                    ? 'All stages'
+                    : (stages.find((stage) => stage.id === value)?.name ?? 'All stages')
+                }
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">All stages</SelectItem>
+              {stages.map((stage) => (
+                <SelectItem key={stage.id} value={stage.id}>
+                  {stage.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        }
+      />
       {error ? (
-        <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
-          {error}
-        </p>
+        <Alert variant="destructive">
+          <AlertTitle>Unable to load applicants</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       ) : null}
+      {loading ? <Skeleton className="h-80" /> : null}
       {!loading && !error && items.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-zinc-300 bg-white p-8 text-sm text-zinc-600">
-          No applicants in this filter.
-        </p>
+        <Empty className="min-h-64 border">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Users />
+            </EmptyMedia>
+            <EmptyTitle>No applicants found</EmptyTitle>
+            <EmptyDescription>
+              No applications match the selected recruitment stage.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       ) : null}
-      <div className="space-y-3">
-        {items.map((item) => (
-          <Link
-            key={item.id}
-            href={`/recruiter/companies/${companyId}/applications/${item.id}`}
-            className="block rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:border-zinc-300"
-          >
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <h2 className="text-xl font-semibold text-zinc-950">{item.candidate.fullName}</h2>
-                <p className="mt-1 text-sm text-zinc-600">
-                  {item.candidate.headline ?? 'Candidate'} · CV {item.resumeVersion.resume.name}
-                </p>
-              </div>
-              <span className="rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs font-medium text-zinc-700">
-                {item.currentStage.name}
-              </span>
-            </div>
-          </Link>
-        ))}
-      </div>
+      {!loading && !error && items.length > 0 ? (
+        <div className="overflow-hidden rounded-lg border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Candidate</TableHead>
+                <TableHead>Resume</TableHead>
+                <TableHead>Applied</TableHead>
+                <TableHead>Stage</TableHead>
+                <TableHead className="text-right">Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {items.map((item) => {
+                const initials = item.candidate.fullName
+                  .split(/\s+/)
+                  .slice(0, 2)
+                  .map((part) => part[0])
+                  .join('')
+                  .toUpperCase();
+                return (
+                  <TableRow key={item.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Avatar size="sm">
+                          <AvatarFallback>{initials}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-medium">{item.candidate.fullName}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {item.candidate.headline ?? 'Candidate'}
+                          </div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {item.resumeVersion.resume.name} · v{item.resumeVersion.versionNo}
+                    </TableCell>
+                    <TableCell>
+                      {new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(
+                        new Date(item.appliedAt),
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{item.currentStage.name}</Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        render={
+                          <Link
+                            href={`/recruiter/companies/${companyId}/applications/${item.id}`}
+                          />
+                        }
+                      >
+                        Review
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
+      ) : null}
     </div>
   );
 }

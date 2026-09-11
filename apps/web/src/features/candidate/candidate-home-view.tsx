@@ -1,14 +1,27 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { ArrowRight, BriefcaseBusiness, FileCheck2, Files, UserRound } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@hiresense/ui/components/alert';
+import { Badge } from '@hiresense/ui/components/badge';
+import { Button } from '@hiresense/ui/components/button';
+import {
+  Card,
+  CardAction,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@hiresense/ui/components/card';
+import { Skeleton } from '@hiresense/ui/components/skeleton';
+import { PageHeader } from '@/components/page/page-header';
 import type {
   CandidateApplicationListItem,
   CandidateProfile,
   ResumeListItem,
 } from '@/features/candidate/types';
 import { ApiError, apiRequest, getAuthSession, hasRole } from '@/lib/api-client';
-import { useRouter } from 'next/navigation';
 
 export function CandidateHomeView() {
   const router = useRouter();
@@ -62,66 +75,115 @@ export function CandidateHomeView() {
     };
   }, [router]);
 
-  if (loading) return <p className="text-sm text-zinc-500">Loading candidate workspace…</p>;
-  if (error)
+  if (loading)
     return (
-      <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
-        {error}
-      </p>
+      <div className="space-y-6">
+        <Skeleton className="h-16 w-96 max-w-full" />
+        <div className="grid gap-4 lg:grid-cols-3">
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
+        </div>
+      </div>
     );
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-zinc-950">
-          {profile ? `Welcome, ${profile.fullName}` : 'Complete your candidate profile'}
-        </h1>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-600">
-          Upload a CV, browse published jobs, apply with a resume version, then track your
-          applications and matching results.
-        </p>
+    <div className="space-y-6">
+      <PageHeader
+        title={profile ? `Welcome, ${profile.fullName}` : 'Complete your candidate profile'}
+        description="Upload a CV, browse published roles, apply with a resume version, and track matching results from one workspace."
+        action={
+          <Button render={<Link href="/candidate/jobs" />}>
+            <BriefcaseBusiness />
+            Browse jobs
+          </Button>
+        }
+      />
+      {error ? (
+        <Alert variant="destructive">
+          <AlertTitle>Unable to load workspace</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      ) : null}
+      {!profile ? (
+        <Alert>
+          <UserRound />
+          <AlertTitle>Your profile is not ready</AlertTitle>
+          <AlertDescription>
+            Complete your candidate profile before applying for jobs.{' '}
+            <Link href="/candidate/profile" className="underline underline-offset-4">
+              Create profile
+            </Link>
+            .
+          </AlertDescription>
+        </Alert>
+      ) : null}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardDescription>Profile</CardDescription>
+            <CardTitle className="text-2xl">{profile ? 'Ready' : 'Missing'}</CardTitle>
+            <CardAction>
+              <Badge variant={profile ? 'secondary' : 'outline'}>
+                {profile ? 'Complete' : 'Action needed'}
+              </Badge>
+            </CardAction>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardDescription>Resumes</CardDescription>
+            <CardTitle className="text-2xl tabular-nums">{resumes.length}</CardTitle>
+            <CardAction>
+              <Files className="size-4 text-muted-foreground" />
+            </CardAction>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardDescription>Applications</CardDescription>
+            <CardTitle className="text-2xl tabular-nums">{applications.length}</CardTitle>
+            <CardAction>
+              <FileCheck2 className="size-4 text-muted-foreground" />
+            </CardAction>
+          </CardHeader>
+        </Card>
       </div>
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Link
-          href="/candidate/profile"
-          className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"
-        >
-          <p className="text-sm font-medium text-zinc-500">Profile</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-950">
-            {profile ? 'Ready' : 'Missing'}
-          </p>
-        </Link>
-        <Link
-          href="/candidate/resumes"
-          className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"
-        >
-          <p className="text-sm font-medium text-zinc-500">Resumes</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-950">{resumes.length}</p>
-        </Link>
-        <Link
-          href="/candidate/applications"
-          className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"
-        >
-          <p className="text-sm font-medium text-zinc-500">Applications</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-950">{applications.length}</p>
-        </Link>
-      </div>
-      <div className="flex flex-wrap gap-3">
-        <Link
-          href="/candidate/jobs"
-          className="rounded-lg bg-zinc-950 px-4 py-2.5 text-sm font-medium text-white"
-        >
-          Browse jobs
-        </Link>
-        {!profile ? (
-          <Link
-            href="/candidate/profile"
-            className="rounded-lg border border-zinc-200 bg-white px-4 py-2.5 text-sm font-medium text-zinc-800"
-          >
-            Create profile
-          </Link>
-        ) : null}
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Continue your workflow</CardTitle>
+          <CardDescription>
+            {resumes.length === 0
+              ? 'Upload and parse a resume before applying.'
+              : applications.length === 0
+                ? 'Your resume is ready. Browse published jobs and submit your first application.'
+                : 'Review your applications and matching results.'}
+          </CardDescription>
+          <CardAction>
+            <Button
+              variant="outline"
+              render={
+                <Link
+                  href={
+                    resumes.length === 0
+                      ? '/candidate/resumes'
+                      : applications.length === 0
+                        ? '/candidate/jobs'
+                        : '/candidate/applications'
+                  }
+                />
+              }
+            >
+              {resumes.length === 0
+                ? 'Manage resumes'
+                : applications.length === 0
+                  ? 'Find jobs'
+                  : 'View applications'}
+              <ArrowRight />
+            </Button>
+          </CardAction>
+        </CardHeader>
+      </Card>
     </div>
   );
 }

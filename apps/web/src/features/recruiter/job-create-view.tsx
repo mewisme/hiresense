@@ -1,9 +1,45 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { Alert, AlertDescription, AlertTitle } from '@hiresense/ui/components/alert';
+import { Badge } from '@hiresense/ui/components/badge';
+import { Button } from '@hiresense/ui/components/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@hiresense/ui/components/card';
+import { Checkbox } from '@hiresense/ui/components/checkbox';
+import { Field, FieldDescription, FieldGroup, FieldLabel } from '@hiresense/ui/components/field';
+import { Input } from '@hiresense/ui/components/input';
+import { ScrollArea } from '@hiresense/ui/components/scroll-area';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@hiresense/ui/components/select';
+import { Skeleton } from '@hiresense/ui/components/skeleton';
+import { Spinner } from '@hiresense/ui/components/spinner';
+import { Textarea } from '@hiresense/ui/components/textarea';
+import { toast } from '@hiresense/ui/components/toast';
+import { PageHeader } from '@/components/page/page-header';
 import type { SkillOption } from '@/features/recruiter/types';
 import { apiRequest, getAuthSession, hasRole } from '@/lib/api-client';
+
+const educationOptions = [
+  { value: 'NOT_REQUIRED', label: 'Not required' },
+  { value: 'HIGH_SCHOOL', label: 'High school' },
+  { value: 'ASSOCIATE', label: 'Associate' },
+  { value: 'BACHELOR', label: 'Bachelor' },
+  { value: 'MASTER', label: 'Master' },
+  { value: 'DOCTORATE', label: 'Doctorate' },
+];
 
 export function JobCreateView({ companyId }: { companyId: string }) {
   const router = useRouter();
@@ -71,6 +107,11 @@ export function JobCreateView({ companyId }: { companyId: string }) {
           })),
         }),
       });
+      toast.add({
+        type: 'success',
+        title: 'Draft created',
+        description: 'Review the job details before publishing.',
+      });
       router.push(`/recruiter/companies/${companyId}/jobs/${result.id}`);
     } catch (saveError) {
       setError(saveError instanceof Error ? saveError.message : 'Unable to create job.');
@@ -79,112 +120,137 @@ export function JobCreateView({ companyId }: { companyId: string }) {
     }
   }
 
-  if (loading) return <p className="text-sm text-zinc-500">Loading skill catalog…</p>;
+  if (loading)
+    return (
+      <div className="mx-auto w-full max-w-5xl space-y-6">
+        <Skeleton className="h-16 w-80" />
+        <Skeleton className="h-[560px]" />
+      </div>
+    );
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-zinc-950">Create job</h1>
-        <p className="mt-2 text-sm text-zinc-600">
-          Draft a job with structured skills, experience, and optional education requirements.
-        </p>
-      </div>
-      <form
-        onSubmit={(event) => void create(event)}
-        className="space-y-4 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm"
-      >
-        <div>
-          <label htmlFor="title" className="text-sm font-medium text-zinc-700">
-            Title
-          </label>
-          <input
-            id="title"
-            required
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="mt-2 w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm"
-          />
-        </div>
-        <div>
-          <label htmlFor="description" className="text-sm font-medium text-zinc-700">
-            Description
-          </label>
-          <textarea
-            id="description"
-            required
-            rows={6}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="mt-2 w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm"
-          />
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label htmlFor="experienceMinMonths" className="text-sm font-medium text-zinc-700">
-              Min experience (months)
-            </label>
-            <input
-              id="experienceMinMonths"
-              type="number"
-              min={0}
-              value={experienceMinMonths}
-              onChange={(e) => setExperienceMinMonths(e.target.value)}
-              className="mt-2 w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm"
-            />
-          </div>
-          <div>
-            <label htmlFor="educationMinDegree" className="text-sm font-medium text-zinc-700">
-              Min education
-            </label>
-            <select
-              id="educationMinDegree"
-              value={educationMinDegree}
-              onChange={(e) => setEducationMinDegree(e.target.value)}
-              className="mt-2 w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm"
-            >
-              <option value="">Not required</option>
-              <option value="HIGH_SCHOOL">High school</option>
-              <option value="ASSOCIATE">Associate</option>
-              <option value="BACHELOR">Bachelor</option>
-              <option value="MASTER">Master</option>
-              <option value="DOCTORATE">Doctorate</option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <p className="text-sm font-medium text-zinc-700">Skills</p>
-          <div className="mt-3 flex max-h-64 flex-wrap gap-2 overflow-y-auto rounded-xl border border-zinc-200 p-3">
-            {skills.map((skill) => {
-              const selected = selectedSkillIds.includes(skill.id);
-              return (
-                <button
-                  key={skill.id}
-                  type="button"
-                  onClick={() => toggleSkill(skill.id)}
-                  className={`rounded-full border px-3 py-1 text-xs font-medium ${
-                    selected
-                      ? 'border-zinc-950 bg-zinc-950 text-white'
-                      : 'border-zinc-200 bg-zinc-50 text-zinc-700'
-                  }`}
-                >
-                  {skill.name}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-        {error ? (
-          <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
-            {error}
-          </p>
-        ) : null}
-        <button
-          type="submit"
-          disabled={saving}
-          className="rounded-lg bg-zinc-950 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
-        >
-          {saving ? 'Creating…' : 'Create draft job'}
-        </button>
+    <div className="mx-auto w-full max-w-5xl space-y-6">
+      <PageHeader
+        title="Create job"
+        description="Create a draft with structured skills, experience, and education requirements used by baseline matching."
+      />
+      {error ? (
+        <Alert variant="destructive">
+          <AlertTitle>Unable to create job</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      ) : null}
+      <form onSubmit={(event) => void create(event)}>
+        <Card>
+          <CardHeader>
+            <CardTitle>Job details</CardTitle>
+            <CardDescription>
+              All selected skills are required in the current V1 create flow.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <FieldGroup>
+              <Field>
+                <FieldLabel htmlFor="title">Title</FieldLabel>
+                <Input
+                  id="title"
+                  required
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="description">Description</FieldLabel>
+                <Textarea
+                  id="description"
+                  required
+                  rows={8}
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                />
+              </Field>
+              <div className="grid gap-4 md:grid-cols-2">
+                <Field>
+                  <FieldLabel htmlFor="experienceMinMonths">Minimum experience (months)</FieldLabel>
+                  <Input
+                    id="experienceMinMonths"
+                    type="number"
+                    min={0}
+                    value={experienceMinMonths}
+                    onChange={(event) => setExperienceMinMonths(event.target.value)}
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="educationMinDegree">Minimum education</FieldLabel>
+                  <Select
+                    value={educationMinDegree || 'NOT_REQUIRED'}
+                    onValueChange={(value) => {
+                      if (value != null)
+                        setEducationMinDegree(value === 'NOT_REQUIRED' ? '' : value);
+                    }}
+                  >
+                    <SelectTrigger id="educationMinDegree" className="w-full">
+                      <SelectValue>
+                        {(value) =>
+                          educationOptions.find((option) => option.value === value)?.label ??
+                          'Not required'
+                        }
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {educationOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </div>
+              <Field>
+                <div className="flex items-center justify-between gap-3">
+                  <FieldLabel>Required skills</FieldLabel>
+                  <Badge variant="secondary">{selectedSkillIds.length} selected</Badge>
+                </div>
+                <FieldDescription>
+                  Select at least one canonical skill. These requirements feed deterministic V1
+                  matching.
+                </FieldDescription>
+                <ScrollArea className="h-72 rounded-lg border">
+                  <div className="grid gap-1 p-2 md:grid-cols-2">
+                    {skills.map((skill) => {
+                      const selected = selectedSkillIds.includes(skill.id);
+                      return (
+                        <label
+                          key={skill.id}
+                          className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-xs hover:bg-muted"
+                        >
+                          <Checkbox
+                            checked={selected}
+                            onCheckedChange={() => toggleSkill(skill.id)}
+                          />
+                          <span>{skill.name}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </ScrollArea>
+              </Field>
+            </FieldGroup>
+          </CardContent>
+          <CardFooter className="justify-end border-t">
+            <Button type="submit" disabled={saving}>
+              {saving ? (
+                <>
+                  <Spinner />
+                  Creating
+                </>
+              ) : (
+                'Create draft job'
+              )}
+            </Button>
+          </CardFooter>
+        </Card>
       </form>
     </div>
   );

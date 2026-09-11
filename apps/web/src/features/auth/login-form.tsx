@@ -1,11 +1,28 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
+import { Alert, AlertDescription, AlertTitle } from '@hiresense/ui/components/alert';
+import { Button } from '@hiresense/ui/components/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@hiresense/ui/components/card';
+import { Field, FieldGroup, FieldLabel } from '@hiresense/ui/components/field';
+import { Input } from '@hiresense/ui/components/input';
+import { Spinner } from '@hiresense/ui/components/spinner';
 import { hasRole, login } from '@/lib/api-client';
 
 export function LoginForm() {
   const router = useRouter();
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -28,50 +45,60 @@ export function LoginForm() {
   }
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className="w-full space-y-5 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm sm:p-8"
-    >
-      <div>
-        <label htmlFor="email" className="text-sm font-medium text-zinc-700">
-          Email
-        </label>
-        <input
-          id="email"
-          type="email"
-          autoComplete="email"
-          required
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          className="mt-2 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-zinc-950 outline-none transition focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200"
-        />
-      </div>
-      <div>
-        <label htmlFor="password" className="text-sm font-medium text-zinc-700">
-          Password
-        </label>
-        <input
-          id="password"
-          type="password"
-          autoComplete="current-password"
-          required
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          className="mt-2 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-zinc-950 outline-none transition focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200"
-        />
-      </div>
-      {error ? (
-        <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
-          {error}
-        </p>
-      ) : null}
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-full rounded-lg bg-zinc-950 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        {submitting ? 'Signing in…' : 'Sign in'}
-      </button>
-    </form>
+    <Card>
+      <CardHeader className="text-center">
+        <CardTitle className="text-xl">
+          <h1>Welcome back</h1>
+        </CardTitle>
+        <CardDescription>Sign in with your Candidate or Recruiter account.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={onSubmit}>
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                placeholder="you@example.com"
+                required
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="password">Password</FieldLabel>
+              <Input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+              />
+            </Field>
+            {error ? (
+              <Alert variant="destructive">
+                <AlertTitle>Unable to sign in</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            ) : null}
+            <Field>
+              <Button type="submit" disabled={!mounted || submitting} className="w-full">
+                {submitting ? (
+                  <>
+                    <Spinner />
+                    Signing in
+                  </>
+                ) : (
+                  'Sign in'
+                )}
+              </Button>
+            </Field>
+          </FieldGroup>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

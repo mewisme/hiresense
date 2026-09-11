@@ -126,7 +126,7 @@ async function main() {
       },
     });
 
-    await prisma.candidateProfile.upsert({
+    const candidateProfile = await prisma.candidateProfile.upsert({
       where: { userId: candidate.id },
       create: {
         userId: candidate.id,
@@ -279,11 +279,222 @@ async function main() {
       });
     }
 
+    if (!job.currentPublishedVersionId) {
+      job = await prisma.job.findUniqueOrThrow({ where: { id: job.id } });
+    }
+    if (!job.currentPublishedVersionId)
+      throw new Error('Demo job has no published version');
+
+    const publishedJobVersion = await prisma.jobVersion.findUniqueOrThrow({
+      where: { id: job.currentPublishedVersionId },
+    });
+    const parserPipeline = await prisma.aiPipelineVersion.findUniqueOrThrow({
+      where: { code: 'resume-parser-v1.2' },
+    });
+    const appliedStage = await prisma.recruitmentStage.findFirstOrThrow({
+      where: { companyId: null, code: 'APPLIED', isActive: true },
+    });
+
+    let demoFile = await prisma.fileObject.findFirst({
+      where: {
+        storageProvider: 'seed',
+        bucket: 'demo',
+        objectKey: 'fixtures/demo-cv.pdf',
+      },
+    });
+    if (!demoFile) {
+      demoFile = await prisma.fileObject.create({
+        data: {
+          storageProvider: 'seed',
+          bucket: 'demo',
+          objectKey: 'fixtures/demo-cv.pdf',
+          originalFilename: 'an-nguyen-demo-cv.pdf',
+          mimeType: 'application/pdf',
+          sizeBytes: 48231n,
+          uploadedByUserId: candidate.id,
+          status: 'ACTIVE',
+        },
+      });
+    }
+
+    let demoResume = await prisma.resume.findFirst({
+      where: {
+        candidateProfileId: candidateProfile.id,
+        name: 'Demo CV',
+        deletedAt: null,
+      },
+    });
+    if (!demoResume) {
+      demoResume = await prisma.resume.create({
+        data: {
+          candidateProfileId: candidateProfile.id,
+          name: 'Demo CV',
+          isDefault: false,
+        },
+      });
+    }
+
+    let demoResumeVersion = await prisma.resumeVersion.findFirst({
+      where: { resumeId: demoResume.id, versionNo: 1 },
+    });
+    if (!demoResumeVersion) {
+      demoResumeVersion = await prisma.resumeVersion.create({
+        data: {
+          resumeId: demoResume.id,
+          versionNo: 1,
+          fileObjectId: demoFile.id,
+          createdByUserId: candidate.id,
+        },
+      });
+    }
+
+    await prisma.resume.updateMany({
+      where: {
+        candidateProfileId: candidateProfile.id,
+        id: { not: demoResume.id },
+        isDefault: true,
+      },
+      data: { isDefault: false },
+    });
+    await prisma.resume.update({
+      where: { id: demoResume.id },
+      data: { currentVersionId: demoResumeVersion.id, isDefault: true },
+    });
+
+    let parseRun = await prisma.resumeParseRun.findFirst({
+      where: {
+        resumeVersionId: demoResumeVersion.id,
+        pipelineVersionId: parserPipeline.id,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    const parseRunData = {
+      status: 'SUCCEEDED',
+      rawText:
+        'An Nguyen. Full-stack developer. TypeScript, React, NestJS, PostgreSQL. 24 months experience. Bachelor of Science in Computer Science.',
+      rawOutput: { source: 'prisma-seed', deterministic: true },
+      detectedLanguage: 'en',
+      warnings: [],
+      startedAt: new Date(),
+      completedAt: new Date(),
+      errorCode: null,
+      errorMessage: null,
+    } as const;
+    if (!parseRun) {
+      parseRun = await prisma.resumeParseRun.create({
+        data: {
+          resumeVersionId: demoResumeVersion.id,
+          pipelineVersionId: parserPipeline.id,
+          ...parseRunData,
+        },
+      });
+    } else {
+      parseRun = await prisma.resumeParseRun.update({
+        where: { id: parseRun.id },
+        data: parseRunData,
+      });
+    }
+
+    let application = await prisma.application.findUnique({
+      where: {
+        jobId_candidateProfileId: {
+          jobId: job.id,
+          candidateProfileId: candidateProfile.id,
+        },
+      },
+    });
+    if (application) {
+      await prisma.application.update({
+        where: { id: application.id },
+        data: { currentMatchRunId: null },
+      });
+      await prisma.applicationMatchRun.deleteMany({
+        where: { applicationId: application.id },
+      });
+    }
+
+    await prisma.resumeSkill.deleteMany({ where: { parseRunId: parseRun.id } });
+    await prisma.resumeExperience.deleteMany({
+      where: { parseRunId: parseRun.id },
+    });
+    await prisma.resumeEducation.deleteMany({
+      where: { parseRunId: parseRun.id },
+    });
+    await prisma.resumeSkill.createMany({
+      data: ['typescript', 'react', 'nestjs', 'postgresql'].map(
+        (normalizedName) => ({
+          parseRunId: parseRun.id,
+          skillId: skillByName.get(normalizedName)!.id,
+          confidence: 1,
+          evidenceText: `Synthetic demo CV evidence for ${skillByName.get(normalizedName)!.name}.`,
+        }),
+      ),
+    });
+    await prisma.resumeExperience.create({
+      data: {
+        parseRunId: parseRun.id,
+        companyName: 'Example Product Studio',
+        jobTitle: 'Full-stack Developer',
+        description: 'Synthetic Internship V1 browser QA experience.',
+        experienceMonths: 24,
+        ordinal: 0,
+        confidence: 1,
+      },
+    });
+    await prisma.resumeEducation.create({
+      data: {
+        parseRunId: parseRun.id,
+        institutionName: 'Example University',
+        degree: 'Bachelor of Science',
+        fieldOfStudy: 'Computer Science',
+        ordinal: 0,
+        confidence: 1,
+      },
+    });
+
+    if (!application) {
+      application = await prisma.application.create({
+        data: {
+          jobId: job.id,
+          jobVersionId: publishedJobVersion.id,
+          candidateProfileId: candidateProfile.id,
+          resumeVersionId: demoResumeVersion.id,
+          currentStageId: appliedStage.id,
+          source: 'DIRECT',
+          coverLetter: 'Synthetic browser QA application for Internship V1.',
+        },
+      });
+    } else {
+      application = await prisma.application.update({
+        where: { id: application.id },
+        data: {
+          jobVersionId: publishedJobVersion.id,
+          resumeVersionId: demoResumeVersion.id,
+          currentStageId: appliedStage.id,
+          currentMatchRunId: null,
+          withdrawnAt: null,
+          coverLetter: 'Synthetic browser QA application for Internship V1.',
+        },
+      });
+    }
+    await prisma.applicationStageHistory.deleteMany({
+      where: { applicationId: application.id },
+    });
+    await prisma.applicationStageHistory.create({
+      data: {
+        applicationId: application.id,
+        toStageId: appliedStage.id,
+        changedByUserId: candidate.id,
+        note: 'Deterministic browser QA seed state.',
+      },
+    });
+
     console.log('Demo seed ready.');
     console.log('  recruiter@demo.hiresense.local / Password123!');
     console.log('  candidate@demo.hiresense.local / Password123!');
     console.log('  company slug: hiresense-demo');
     console.log('  published job slug: fullstack-engineer');
+    console.log(`  browser QA application: ${application.id}`);
   } finally {
     await prisma.$disconnect();
   }
