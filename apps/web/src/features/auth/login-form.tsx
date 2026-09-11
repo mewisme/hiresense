@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { login } from '@/lib/api-client';
+import { hasRole, login } from '@/lib/api-client';
 
 export function LoginForm() {
   const router = useRouter();
@@ -16,8 +16,10 @@ export function LoginForm() {
     setSubmitting(true);
     setError(null);
     try {
-      await login(email, password);
-      router.push('/');
+      const session = await login(email, password);
+      if (hasRole(session, 'CANDIDATE')) router.push('/candidate');
+      else if (hasRole(session, 'RECRUITER')) router.push('/');
+      else router.push('/');
     } catch (loginError) {
       setError(loginError instanceof Error ? loginError.message : 'Unable to sign in.');
     } finally {

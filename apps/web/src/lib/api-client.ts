@@ -102,7 +102,9 @@ export async function apiRequest<T>(
   const session = getAuthSession();
   const headers = new Headers(init.headers);
   if (session) headers.set('Authorization', `${session.tokenType} ${session.accessToken}`);
-  if (init.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
+  if (init.body && !(init.body instanceof FormData) && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
+  }
 
   const response = await fetch(`${API_BASE_URL}${path}`, { ...init, headers, cache: 'no-store' });
   if (response.status === 401 && retry && session) {
@@ -110,5 +112,14 @@ export async function apiRequest<T>(
     if (next) return apiRequest<T>(path, init, false);
   }
   if (!response.ok) throw await parseError(response);
+  if (response.status === 204) return undefined as T;
   return response.json() as Promise<T>;
+}
+
+export async function apiUpload<T>(path: string, formData: FormData): Promise<T> {
+  return apiRequest<T>(path, { method: 'POST', body: formData });
+}
+
+export function hasRole(session: AuthSession | null, role: string) {
+  return !!session?.user.roles.includes(role);
 }

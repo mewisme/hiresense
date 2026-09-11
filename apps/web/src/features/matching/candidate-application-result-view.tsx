@@ -59,15 +59,10 @@ export function CandidateApplicationResultView({ applicationId }: { applicationI
     setReloadKey((value) => value + 1);
   }
 
-  if (loading)
-    return (
-      <main className="mx-auto w-full max-w-6xl flex-1 px-5 py-10 sm:px-8">
-        <MatchResultLoading />
-      </main>
-    );
+  if (loading) return <MatchResultLoading />;
   if (error || !application) {
     return (
-      <main className="mx-auto w-full max-w-3xl flex-1 px-5 py-10 sm:px-8">
+      <div>
         <MatchResultError message={error ?? 'Application not found.'} onRetry={retry} />
         <Link
           href="/login"
@@ -75,12 +70,12 @@ export function CandidateApplicationResultView({ applicationId }: { applicationI
         >
           Sign in with another account
         </Link>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="mx-auto w-full max-w-6xl flex-1 px-5 py-10 sm:px-8">
+    <div>
       <div className="mb-8 flex flex-col gap-4 border-b border-zinc-200 pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm font-medium text-zinc-500">{application.job.company.name}</p>
@@ -100,6 +95,6 @@ export function CandidateApplicationResultView({ applicationId }: { applicationI
       </div>
 
       {result ? <MatchResultPanel result={result} audience="candidate" /> : <MatchResultEmpty />}
-    </main>
+    </div>
   );
 }

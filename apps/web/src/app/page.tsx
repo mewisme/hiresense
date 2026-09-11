@@ -27,6 +27,12 @@ export default function Home() {
             >
               Sign in
             </Link>
+            <Link
+              href="/candidate"
+              className="mt-3 inline-flex rounded-lg border border-white/20 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-white/10"
+            >
+              Candidate workspace
+            </Link>
           </div>
         </div>
       </div>
