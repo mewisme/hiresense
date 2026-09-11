@@ -155,6 +155,7 @@ Acceptance checklist: [`docs/ACCEPTANCE_V1.md`](docs/ACCEPTANCE_V1.md).
 - [`docs/SECURITY.md`](docs/SECURITY.md) — authorization and privacy notes
 - [`docs/QUALITY.md`](docs/QUALITY.md) — latest quality-gate snapshot
 - [`docs/ACCEPTANCE_V1.md`](docs/ACCEPTANCE_V1.md) — Internship V1 acceptance checklist
+- [`docs/INTERNSHIP_REPORT.md`](docs/INTERNSHIP_REPORT.md) — as-built internship report summary
 - [`docs/WEB_UI_DESKTOP_CHECKPOINT.md`](docs/WEB_UI_DESKTOP_CHECKPOINT.md) — accepted desktop UI checkpoint
 - [`apps/api/BACKEND_STRUCTURE.md`](apps/api/BACKEND_STRUCTURE.md) — backend module layout
 - [`apps/api/prisma/README.md`](apps/api/prisma/README.md) — migrations + seed notes
