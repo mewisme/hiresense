@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import type { DiscloudBotConfig } from '../../../../../config/storage.config';
 import { DiscordApiError, DiscordAttachmentGoneError } from './discord.errors';
 import type { DiscordMessage, DiscordUploadResult } from './discord.types';
+import { Logger } from '@nestjs/common';
 
 interface RuntimeDiscordBot extends DiscloudBotConfig {
   waitUntilMs: number;
@@ -16,6 +17,7 @@ export class DiscordClient {
   private readonly requestTimeoutMs: number;
   private readonly maxAttempts: number;
   private nextBotIndex = 0;
+  private readonly logger = new Logger(DiscordClient.name);
 
   constructor(configService: ConfigService) {
     this.baseUrl = configService
@@ -37,6 +39,7 @@ export class DiscordClient {
     this.maxAttempts = configService.getOrThrow<number>(
       'storage.discloud.maxAttempts',
     );
+    this.logger.log(`Initialized Discord client with ${this.bots.length} bots`);
   }
 
   async uploadChunk(
