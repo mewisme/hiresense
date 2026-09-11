@@ -14,8 +14,9 @@
     "url": "https://github.com/mewisme/hiresense/issues"
   },
   "scripts": {
+    "dev": "pnpm -r --if-present dev",
     "dev:web": "pnpm --filter @hiresense/web dev",
-    "dev:api": "pnpm --filter @hiresense/api start:dev",
+    "dev:api": "pnpm --filter @hiresense/api dev",
     "dev:ai": "pnpm --filter @hiresense/ai dev",
     "compose:dev": "docker compose --profile dev up -d",
     "compose:dev:down": "docker compose --profile dev down",
@@ -25,6 +26,7 @@
     "prisma:migrate": "pnpm --filter @hiresense/api prisma:migrate",
     "prisma:migrate:dev": "pnpm --filter @hiresense/api prisma:migrate:dev",
     "prisma:migrate:reset": "pnpm --filter @hiresense/api prisma:migrate:reset",
+    "prisma:seed": "pnpm --filter @hiresense/api prisma:seed",
     "prisma:studio": "pnpm --filter @hiresense/api prisma:studio",
     "build": "pnpm -r --if-present build",
     "build:web": "pnpm --filter @hiresense/web build",

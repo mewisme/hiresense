@@ -23,6 +23,16 @@ Prisma applies the migration directories in lexical order:
 1. `20260912000100_init` — extensions, schema, indexes, CHECKs, ownership FKs, triggers
 2. `20260912000200_seed_internship` — roles, skill categories, system stages, AI pipelines
 
+After migrations, run the TypeScript demo seed:
+
+```powershell
+pnpm prisma:seed
+```
+
+This upserts demo recruiter/candidate accounts, a company, canonical skills, and one published job.
+Password for both demo users: `Password123!`.
+Synthetic CV/JD files: `apps/api/test/fixtures/demo/`.
+
 ## Fresh database (rewrite baseline)
 
 If you are recreating the DB after this squash:

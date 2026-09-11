@@ -109,9 +109,17 @@ This starts PostgreSQL 18 with pgvector. Required extensions (`vector`, `pg_trgm
 ```bash
 pnpm prisma:generate        # generate the Prisma client
 pnpm prisma:migrate:dev     # apply migrations in development
+pnpm prisma:seed            # deterministic demo users/company/job/skills
 ```
 
 For production-style deployments use `pnpm prisma:migrate` (runs `prisma migrate deploy`).
+
+Demo accounts (password `Password123!`):
+
+- `recruiter@demo.hiresense.local`
+- `candidate@demo.hiresense.local`
+
+Synthetic CV/JD fixtures live under `apps/api/test/fixtures/demo/` (upload the PDF in the candidate UI).
 
 ### 5. Run the services on the host
 

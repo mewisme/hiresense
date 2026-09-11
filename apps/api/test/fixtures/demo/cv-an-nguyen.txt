@@ -1,0 +1,18 @@
+An Nguyen
+Full-stack developer
+Ho Chi Minh City, Vietnam
+
+SUMMARY
+Synthetic demo CV for HireSense Internship V1. No real personal data.
+
+SKILLS
+TypeScript, JavaScript, React, Next.js, NestJS, Node.js, PostgreSQL, Docker, Git
+
+EXPERIENCE
+Software Engineer — Demo Soft
+2023-01 to 2025-06 (current role ended for fixture simplicity)
+Built TypeScript services with NestJS and React frontends. Owned PostgreSQL schema changes and Docker local tooling.
+
+EDUCATION
+Bachelor of Computer Science — Demo University
+2019-2023
