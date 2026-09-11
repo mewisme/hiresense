@@ -48,6 +48,8 @@ export class ApplicationsService {
   ) {}
 
   async apply(jobId: string, userId: string, dto: ApplyJobDto) {
+    // V1: applying does not auto-run matching. Recruiter triggers analysis via
+    // POST /companies/:companyId/applications/:applicationId/matching/runs.
     try {
       return await this.prisma.$transaction(async (tx) => {
         const candidateProfile =

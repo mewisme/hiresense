@@ -202,8 +202,8 @@ export function MatchResultEmpty({
       <h2 className="text-lg font-semibold text-zinc-900">No analysis result yet</h2>
       <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-zinc-600">
         {recruiter
-          ? 'Run the baseline CV–job analysis to generate a reproducible score and skill breakdown for this application.'
-          : 'The matching analysis for this application has not been completed yet.'}
+          ? 'Run the baseline CV–job analysis to generate a reproducible score and skill breakdown for this application. Matching is recruiter-triggered in V1 and does not run automatically on apply.'
+          : 'Matching is recruiter-triggered in V1. Your score appears here after a recruiter runs the baseline analysis for this application.'}
       </p>
       {recruiter && onRun ? (
         <button
