@@ -33,6 +33,12 @@ export default function Home() {
             >
               Candidate workspace
             </Link>
+            <Link
+              href="/recruiter"
+              className="mt-3 inline-flex rounded-lg border border-white/20 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-white/10"
+            >
+              Recruiter workspace
+            </Link>
           </div>
         </div>
       </div>

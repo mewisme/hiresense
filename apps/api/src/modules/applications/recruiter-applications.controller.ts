@@ -28,6 +28,14 @@ import {
 export class RecruiterApplicationsController {
   constructor(private readonly applicationsService: ApplicationsService) {}
 
+  @Get('recruitment-stages')
+  async listStages(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('companyId', ParseUUIDPipe) companyId: string,
+  ) {
+    return this.applicationsService.listStagesForRecruiter(companyId, user.id);
+  }
+
   @Get('jobs/:jobId/applications')
   async list(
     @CurrentUser() user: AuthenticatedUser,

@@ -384,6 +384,21 @@ export class ApplicationsService {
     });
   }
 
+  async listStagesForRecruiter(companyId: string, userId: string) {
+    await this.requireCompanyViewMembership(companyId, userId);
+    const stages =
+      await this.recruitmentStagesRepository.findActiveForCompany(companyId);
+    return stages.map((stage) => ({
+      id: stage.id,
+      code: stage.code,
+      name: stage.name,
+      ordinal: stage.ordinal,
+      isTerminal: stage.isTerminal,
+      terminalOutcome: stage.terminalOutcome,
+      companyId: stage.companyId,
+    }));
+  }
+
   async getForRecruiter(
     companyId: string,
     applicationId: string,

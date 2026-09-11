@@ -18,7 +18,7 @@ export function LoginForm() {
     try {
       const session = await login(email, password);
       if (hasRole(session, 'CANDIDATE')) router.push('/candidate');
-      else if (hasRole(session, 'RECRUITER')) router.push('/');
+      else if (hasRole(session, 'RECRUITER')) router.push('/recruiter');
       else router.push('/');
     } catch (loginError) {
       setError(loginError instanceof Error ? loginError.message : 'Unable to sign in.');
