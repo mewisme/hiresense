@@ -1,6 +1,8 @@
 import type { Readable } from 'node:stream';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { GoneException, Injectable, NotFoundException } from '@nestjs/common';
 import { StorageService } from '../../infrastructure/storage/storage.service';
+import { DiscordAttachmentGoneError } from '../../infrastructure/storage/providers/discloud/discord/discord.errors';
+import { DiscloudChunkUnavailableError } from '../../infrastructure/storage/providers/discloud/discloud-storage.errors';
 import { FileObjectsRepository } from './repositories/file-objects.repository';
 
 export interface StoreFileInput {
@@ -72,15 +74,27 @@ export class FileStorageService {
       await this.fileObjectsRepository.findActiveById(fileObjectId);
     if (!fileObject) throw new NotFoundException('File object not found');
 
-    const storedObject = await this.storageService.get({
-      fileObjectId: fileObject.id,
-      provider: fileObject.storageProvider,
-      bucket: fileObject.bucket,
-      objectKey: fileObject.objectKey,
-      contentType: fileObject.mimeType,
-    });
+    try {
+      const storedObject = await this.storageService.get({
+        fileObjectId: fileObject.id,
+        provider: fileObject.storageProvider,
+        bucket: fileObject.bucket,
+        objectKey: fileObject.objectKey,
+        contentType: fileObject.mimeType,
+      });
 
-    return { fileObject, ...storedObject };
+      return { fileObject, ...storedObject };
+    } catch (error) {
+      if (
+        error instanceof DiscordAttachmentGoneError ||
+        error instanceof DiscloudChunkUnavailableError
+      ) {
+        throw new GoneException(
+          'Stored file is no longer available in object storage. Re-upload the resume.',
+        );
+      }
+      throw error;
+    }
   }
 
   async delete(fileObjectId: string): Promise<void> {

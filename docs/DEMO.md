@@ -30,3 +30,7 @@ Synthetic CV/JD: `apps/api/test/fixtures/demo/`
 
 - API: `GET /api/health` → `{ "status": "ok" }`
 - AI: `GET /health` → `{ "status": "ok" }`
+
+## Storage gotcha (DisCloud)
+
+Resume bytes live in a Discord channel. If that message/attachment is deleted or no longer readable, download/parse returns **410 Gone** and asks for a re-upload. Fix: upload the PDF again (do not reuse the broken resume row). Keep the DisCloud channel messages intact during demos.
