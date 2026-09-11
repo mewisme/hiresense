@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { clearAuthSession, getAuthSession } from '@/lib/api-client';
+import { clearAuthSession, useAuthSession } from '@/lib/api-client';
 
 const links = [
   { href: '/candidate', label: 'Home' },
@@ -15,13 +15,12 @@ const links = [
 export function CandidateShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const session = useAuthSession();
 
   function signOut() {
     clearAuthSession();
     router.push('/login');
   }
-
-  const session = typeof window !== 'undefined' ? getAuthSession() : null;
 
   return (
     <div className="flex min-h-full flex-col bg-zinc-50">

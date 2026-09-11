@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { clearAuthSession, getAuthSession } from '@/lib/api-client';
+import { clearAuthSession, useAuthSession } from '@/lib/api-client';
 
 export function RecruiterShell({
   children,
@@ -13,7 +13,7 @@ export function RecruiterShell({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const session = typeof window !== 'undefined' ? getAuthSession() : null;
+  const session = useAuthSession();
   const links = [
     { href: '/recruiter', label: 'Home' },
     { href: '/recruiter/profile', label: 'Profile' },
