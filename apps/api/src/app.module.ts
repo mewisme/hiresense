@@ -22,6 +22,7 @@ import { ResumesModule } from './modules/resumes/resumes.module';
 import { JobsModule } from './modules/jobs/jobs.module';
 import { ApplicationsModule } from './modules/applications/applications.module';
 import { MatchingModule } from './modules/matching/matching.module';
+import { HealthController } from './health.controller';
 
 @Module({
   imports: [
@@ -46,5 +47,6 @@ import { MatchingModule } from './modules/matching/matching.module';
     ApplicationsModule,
     MatchingModule,
   ],
+  controllers: [HealthController],
 })
 export class AppModule {}

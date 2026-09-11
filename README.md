@@ -143,9 +143,13 @@ pnpm format       # Prettier (also format:check)
 
 ## Documentation
 
-- [`docs/DATABASE.md`](docs/DATABASE.md) — database architecture and evolution guide (source of truth for the schema, conventions, and phase roadmap)
-- [`apps/api/BACKEND_STRUCTURE.md`](apps/api/BACKEND_STRUCTURE.md) — backend module layout and dependency rules
-- [`plans/`](plans/) — detailed internship and final graduation project plans (Vietnamese and English)
+- [`docs/DATABASE.md`](docs/DATABASE.md) — database architecture and evolution guide
+- [`docs/DEMO.md`](docs/DEMO.md) — seeded accounts + Internship V1 demo script
+- [`docs/MATCHING_V1.md`](docs/MATCHING_V1.md) — baseline formula and trigger rules
+- [`docs/QUALITY.md`](docs/QUALITY.md) — latest quality-gate snapshot
+- [`apps/api/BACKEND_STRUCTURE.md`](apps/api/BACKEND_STRUCTURE.md) — backend module layout
+- [`apps/api/prisma/README.md`](apps/api/prisma/README.md) — migrations + seed notes
+- [`plans/`](plans/) — internship / graduation plans (local working copies)
 
 ## Project phases
 
