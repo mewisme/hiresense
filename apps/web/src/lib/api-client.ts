@@ -28,6 +28,10 @@ const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'
   '',
 );
 
+const authListeners = new Set<() => void>();
+let cachedAuthRaw: string | null | undefined;
+let cachedAuthSession: AuthSession | null = null;
+
 export class ApiError extends Error {
   constructor(
     public readonly status: number,
@@ -38,33 +42,61 @@ export class ApiError extends Error {
   }
 }
 
-export function getAuthSession(): AuthSession | null {
+function notifyAuthListeners() {
+  for (const listener of authListeners) listener();
+}
+
+function readAuthSession(): AuthSession | null {
   if (typeof window === 'undefined') return null;
   const raw = window.localStorage.getItem(AUTH_STORAGE_KEY);
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as AuthSession;
-  } catch {
-    window.localStorage.removeItem(AUTH_STORAGE_KEY);
+  if (raw === cachedAuthRaw) return cachedAuthSession;
+  cachedAuthRaw = raw;
+  if (!raw) {
+    cachedAuthSession = null;
     return null;
   }
+  try {
+    cachedAuthSession = JSON.parse(raw) as AuthSession;
+    return cachedAuthSession;
+  } catch {
+    window.localStorage.removeItem(AUTH_STORAGE_KEY);
+    cachedAuthRaw = null;
+    cachedAuthSession = null;
+    return null;
+  }
+}
+
+export function getAuthSession(): AuthSession | null {
+  return readAuthSession();
 }
 
 /** Safe for SSR: server + first hydrate paint are null; client then reads localStorage. */
 export function useAuthSession(): AuthSession | null {
   return useSyncExternalStore(
-    () => () => {},
-    getAuthSession,
+    (onStoreChange) => {
+      authListeners.add(onStoreChange);
+      return () => {
+        authListeners.delete(onStoreChange);
+      };
+    },
+    readAuthSession,
     () => null,
   );
 }
 
 export function saveAuthSession(session: AuthSession) {
-  window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
+  const raw = JSON.stringify(session);
+  window.localStorage.setItem(AUTH_STORAGE_KEY, raw);
+  cachedAuthRaw = raw;
+  cachedAuthSession = session;
+  notifyAuthListeners();
 }
 
 export function clearAuthSession() {
   if (typeof window !== 'undefined') window.localStorage.removeItem(AUTH_STORAGE_KEY);
+  cachedAuthRaw = null;
+  cachedAuthSession = null;
+  notifyAuthListeners();
 }
 
 async function parseError(response: Response) {
