@@ -1,15 +1,26 @@
 name: hiresense
 
+# Profiles
+#   dev  — local development infra (Postgres). Run web/api/ai on the host for hot reload.
+#   prod — production-like infra (Postgres for now; app containers can join this profile later).
+#
+# Dev (recommended):
+#   docker compose --profile dev up -d
+#   pnpm dev:api && pnpm dev:ai && pnpm dev:web
+#
+# Web is never started by Compose under `dev` — use `pnpm dev:web` for Next.js HMR.
+
 services:
   postgres:
+    profiles: [dev, prod]
     image: pgvector/pgvector:pg18-trixie
-    container_name: postgres
+    container_name: hiresense-postgres
     environment:
-      POSTGRES_DB: hiresense
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-hiresense}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     ports:
-      - '5432:5432'
+      - '${POSTGRES_PORT:-5432}:5432'
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:
@@ -17,6 +28,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    restart: unless-stopped
 
 volumes:
   postgres_data:

@@ -20,28 +20,26 @@ DATABASE_URL=postgresql://postgres:postgres@localhost:5432/hiresense
 
 Prisma applies the migration directories in lexical order:
 
-1. `20260816000100_foundation`
-2. `20260816000200_identity`
-3. `20260816000300_profiles_companies`
-4. `20260816000400_skill_taxonomy`
-5. `20260816000500_file_resume`
-6. `20260816000600_jobs`
-7. `20260816000700_applications`
-8. `20260816000800_ai_baseline`
-9. `20260816000900_seed_internship`
+1. `20260912000100_init` — extensions, schema, indexes, CHECKs, ownership FKs, triggers
+2. `20260912000200_seed_internship` — roles, skill categories, system stages, AI pipelines
 
-## First run
+## Fresh database (rewrite baseline)
 
-From `apps/api`:
+If you are recreating the DB after this squash:
 
 ```powershell
+# from repo root — wipe Postgres volume, then bring it back
+pnpm compose:dev:down
+docker compose --profile dev down -v
+pnpm compose:dev
+
+# from apps/api
 pnpm prisma migrate deploy
 pnpm prisma generate
 ```
 
-For an actively developed local database, after these checked-in baseline
-migrations are applied, use the project's normal Prisma migration workflow for
-future changes. For PostgreSQL-specific features, create migrations with
+For local iterative development after the baseline is applied, use the normal
+Prisma migrate workflow. For PostgreSQL-specific features, create migrations with
 `--create-only`, edit the SQL, then apply them.
 
 ## Verify
@@ -61,6 +59,10 @@ WHERE extname IN (
   'btree_gist'
 )
 ORDER BY extname;
+
+SELECT code, pipeline_type, is_active
+FROM ai_pipeline_versions
+ORDER BY code;
 ```
 
 Expected:
@@ -68,6 +70,7 @@ Expected:
 - timezone: `UTC`
 - UUID returned by `uuidv7()`
 - all six extensions installed
+- active pipelines: `resume-parser-v1.2`, `matching-baseline-v1`
 
 ## Important SQL-only behavior
 
@@ -98,4 +101,3 @@ Those ownership constraints remain SQL-only by design.
 - Job versions and resume versions are historical artifacts.
 - AI parse/match output is run-based and versioned.
 - `applications.current_match_run_id` is only a pointer to a selected run.
-- AI failure must not delete or invalidate the application.

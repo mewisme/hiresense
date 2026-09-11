@@ -47,7 +47,7 @@ hiresense/
 ├── docs/
 │   └── DATABASE.md           # database architecture — source of truth
 ├── plans/                    # graduation project plans (VI/EN)
-├── compose.yaml              # PostgreSQL 18 + pgvector
+├── compose.yaml              # Docker Compose (profiles: dev, prod)
 └── .env.example
 ```
 
@@ -69,7 +69,11 @@ pnpm install
 
 ```bash
 cp .env.example .env
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env.local
 ```
+
+`COMPOSE_PROFILES=dev` in the root `.env` makes Compose use the **dev** profile by default.
 
 Then review the values — at minimum change the JWT secrets for anything beyond local development:
 
@@ -78,18 +82,27 @@ Then review the values — at minimum change the JWT secrets for anything beyond
 | `DATABASE_URL`        | PostgreSQL connection string     | `postgresql://postgres:postgres@localhost:5432/hiresense` |
 | `PORT`                | API port                         | `4000`                                                    |
 | `AI_SERVICE_URL`      | FastAPI base URL used by the API | `http://localhost:8000`                                   |
-| `JWT_ACCESS_SECRET`   | Access token signing secret      | `change-me`                                               |
-| `JWT_REFRESH_SECRET`  | Refresh token signing secret     | `change-me`                                               |
+| `JWT_ACCESS_SECRET`   | Access token signing secret      | `change-me-access`                                        |
+| `JWT_REFRESH_SECRET`  | Refresh token signing secret     | `change-me-refresh`                                       |
 | `NEXT_PUBLIC_API_URL` | API base URL used by the web app | `http://localhost:4000`                                   |
-| `AI_HOST` / `AI_PORT` | FastAPI bind address             | `0.0.0.0` / `8000`                                        |
 
-### 3. Start PostgreSQL
+### 3. Start Postgres (Compose profile `dev`)
 
 ```bash
-docker compose up -d
+pnpm compose:dev
+# same as: docker compose --profile dev up -d
 ```
 
-This starts PostgreSQL 18 with pgvector and the required extensions (`vector`, `pg_trgm`, `unaccent`, `citext`, `pgcrypto`, `btree_gist`) are enabled by the foundation migration.
+Profiles:
+
+| Profile | What runs in Docker                      | What runs on the host                         |
+| ------- | ---------------------------------------- | --------------------------------------------- |
+| `dev`   | Postgres only                            | `pnpm dev:web`, `pnpm dev:api`, `pnpm dev:ai` |
+| `prod`  | Postgres (app containers can join later) | —                                             |
+
+**Web is not containerized under `dev`** — keep Next.js on the host for hot reload (`pnpm dev:web`).
+
+This starts PostgreSQL 18 with pgvector. Required extensions (`vector`, `pg_trgm`, `unaccent`, `citext`, `pgcrypto`, `btree_gist`) are enabled by the foundation migration.
 
 ### 4. Apply database migrations
 
@@ -100,17 +113,14 @@ pnpm prisma:migrate:dev     # apply migrations in development
 
 For production-style deployments use `pnpm prisma:migrate` (runs `prisma migrate deploy`).
 
-### 5. Run the services
+### 5. Run the services on the host
 
 Each in its own terminal:
 
 ```bash
 pnpm dev:api                # NestJS API on http://localhost:4000
-
-pnpm dev:web                # Next.js web on http://localhost:3000
-
-cd apps/ai
-uv run uvicorn app.main:app --reload --port 8000   # FastAPI AI service
+pnpm dev:ai                 # FastAPI AI on http://localhost:8000
+pnpm dev:web                # Next.js web on http://localhost:3000 (HMR)
 ```
 
 ## Quality checks
