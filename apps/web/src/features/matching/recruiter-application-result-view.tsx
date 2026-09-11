@@ -88,9 +88,9 @@ export function RecruiterApplicationResultView({
     return stages.filter((stage) => codes.includes(stage.code));
   }, [application, stages]);
 
-  useEffect(() => {
-    setNextStageId(allowedStages[0]?.id ?? '');
-  }, [allowedStages]);
+  const selectedStageId = allowedStages.some((stage) => stage.id === nextStageId)
+    ? nextStageId
+    : (allowedStages[0]?.id ?? '');
 
   async function runAnalysis() {
     setRunning(true);
@@ -111,14 +111,14 @@ export function RecruiterApplicationResultView({
   }
 
   async function changeStage() {
-    if (!nextStageId) return;
+    if (!selectedStageId) return;
     setChangingStage(true);
     setError(null);
     setMessage(null);
     try {
       await apiRequest(`${basePath}/stage`, {
         method: 'PATCH',
-        body: JSON.stringify({ stageId: nextStageId }),
+        body: JSON.stringify({ stageId: selectedStageId }),
       });
       setMessage('Stage updated.');
       setReloadKey((value) => value + 1);
@@ -197,7 +197,7 @@ export function RecruiterApplicationResultView({
               </label>
               <select
                 id="nextStage"
-                value={nextStageId}
+                value={selectedStageId}
                 onChange={(event) => setNextStageId(event.target.value)}
                 className="mt-2 block rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm"
               >
@@ -210,7 +210,7 @@ export function RecruiterApplicationResultView({
             </div>
             <button
               type="button"
-              disabled={changingStage || !nextStageId}
+              disabled={changingStage || !selectedStageId}
               onClick={() => void changeStage()}
               className="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-2 text-sm font-medium text-zinc-800 disabled:opacity-50"
             >

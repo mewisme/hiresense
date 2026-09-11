@@ -54,7 +54,10 @@ export function JobDetailManageView({ companyId, jobId }: { companyId: string; j
     let cancelled = false;
     async function load() {
       try {
-        await reload();
+        const next = await apiRequest<JobDetailResponse>(
+          `/api/companies/${companyId}/jobs/${jobId}`,
+        );
+        if (!cancelled) setJob(next);
       } catch (loadError) {
         if (!cancelled)
           setError(loadError instanceof Error ? loadError.message : 'Unable to load job.');
